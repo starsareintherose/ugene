@@ -4,4 +4,6 @@ file(GLOB SRCS src/*.cpp src/*.c src/*.h src/gl2ps/*)
 
 include(../../Plugin.cmake)
 
-target_link_libraries(biostruct3d_view "-framework OpenGL")
+if(APPLE)
+    target_link_libraries(biostruct3d_view "-framework OpenGL")
+endif()

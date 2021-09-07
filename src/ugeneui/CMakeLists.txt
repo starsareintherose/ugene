@@ -12,12 +12,16 @@ include_directories(../include)
 include_directories(../corelibs/U2Private/src)
 
 file(GLOB_RECURSE SRCS src/*.cpp)
-file(GLOB_RECURSE OBJC src/*.mm)
 file(GLOB_RECURSE HDRS src/*.h)
 file(GLOB TS_FILES transl/*.ts)
 
 qt5_add_translation(QM_FILES ${TS_FILES})
 qt5_add_resources(RCC_SRCS ugeneui.qrc)
+
+if(APPLE)
+    list(REMOVE_ITEM HDRS "${src/app_settings/ResetSettingsMac..h}")
+    file(GLOB_RECURSE OBJC src/*.mm)
+endif()
 
 add_executable(ugeneui ${HDRS} ${SRCS} ${OBJC} ${QM_FILES} ${RCC_SRCS})
 

@@ -11,7 +11,11 @@ include_directories(../../include)
 
 file(GLOB_RECURSE SRCS src/*.cpp)
 file(GLOB_RECURSE HDRS src/*.h)
-file(GLOB_RECURSE OBJC src/*.mm)
+
+if(APPLE)
+    list(REMOVE_ITEM HDRS "${src/primitives/private/GTMenuPrivateMac.h}")
+    file(GLOB_RECURSE OBJC src/*.mm)
+endif()
 
 list(FILTER SRCS EXCLUDE REGEX "src/primitives/GTWeb*")
 list(FILTER HDRS EXCLUDE REGEX "src/primitives/GTWeb*")
