@@ -28,5 +28,5 @@ set(UGENE_PLUGIN_LIBS
         Qt5::Core Qt5::Gui Qt5::Widgets Qt5::Xml Qt5::Network Qt5::PrintSupport Qt5::Test Qt5::ScriptTools
         U2Core U2Algorithm U2Formats U2Gui U2View U2Lang U2Designer U2Test U2Script QSpec)
 
-target_link_libraries(${UGENE_PLUGIN_NAME} ${UGENE_PLUGIN_LIBS})
+target_link_libraries(${UGENE_PLUGIN_NAME} ${UGENE_PLUGIN_LIBS} ${UGENE_ADDITIONAL_LIBS})
 

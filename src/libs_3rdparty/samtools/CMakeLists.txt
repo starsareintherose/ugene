@@ -7,6 +7,10 @@ find_package(Qt5 REQUIRED Core LinguistTools)
 include_directories(src)
 include_directories(src/samtools)
 include_directories(../../include)
+if (WIN32)
+    include_directories(src/samtools/win32)
+    add_definitions(-D_USE_MATH_DEFINES -D__func__=__FUNCTION__ -DR_OK=4 -Datoll=_atoi64 -Dalloca=_alloca -D__STDC_LIMIT_MACROS)
+endif()
 
 add_definitions(
         -D_FILE_OFFSET_BITS=64

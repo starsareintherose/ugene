@@ -14,10 +14,30 @@ set(UGENE_VERSION 41.0-dev)
 
 add_definitions(
         -DUGENE_VERSION=${UGENE_VERSION}
-        -DSW2_BUILD_WITH_CUDA
         -DQT_FATAL_ASSERT
         -DQT_DISABLE_DEPRECATED_BEFORE=0x050700
+        -DUGENE_USE_BUNDLED_ZLIB
+        -DUGENE_USE_BUNDLED_SQLITE
 )
+
+if (NOT UGENE_CUDA_DETECTED)
+    set(UGENE_CUDA_DETECTED 0)
+endif()
+
+if(UGENE_CUDA_DETECTED)
+    message("Configuring CUDA support")
+    add_definitions(-DSW2_BUILD_WITH_CUDA)
+    set(UGENE_NVCC nvcc)
+    set(UGENE_CUDA_LIB_DIR ${CUDA_LIB_PATH})
+    if(NOT UGENE_CUDA_LIB_DIR)
+        message(FATAL_ERROR "UGENE_CUDA_DETECTED is set to 1, but CUDA_LIB_PATH isn't set, abort")
+    endif()
+    set(UGENE_CUDA_INC_DIR ${CUDA_INC_PATH})
+    if(NOT UGENE_CUDA_INC_DIR)
+        message(FATAL_ERROR "UGENE_CUDA_DETECTED is set to 1, but CUDA_INC_PATH isn't set, abort")
+    endif()
+endif()
+
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -109,6 +129,10 @@ add_subdirectory(src/plugins/test_runner)
 add_subdirectory(src/plugins/weight_matrix)
 add_subdirectory(src/plugins/wevote_support)
 add_subdirectory(src/plugins/workflow_designer)
+
+if(UGENE_CUDA_DETECTED)
+    add_subdirectory(src/plugins/cuda_support)
+endif()
 
 # Third party plugins.
 add_subdirectory(src/plugins_3rdparty/ball)

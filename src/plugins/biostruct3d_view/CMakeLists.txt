@@ -6,4 +6,8 @@ include(../../Plugin.cmake)
 
 if(APPLE)
     target_link_libraries(biostruct3d_view "-framework OpenGL")
+elseif(WIN32)
+    find_package(OpenGL REQUIRED)
+    include_directories( ${OPENGL_INCLUDE_DIRS} )
+    target_link_libraries(biostruct3d_view ${OPENGL_LIBRARIES})
 endif()

@@ -11,6 +11,8 @@ include_directories(src)
 include_directories(../include)
 include_directories(../corelibs/U2Private/src)
 
+add_definitions(-DUNICODE)
+
 file(GLOB_RECURSE SRCS src/*.cpp)
 file(GLOB_RECURSE HDRS src/*.h)
 file(GLOB TS_FILES transl/*.ts)

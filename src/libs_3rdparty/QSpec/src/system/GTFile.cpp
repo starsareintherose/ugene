@@ -155,7 +155,7 @@ static bool setFilePermissions(const QString &path, bool allowWrite, bool recurs
     windowsPath.toWCharArray(pathString.data());
     pathString[pathLength] = '\0';
 
-    DWORD dwRes = SetFileWriteACL(pathString.data(), allowWrite);
+    DWORD dwRes = SetFileWriteACL(reinterpret_cast<LPTSTR>(pathString.data()), allowWrite);
     if (allowWrite) {
         // workaround Qt's quirk on NTFS, force clearing RO attr
         SetFileAttributesW(/*reinterpret_cast<LPCWSTR>*/ (pathString.data()), FILE_ATTRIBUTE_NORMAL);

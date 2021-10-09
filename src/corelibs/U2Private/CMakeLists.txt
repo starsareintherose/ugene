@@ -1,4 +1,4 @@
-project(U2Private)
+project(U2Private ASM_MASM)
 
 set(CMAKE_AUTOMOC ON)
 
@@ -8,7 +8,8 @@ else()
     find_package(Qt5 REQUIRED Core Gui Widgets)
 endif()
 
-add_definitions(-DBUILDING_U2PRIVATE_DLL)
+add_definitions(-DBUILDING_U2PRIVATE_DLL
+                -DUNICODE)
 
 include_directories(src)
 include_directories(../../include)
@@ -22,6 +23,8 @@ file(GLOB_RECURSE MAC_IGNORE_FILES src/*Win.* src/*UnixNotMac.*)
 file(GLOB_RECURSE LINUX_IGNORE_FILES src/*[er]Mac.* src/*Win.*)
 
 if (WIN32)
+    file(GLOB_RECURSE ASM src/crash_handler/StackRollbackX64.asm)
+
     list(REMOVE_ITEM SRCS ${WIN_IGNORE_FILES})
     list(REMOVE_ITEM HDRS ${WIN_IGNORE_FILES})
 elseif (APPLE)
@@ -32,7 +35,7 @@ elseif (UNIX)
     list(REMOVE_ITEM HDRS ${LINUX_IGNORE_FILES})
 endif ()
 
-add_library(U2Private SHARED ${HDRS} ${SRCS})
+add_library(U2Private SHARED ${HDRS} ${SRCS} ${ASM})
 
 target_link_libraries(U2Private
         Qt5::Core Qt5::Gui Qt5::Widgets
