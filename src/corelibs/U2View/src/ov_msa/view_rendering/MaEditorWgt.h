@@ -134,10 +134,10 @@ protected:
     virtual void initActions();
 
     virtual void initSeqArea(GScrollBar *shBar, GScrollBar *cvBar) = 0;
-    virtual void initOverviewArea() = 0;
+    virtual void initOverviewArea(MaEditorOverviewArea *overviewArea = nullptr) = 0;
     virtual void initNameList(QScrollBar *nhBar) = 0;
     virtual void initConsensusArea() = 0;
-    virtual void initStatusBar() = 0;
+    virtual void initStatusBar(MaEditorStatusBar *statusBar = nullptr) = 0;
 
 protected:
     MaEditor *const editor;
@@ -145,8 +145,8 @@ protected:
     MaEditorNameList *nameList;
     MaEditorConsensusArea *consensusArea;
     MaEditorOverviewArea *overviewArea;
-    MSAEditorOffsetsViewController *offsetsViewController;
     MaEditorStatusBar *statusBar;
+    MSAEditorOffsetsViewController *offsetsViewController;
 
     QWidget *nameAreaContainer;
     QWidget *seqAreaHeader;
