@@ -31,7 +31,7 @@
 #include <U2View/MSAEditor.h>
 #include <U2View/MSAEditorConsensusArea.h>
 #include <U2View/MSAEditorOffsetsView.h>
-#include <U2View/MSAEditorOverviewArea.h>
+#include <U2View/MSAEditorMultilineOverviewArea.h>
 #include <U2View/MSAEditorSequenceArea.h>
 #include <U2View/MaEditorNameList.h>
 #include <U2View/MaEditorStatusBar.h>
@@ -43,7 +43,32 @@
 #include "ov_msa/helpers/DrawHelper.h"
 #include "ov_msa/helpers/ScrollController.h"
 
+
 namespace U2 {
+
+bool MaEditorWgtEventFilter::eventFilter(QObject *obj, QEvent *event)
+{
+    // TODO:ichebyki
+    // Maybe need to check QEvent::FocusIn || QEvent::Enter
+    // Also,there is a question about children (QEvent::ChildAdded)
+
+    // Please, don't forget about QWidget::setAttribute(Qt::WA_Hover, true);
+    if (event->type() == QEvent::HoverEnter) {
+#ifdef _DEBUG
+        coreLog.info(tr("=============== HoverEnter %1")
+                         .arg(QString("0x%1").arg((qulonglong) maEditorWgt)));
+#endif
+        maEditorWgt->getEditor()->setActiveChild(maEditorWgt);
+    } else if (event->type() == QEvent::HoverLeave) {
+#ifdef _DEBUG
+        coreLog.info(tr("=============== HoverLeave %1")
+                         .arg(QString("0x%1").arg((qulonglong) maEditorWgt)));
+#endif
+        maEditorWgt->getEditor()->setActiveChild(nullptr);
+    }
+    // standard event processing
+    return QObject::eventFilter(obj, event);
+}
 
 /************************************************************************/
 /* MaEditorWgt */
@@ -65,7 +90,7 @@ MaEditorWgt::MaEditorWgt(MaEditor *_editor)
       scrollController(new ScrollController(editor, this)),
       baseWidthController(new BaseWidthController(this)),
       rowHeightController(nullptr),
-      drawHelper(new DrawHelper(editor)),
+      drawHelper(new DrawHelper(this)),
       delSelectionAction(nullptr),
       copySelectionAction(nullptr),
       copyFormattedSelectionAction(nullptr),
@@ -78,6 +103,11 @@ MaEditorWgt::MaEditorWgt(MaEditor *_editor)
 
     connect(getUndoAction(), SIGNAL(triggered()), SLOT(sl_countUndo()));
     connect(getRedoAction(), SIGNAL(triggered()), SLOT(sl_countRedo()));
+
+    // For active MaEditorWgt tracking
+    this->setAttribute(Qt::WA_Hover, true);
+    eventFilter = new MaEditorWgtEventFilter(this, this);
+    this->installEventFilter(eventFilter);
 }
 
 QWidget *MaEditorWgt::createHeaderLabelWidget(const QString &text, Qt::Alignment alignment, QWidget *heightTarget, bool proxyMouseEventsToNameList) {
@@ -127,7 +157,6 @@ void MaEditorWgt::initWidgets() {
     nameList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 
     initConsensusArea();
-
     initOverviewArea(overviewArea);
     initStatusBar(statusBar);
 
@@ -195,7 +224,6 @@ void MaEditorWgt::initWidgets() {
 
     maContainerLayout->addWidget(maSplitter.getSplitter());
     maContainerLayout->setStretch(0, 1);
-    maContainerLayout->addWidget(statusBar);
 
     QWidget *maContainer = new QWidget(this);
     maContainer->setLayout(maContainerLayout);
@@ -209,14 +237,6 @@ void MaEditorWgt::initWidgets() {
     mainSplitter->addWidget(maContainer);
     mainSplitter->setStretchFactor(0, 2);
 
-    if (overviewArea != nullptr) {
-        if (overviewArea->isResizable()) {
-            mainSplitter->addWidget(overviewArea);
-            mainSplitter->setCollapsible(1, false);
-        } else {
-            maContainerLayout->addWidget(overviewArea);
-        }
-    }
     mainLayout->addWidget(mainSplitter);
     setLayout(mainLayout);
 

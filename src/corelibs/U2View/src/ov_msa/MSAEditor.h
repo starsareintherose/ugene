@@ -181,12 +181,12 @@ protected:
     void onObjectRenamed(GObject *obj, const QString &oldName) override;
     bool onCloseEvent() override;
 
-    void addCopyPasteMenu(QMenu *m) override;
-    void addEditMenu(QMenu *m) override;
+    void addCopyPasteMenu(QMenu *m, uint uiIndex) override;
+    void addEditMenu(QMenu *m, uint uiIndex) override;
     void addSortMenu(QMenu *m);
     void addExportMenu(QMenu *m) override;
-    void addAppearanceMenu(QMenu *m);
-    void addColorsMenu(QMenu *m);
+    void addAppearanceMenu(QMenu *m, uint uiIndex);
+    void addColorsMenu(QMenu *m, uint index);
     void addHighlightingMenu(QMenu *m);
     void addNavigationMenu(QMenu *m);
     void addTreeMenu(QMenu *m);
@@ -195,7 +195,7 @@ protected:
 
     void updateActions() override;
 
-    void initDragAndDropSupport();
+    void initDragAndDropSupport(MaEditorWgt *wgt);
 
 public:
     QAction *buildTreeAction = nullptr;
