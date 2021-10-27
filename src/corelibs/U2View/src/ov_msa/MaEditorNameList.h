@@ -166,6 +166,7 @@ protected:
     virtual int getAvailableWidth() const;
 
     QObject *labels;  // used in GUI tests
+    MaEditor *editor;
     MaEditorWgt *ui;
     QScrollBar *nhBar;
     QPoint mousePressPoint;
@@ -193,8 +194,6 @@ protected:
     static const int MARGIN_TEXT_TOP = 2;
     static const int MARGIN_TEXT_BOTTOM = 2;
 
-protected:
-    MaEditor *editor;
 };
 
 }  // namespace U2
