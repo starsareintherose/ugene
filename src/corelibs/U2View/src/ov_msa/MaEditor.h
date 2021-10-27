@@ -124,13 +124,26 @@ public:
     }
 
     QList<qint64> getMaRowIds() const;
-
+    
     virtual MaEditorWgt *getUI(uint index = 0) const
     {
         if (index < uiChildCount && index < uiChildLength) {
             return uiChild[index];
         }
         return nullptr;
+    }
+    
+    virtual uint getUIIndex(MaEditorWgt *_ui) const
+    {
+        if (_ui == nullptr) {
+            return 0;
+        }
+        for (uint index = 0; index < uiChildCount && index < uiChildLength; index++) {
+            if (_ui == uiChild[index]) {
+                return index;
+            }
+        }
+        return 0;
     }
 
     virtual OptionsPanel *getOptionsPanel() {
@@ -209,6 +222,15 @@ public:
     /** Returns collapse model instance. The returned value is never null. */
     MaCollapseModel *getCollapseModel() const;
 
+    uint getChildrenCount() const { return uiChildCount; }
+
+    bool getMultilineMode() const { return multilineMode; }
+
+    void setMultilineMode(bool multilinemode);
+
+    MaEditorWgt *getActiveChild();
+    void setActiveChild(MaEditorWgt *child);
+
 signals:
     void si_fontChanged(const QFont &f);
     void si_zoomOperationPerformed(bool resizeModeChanged);
@@ -246,13 +268,13 @@ private slots:
 
 protected:
     virtual QWidget *createWidget() = 0;
-    virtual void initActions(uint index);
+    virtual void initActions(MaEditorWgt *wgt);
     virtual void initZoom();
     virtual void initFont();
     void updateResizeMode();
 
-    virtual void addCopyPasteMenu(QMenu *m);
-    virtual void addEditMenu(QMenu *m) = 0;
+    virtual void addCopyPasteMenu(QMenu *m, uint uiIndex);
+    virtual void addEditMenu(QMenu *m, uint uiIndex) = 0;
     virtual void addExportMenu(QMenu *m);
     void addLoadMenu(QMenu *m);
 
@@ -269,8 +291,10 @@ protected:
     MultipleAlignmentObject *maObject;
     MaEditorMultilineWgt *ui = nullptr;
     MaEditorWgt **uiChild = nullptr;
+    MaEditorWgt *activeChild = nullptr;
     uint uiChildLength = 0;
     uint uiChildCount = 0;
+    bool multilineMode = false;
 
     QFont font;
     ResizeMode resizeMode;
