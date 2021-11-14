@@ -46,7 +46,7 @@
 #include "MaCollapseModel.h"
 #include "MaEditorState.h"
 #include "MaEditorTasks.h"
-#include "helpers/ScrollController.h"
+#include "helpers/MultilineScrollController.h"
 #include "view_rendering/MaEditorSelection.h"
 
 namespace U2 {
@@ -264,7 +264,7 @@ void MaEditor::sl_zoomOut() {
 
 void MaEditor::sl_zoomToSelection() {
     ResizeMode oldMode = resizeMode;
-    int seqAreaWidth = getUI()->getSequenceArea()->width();
+    int seqAreaWidth = ui->getUI(0)->getSequenceArea()->width();
     const MaEditorSelection &selection = getSelection();
     CHECK(!selection.isEmpty(), )
     QRect selectionRect = selection.getRectList()[0];  // We need width (equal on all rects) + top-left of the first rect.
@@ -284,8 +284,8 @@ void MaEditor::sl_zoomToSelection() {
         setZoomFactor(pixelsPerBase / (minimumFontPointSize * fontPixelToPointSize));
         resizeMode = ResizeMode_OnlyContent;
     }
-    getUI()->getScrollController()->setFirstVisibleBase(selectionRect.x());
-    getUI()->getScrollController()->setFirstVisibleViewRow(selectionRect.y());
+    ui->getScrollController()->setFirstVisibleBase(selectionRect.x());
+    ui->getScrollController()->setFirstVisibleViewRow(selectionRect.y());
 
     updateActions();
 
@@ -342,7 +342,8 @@ void MaEditor::sl_lockedStateChanged() {
 }
 
 void MaEditor::sl_exportHighlighted() {
-    QObjectScopedPointer<ExportHighligtingDialogController> d = new ExportHighligtingDialogController(getUI(), (QWidget *)AppContext::getMainWindow()->getQMainWindow());
+    QObjectScopedPointer<ExportHighligtingDialogController> d = new ExportHighligtingDialogController(ui->getUI(),
+                                                                                                      (QWidget *)AppContext::getMainWindow()->getQMainWindow());
     d->exec();
     CHECK(!d.isNull(), );
 
@@ -406,7 +407,7 @@ void MaEditor::addExportMenu(QMenu *m) {
     QMenu *em = m->addMenu(tr("Export"));
     em->menuAction()->setObjectName(MSAE_MENU_EXPORT);
     em->addAction(exportHighlightedAction);
-    if (!getUI()->getSequenceArea()->getCurrentHighlightingScheme()->getFactory()->isRefFree() &&
+    if (!ui->getUI()->getSequenceArea()->getCurrentHighlightingScheme()->getFactory()->isRefFree() &&
         getReferenceRowId() != U2MsaRow::INVALID_ROW_ID) {
         exportHighlightedAction->setEnabled(true);
     } else {
@@ -469,9 +470,9 @@ void MaEditor::updateFontMetrics() {
 }
 
 void MaEditor::setFirstVisiblePosSeq(int firstPos, int firstSeq) {
-    if (getUI()->getSequenceArea()->isPosInRange(firstPos)) {
-        getUI()->getScrollController()->setFirstVisibleBase(firstPos);
-        getUI()->getScrollController()->setFirstVisibleMaRow(firstSeq);
+    if (ui->getUI()->getSequenceArea()->isPosInRange(firstPos)) {
+        ui->getScrollController()->setFirstVisibleBase(firstPos);
+        ui->getScrollController()->setFirstVisibleMaRow(firstSeq);
     }
 }
 
@@ -508,7 +509,7 @@ QList<qint64> MaEditor::getMaRowIds() const {
 }
 
 void MaEditor::selectRows(int firstViewRowIndex, int numberOfRows) {
-    getUI()->getSequenceArea()->setSelectionRect(QRect(0, firstViewRowIndex, getAlignmentLen(), numberOfRows));
+    ui->getUI()->getSequenceArea()->setSelectionRect(QRect(0, firstViewRowIndex, getAlignmentLen(), numberOfRows));
 }
 
 QRect MaEditor::getUnifiedSequenceFontCharRect(const QFont &sequenceFont) const {
@@ -525,7 +526,7 @@ void MaEditor::setRowOrderMode(MaEditorRowOrderMode mode) {
 }
 
 void MaEditor::sl_onClearActionTriggered() {
-    MaEditorSequenceArea *sequenceArea = getUI()->getSequenceArea();
+    MaEditorSequenceArea *sequenceArea = ui->getUI()->getSequenceArea();
     if (sequenceArea->getMode() != MaEditorSequenceArea::ViewMode) {
         sequenceArea->exitFromEditCharacterMode();
         return;
@@ -535,22 +536,6 @@ void MaEditor::sl_onClearActionTriggered() {
 
 MaCollapseModel *MaEditor::getCollapseModel() const {
     return collapseModel;
-}
-
-void MaEditor::setMultilineMode(bool multilinemode) {
-    multilineMode = multilinemode;
-}
-
-MaEditorWgt *MaEditor::getActiveChild() {
-    return activeChild;
-}
-
-void MaEditor::setActiveChild(MaEditorWgt *child) {
-    if (child == nullptr) {
-        activeChild = getUI(0);
-    } else {
-        activeChild = child;
-    }
 }
 
 
