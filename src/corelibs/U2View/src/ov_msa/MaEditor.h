@@ -125,9 +125,18 @@ public:
 
     QList<qint64> getMaRowIds() const;
 
-    virtual MaEditorMultilineWgt *getUI() const {
-        return ui;
-    }
+    virtual QWidget *getUI() const { return ui; }
+
+    virtual MaEditorWgt *getMaEditorWgt(uint index = 0) {
+        Q_UNUSED(index);
+        Q_ASSERT(false);
+        return nullptr;
+    };
+
+    virtual MaEditorMultilineWgt *getMaEditorMultilineWgt() {
+        Q_ASSERT(false);
+        return nullptr;
+    };
 
     virtual OptionsPanel *getOptionsPanel() {
         return optionsPanel;
@@ -237,12 +246,14 @@ protected slots:
     /** The slot is called each time selection is changed. By default calls 'updateActions'. */
     virtual void sl_selectionChanged(const MaEditorSelection &ma, const MaEditorSelection &modInfo);
 
+    void sl_multilineViewAction();
+
 private slots:
     void sl_resetColumnWidthCache();
 
 protected:
     virtual QWidget *createWidget() = 0;
-    virtual void initActions(MaEditorWgt *wgt);
+    virtual void initActions();
     virtual void initZoom();
     virtual void initFont();
     void updateResizeMode();
@@ -263,7 +274,7 @@ protected:
     virtual void updateActions();
 
     MultipleAlignmentObject *maObject;
-    MaEditorMultilineWgt *ui = nullptr;
+    QWidget *ui = nullptr;
 
     QFont font;
     ResizeMode resizeMode;
@@ -302,6 +313,7 @@ public:
     QAction *changeFontAction;
     QAction *resetZoomAction;
     QAction *exportHighlightedAction;
+    QAction *multilineViewAction;
 
     /** Clears selection in normal mode or exits from editing mode in the edit mode. */
     QAction *clearSelectionAction;
