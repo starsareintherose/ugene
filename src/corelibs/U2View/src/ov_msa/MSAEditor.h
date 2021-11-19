@@ -131,15 +131,15 @@ public:
     void removeFreeModeMasterMarker(QObject *marker);
 
     MaEditorMultilineWgt *getUI() const override {
-        return qobject_cast<MsaEditorMultilineWgt *>(ui);
+        return getMaEditorMultilineWgt();
     }
 
-    MaEditorWgt *getMaEditorWgt(uint index = 0) override {
+    MaEditorWgt *getMaEditorWgt(uint index = 0) const override {
         return qobject_cast<MsaEditorWgt *>(getUI()->getUI(index));
     }
 
-    MaEditorMultilineWgt *getMaEditorMultilineWgt() override {
-        return qobject_cast<MaEditorMultilineWgt *>(ui);
+    MaEditorMultilineWgt *getMaEditorMultilineWgt() const override {
+        return qobject_cast<MsaEditorMultilineWgt *>(ui);
     }
 
 protected slots:
@@ -190,7 +190,7 @@ protected:
     bool onCloseEvent() override;
 
     void addCopyPasteMenu(QMenu *m, uint uiIndex) override;
-    void addEditMenu(QMenu *m, uint uiIndex) override;
+    void addEditMenu(QMenu *m) override;
     void addSortMenu(QMenu *m);
     void addExportMenu(QMenu *m) override;
     void addAppearanceMenu(QMenu *m, uint uiIndex);
@@ -245,7 +245,7 @@ public:
 
 private:
     MsaEditorWgt *createChildWidget(uint index,
-                                    MaEditorMultilineOverviewArea *overview = nullptr,
+                                    MaEditorOverviewArea *overview = nullptr,
                                     MaEditorStatusBar *statusbar = nullptr);
 
     PairwiseAlignmentWidgetsSettings *pairwiseAlignmentWidgetsSettings = nullptr;

@@ -31,7 +31,7 @@
 #include <U2View/MSAEditor.h>
 #include <U2View/MSAEditorConsensusArea.h>
 #include <U2View/MSAEditorOffsetsView.h>
-#include <U2View/MSAEditorMultilineOverviewArea.h>
+#include <U2View/MSAEditorOverviewArea.h>
 #include <U2View/MSAEditorSequenceArea.h>
 #include <U2View/MaEditorNameList.h>
 #include <U2View/MaEditorStatusBar.h>
@@ -79,8 +79,8 @@ MaEditorWgt::MaEditorWgt(MaEditor *_editor)
       nameList(nullptr),
       consensusArea(nullptr),
       overviewArea(nullptr),
-      offsetsViewController(nullptr),
       statusBar(nullptr),
+      offsetsViewController(nullptr),
       nameAreaContainer(nullptr),
       seqAreaHeader(nullptr),
       seqAreaHeaderLayout(nullptr),
@@ -103,11 +103,6 @@ MaEditorWgt::MaEditorWgt(MaEditor *_editor)
 
     connect(getUndoAction(), SIGNAL(triggered()), SLOT(sl_countUndo()));
     connect(getRedoAction(), SIGNAL(triggered()), SLOT(sl_countRedo()));
-
-    // For active MaEditorWgt tracking
-    this->setAttribute(Qt::WA_Hover, true);
-    eventFilter = new MaEditorWgtEventFilter(this, this);
-    this->installEventFilter(eventFilter);
 }
 
 QWidget *MaEditorWgt::createHeaderLabelWidget(const QString &text, Qt::Alignment alignment, QWidget *heightTarget, bool proxyMouseEventsToNameList) {
@@ -135,7 +130,7 @@ QAction *MaEditorWgt::getRedoAction() const {
     return a;
 }
 
-void MaEditorWgt::initWidgets() {
+void MaEditorWgt::initWidgets(bool multilineMode) {
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     setWindowIcon(GObjectTypes::getTypeInfo(GObjectTypes::MULTIPLE_SEQUENCE_ALIGNMENT).icon);
@@ -224,6 +219,10 @@ void MaEditorWgt::initWidgets() {
     maContainerLayout->addWidget(maSplitter.getSplitter());
     maContainerLayout->setStretch(0, 1);
 
+    if (!multilineMode) {
+        maContainerLayout->addWidget(statusBar);
+    }
+
     QWidget *maContainer = new QWidget(this);
     maContainer->setLayout(maContainerLayout);
 
@@ -236,6 +235,14 @@ void MaEditorWgt::initWidgets() {
     mainSplitter->addWidget(maContainer);
     mainSplitter->setStretchFactor(0, 2);
 
+    if (!multilineMode) {
+        if (overviewArea->isResizable()) {
+            mainSplitter->addWidget(overviewArea);
+            mainSplitter->setCollapsible(1, false);
+        } else {
+            maContainerLayout->addWidget(overviewArea);
+        }
+    }
     mainLayout->addWidget(mainSplitter);
     setLayout(mainLayout);
 
