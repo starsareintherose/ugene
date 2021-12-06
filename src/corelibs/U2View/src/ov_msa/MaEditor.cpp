@@ -546,9 +546,5 @@ MaCollapseModel *MaEditor::getCollapseModel() const {
     return collapseModel;
 }
 
-void MaEditor::sl_multilineViewAction() {
-    return;
-}
-
 
 }  // namespace U2
