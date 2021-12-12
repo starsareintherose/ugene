@@ -231,17 +231,28 @@ MSAEditor::~MSAEditor() {
     delete pairwiseAlignmentWidgetsSettings;
 }
 
-void MSAEditor::buildStaticToolbar(QToolBar *tb) {
+void MSAEditor::buildStaticToolbar(QToolBar *tb)
+{
+    // Workaround, need to remove all separators, which
+    // were created before and not auto-deleted
+    foreach (QAction *action, tb->actions()) {
+        if (action->isSeparator()) {
+            tb->removeAction(action);
+        }
+    }
+
     this->staticToolBar = tb;
     tb->addAction(getMaEditorWgt(0)->copyFormattedSelectionAction);
 
     tb->addAction(saveAlignmentAction);
     tb->addAction(saveAlignmentAsAction);
+    tb->addSeparator();
 
     tb->addAction(zoomInAction);
     tb->addAction(zoomOutAction);
     tb->addAction(zoomToSelectionAction);
     tb->addAction(resetZoomAction);
+    tb->addSeparator();
 
     tb->addAction(showOverviewAction);
     tb->addAction(changeFontAction);
@@ -251,8 +262,10 @@ void MSAEditor::buildStaticToolbar(QToolBar *tb) {
     tb->addAction(alignAction);
     tb->addAction(alignSequencesToAlignmentAction);
     tb->addAction(realignSomeSequenceAction);
+    tb->addSeparator();
 
     tb->addAction(multilineViewAction);
+    tb->addSeparator();
 
     GObjectView::buildStaticToolbar(tb);
 }
@@ -465,8 +478,8 @@ QWidget *MSAEditor::createWidget()
 {
     Q_ASSERT(ui == nullptr);
 
-    ui = new MsaEditorMultilineWgt(this, false);
-    multilineViewAction->setChecked(false);
+    ui = new MsaEditorMultilineWgt(this, multilineMode);
+    multilineViewAction->setChecked(multilineMode);
     initActionsAndSignals();
     initChildrenActionsAndSignals();
     updateActions();
