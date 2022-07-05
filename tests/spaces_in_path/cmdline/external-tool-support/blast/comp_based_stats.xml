@@ -1,0 +1,13 @@
+<multi-test>
+    <run-cmdline
+            task="local-blast"
+            in="!common_data_dir!swiss_prot/Q9XHP0.sw"
+            out="!tmp_data_dir!blastp_maxhits.gb"
+            dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/sushi"
+            dbname="sushi"
+            p="blastp"
+            comp-based-stats="1"
+            max-hits="1"
+            message="Filepath path is invalid for the tool to work."
+    />
+</multi-test>

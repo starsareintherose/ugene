@@ -1,0 +1,6 @@
+<suite name="CMDLine with spaces in path ugene tests">
+
+    <env-var name="PROTOTYPE" value="cmdline/_proto"/>
+    <test-dir path="spaces_in_path/cmdline" test-format="XML" test-ext="*.xml"/>
+
+</suite>

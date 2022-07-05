@@ -1,0 +1,10 @@
+<multi-test>
+    <run-cmdline task="local-blast"
+                 in="!common_data_dir!cmdline/external-tool-support/blastplus/query_middle.fa"
+                 out="!tmp_data_dir!blast-search_tmp_middle.gb"
+                 dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/"
+                 dbname="sars_middle"
+                 p="blastn"
+                 message="Filepath path is invalid for the tool to work."
+    />
+</multi-test>

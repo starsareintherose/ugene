@@ -14,7 +14,7 @@ UGENE_OUTPUT_DIR="${TEAMCITY_WORK_DIR}/out"
 if [ -z "$UGENE_TEST_THREADS" ]; then UGENE_TEST_THREADS="1"; fi
 
 # Default test suite is a pre-commit suite.
-if [ -z "$UGENE_TEST_SUITE" ]; then UGENE_TEST_SUITE="PrecommitTests_x64.list"; fi
+if [ -z "$UGENE_TEST_SUITE" ]; then UGENE_TEST_SUITE="SpacesInPathsTests_x64.list"; fi
 
 # External tools location.
 export UGENE_TOOLS_DIR="${TEAMCITY_WORK_DIR}/tools"

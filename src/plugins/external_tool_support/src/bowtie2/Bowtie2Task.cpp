@@ -245,6 +245,25 @@ Bowtie2Task::Bowtie2Task(const DnaAssemblyToRefTaskSettings& settings, bool just
 }
 
 void Bowtie2Task::prepare() {
+    QStringList uRLs({
+        settings.indexDir,
+        settings.indexBasename,
+        settings.refSeqUrl.getURLString(),
+        settings.resultFileName.getURLString(),
+        settings.indexFileName,
+        settings.tmpDirectoryForFilteredFiles,
+        settings.tmpDirPath
+    });
+
+    QString pathCheckinError = ExternalToolSupportUtils::checkOnlyLatinSymbolsInPath(uRLs);
+    if (!pathCheckinError.isEmpty()) {
+        //TEMPORARY DISABLED UNTIL TEST CONFIGURATION PREPARED
+        /*
+        setError(pathCheckinError);
+        return;
+        */
+    }
+
     if (!isBuildOnlyTask) {
         setUpIndexBuilding(indexSuffixes);
         if (!settings.prebuiltIndex) {

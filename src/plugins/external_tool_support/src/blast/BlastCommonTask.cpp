@@ -80,7 +80,11 @@ void BlastCommonTask::prepare() {
     QString tmpDirPath = getAcceptableTempDir();
     CHECK_EXT(!tmpDirPath.isEmpty(), setError(tr("The task uses a temporary folder to process the data. The folder path is required not to have spaces. "
                                                  "Please set up an appropriate path for the \"Temporary files\" parameter on the \"Directories\" tab of the UGENE Application Settings.")), );
-
+    QString pathCheckinError = ExternalToolSupportUtils::checkNoSpacesInPath({tmpDirPath});
+    if (!pathCheckinError.isEmpty()) {
+        setError(pathCheckinError);
+        return;
+    }
     QDir tmpDir(tmpDirPath);
     if (tmpDir.exists()) {
         foreach (const QString& file, tmpDir.entryList()) {

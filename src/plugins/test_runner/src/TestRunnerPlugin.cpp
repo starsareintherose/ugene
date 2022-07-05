@@ -267,11 +267,11 @@ void TestRunnerService::readBuiltInVars() {
         env->setVar(TIME_OUT_VAR, TIME_OUT_VAR_VALUE);
     }
     if (!vars.contains("COMMON_DATA_DIR") || vars.value("COMMON_DATA_DIR").isEmpty()) {
-        QString commonDataDir = qgetenv("COMMON_DATA_DIR");
+        QString commonDataDir = QString::fromLocal8Bit(qgetenv("COMMON_DATA_DIR"));
         env->setVar("COMMON_DATA_DIR", commonDataDir.isEmpty() ? "/_common_data" : commonDataDir);
     }
     if (!vars.contains("TEMP_DATA_DIR") || vars.value("TEMP_DATA_DIR").isEmpty()) {
-        QString tempDataDir = qgetenv("TEMP_DATA_DIR");
+        QString tempDataDir = QString::fromLocal8Bit(qgetenv("TEMP_DATA_DIR"));
         env->setVar("TEMP_DATA_DIR", tempDataDir.isEmpty() ? "/_tmp" : tempDataDir);
     }
 }

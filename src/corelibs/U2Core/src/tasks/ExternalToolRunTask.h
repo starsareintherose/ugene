@@ -158,6 +158,16 @@ public:
     static QString prepareArgumentsForCmdLine(const QStringList& arguments);
     static QStringList splitCmdLineArguments(const QString& execString);
     static QVariantMap getScoresGapDependencyMap();
+
+    /*
+    * Path validation utils.
+    */
+    static QString checkOnlyLatinSymbolsInPath(const QStringList& pathList);
+    static QString checkNoSpacesInPath(const QStringList& pathList);
+
+private:
+    static const QString NON_LATIN_SYMBOLS_IN_PATH_VALIDATION_ERROR;
+    static const QString SPACES_IN_PATH_VALIDATION_ERROR;
 };
 
 class U2CORE_EXPORT ExternalToolLogParser : public QObject {

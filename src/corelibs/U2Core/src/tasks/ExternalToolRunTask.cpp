@@ -335,6 +335,13 @@ void ExternalToolLogParser::setLastError(const QString& value) {
 
 ////////////////////////////////////////
 // ExternalToolSupportUtils
+const QString ExternalToolSupportUtils::NON_LATIN_SYMBOLS_IN_PATH_VALIDATION_ERROR = QObject::tr("Filepath path is invalid for the tool to work."
+                                                                                                 " Make sure that the input and output files and folders, as well as the temporary folder,"
+                                                                                                 " are located in the paths which contain only Latin characters. Currently found invalid value - ");
+const QString ExternalToolSupportUtils::SPACES_IN_PATH_VALIDATION_ERROR = QObject::tr("Filepath path is invalid for the tool to work."
+                                                                                      " Make sure that the input and output files and folders, as well as the temporary folder,"
+                                                                                      " are located in the paths which contain no space characters. Currently found invalid value - ");
+
 void ExternalToolSupportUtils::removeTmpDir(const QString& tmpDirUrl, U2OpStatus& os) {
     if (tmpDirUrl.isEmpty()) {
         os.setError(tr("Can not remove temporary folder: path is empty."));
@@ -584,6 +591,27 @@ QVariantMap ExternalToolSupportUtils::getScoresGapDependencyMap() {
     map.insert("5 -4", gaps);
 
     return map;
+}
+
+QString ExternalToolSupportUtils::checkOnlyLatinSymbolsInPath(const QStringList& pathList) {
+    for (const QString& path : qAsConst(pathList)) {
+        if (!path.isEmpty()) {
+            QByteArray tolatin1(path.toLatin1());
+            if (QString::fromLatin1(tolatin1.constData(), tolatin1.size()) != path) {
+                return NON_LATIN_SYMBOLS_IN_PATH_VALIDATION_ERROR + path;
+            }
+        }
+    }
+    return "";
+}
+
+QString ExternalToolSupportUtils::checkNoSpacesInPath(const QStringList& pathList) {
+    for (const QString& path : qAsConst(pathList)) {
+        if (!path.isEmpty() && path.trimmed().length() != path.length()) {
+            return SPACES_IN_PATH_VALIDATION_ERROR + path;
+        }
+    }
+    return "";
 }
 
 ExternalToolLogProcessor::~ExternalToolLogProcessor() {
