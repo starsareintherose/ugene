@@ -1,10 +1,10 @@
 <multi-test>
-    <run-cmdline task="local-blast"
-                 in="!common_data_dir!cmdline/external-tool-support/blastplus/DNA_circ.gb"
-                 out="!tmp_data_dir!blast-search_nucl_DNA_circj_tmp.gb"
-                 dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/"
-                 dbname="junction_nucl"
-                 p="blastn"
-                 message="Filepath path is invalid for the tool to work."
-    />
+<run-cmdline task="local-blast"
+in="!common_data_dir!cmdline/external-tool-support/blastplus/DNA_circ.gb"
+out="!tmp_data_dir!blast-search_nucl_DNA_circj_tmp.gb"
+dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/"
+dbname="junction_nucl"
+p="blastn"
+message="Database path have space(s). Try select any other folder without spaces."
+/>
 </multi-test>

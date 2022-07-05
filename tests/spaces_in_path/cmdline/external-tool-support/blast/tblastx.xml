@@ -1,11 +1,11 @@
 <multi-test>
-    <!-- UGENE-3168 -->
-    <run-cmdline task="local-blast"
-                 in="!common_data_dir!cmdline/external-tool-support/blastplus/human_T1_short.fa"
-                 out="!tmp_data_dir!blastp_3168.gb"
-                 dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/human_T1"
-                 dbname="human_T1"
-                 p="tblastx"
-                 message="Filepath path is invalid for the tool to work."
-    />
+<!-- UGENE-3168 -->
+<run-cmdline task="local-blast"
+in="!common_data_dir!cmdline/external-tool-support/blastplus/human_T1_short.fa"
+out="!tmp_data_dir!blastp_3168.gb"
+dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/human_T1"
+dbname="human_T1"
+p="tblastx"
+message="Database path have space(s). Try select any other folder without spaces."
+/>
 </multi-test>

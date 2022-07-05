@@ -1,11 +1,11 @@
 <multi-test>
-    <run-cmdline task="local-blast"
-                 in="!common_data_dir!cmdline/external-tool-support/blastplus/query_begin.fa"
-                 out="!tmp_data_dir!blast-search_qbegin_tmp_begin.gb"
-                 dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/"
-                 dbname="sars_begin"
-                 blast-out-type="5"
-                 p="blastn"
-                 message="Filepath path is invalid for the tool to work."
-    />
+<run-cmdline task="local-blast"
+in="!common_data_dir!cmdline/external-tool-support/blastplus/query_begin.fa"
+out="!tmp_data_dir!blast-search_qbegin_tmp_begin.gb"
+dbpath="!common_data_dir!cmdline/external-tool-support/blastplus/"
+dbname="sars_begin"
+blast-out-type="5"
+p="blastn"
+message="Database path have space(s). Try select any other folder without spaces."
+/>
 </multi-test>
