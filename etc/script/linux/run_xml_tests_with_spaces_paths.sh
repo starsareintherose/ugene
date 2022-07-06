@@ -34,7 +34,7 @@ if [ -z "${DISPLAY}" ]; then export DISPLAY=":551"; fi
 if [ -z "$UGENE_TEST_THREADS" ]; then UGENE_TEST_THREADS="1"; fi
 
 # Default test suite is a pre-commit suite.
-if [ -z "$UGENE_TEST_SUITE" ]; then UGENE_TEST_SUITE="PrecommitTests_x64.list"; fi
+if [ -z "$UGENE_TEST_SUITE" ]; then UGENE_TEST_SUITE="SpacesInPathsTests_x64.list"; fi
 
 # XML tests search data in this dir.
 if [ -z "${COMMON_DATA_DIR}" ]; then export COMMON_DATA_DIR="${TEAMCITY_WORK_DIR}/test_data s p a c e s/_common_data"; fi
