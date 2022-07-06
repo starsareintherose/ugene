@@ -320,12 +320,12 @@ void GTest_Primer3::init(XMLTestFormat*, const QDomElement& el) {
         // 121
         buf = elInput.attribute("PRIMER_MISPRIMING_LIBRARY");
         if (!buf.isEmpty()) {
-            settings.setRepeatLibrary((getEnv()->getVar("COMMON_DATA_DIR") + "/primer3/" + buf).toLatin1());
+            settings.setRepeatLibrary((getEnv()->getVar("COMMON_DATA_DIR") + "/primer3/" + buf).toLocal8Bit());
         }
         // 122
         buf = elInput.attribute("PRIMER_INTERNAL_OLIGO_MISHYB_LIBRARY");
         if (!buf.isEmpty()) {
-            settings.setMishybLibrary((getEnv()->getVar("COMMON_DATA_DIR") + "/primer3/" + buf).toLatin1());
+            settings.setMishybLibrary((getEnv()->getVar("COMMON_DATA_DIR") + "/primer3/" + buf).toLocal8Bit());
         }
     }
 
