@@ -37,8 +37,8 @@ if [ -z "$UGENE_TEST_THREADS" ]; then UGENE_TEST_THREADS="1"; fi
 if [ -z "$UGENE_TEST_SUITE" ]; then UGENE_TEST_SUITE="PrecommitTests_x64.list"; fi
 
 # XML tests search data in this dir.
-if [ -z "${COMMON_DATA_DIR}" ]; then export COMMON_DATA_DIR="${TEAMCITY_WORK_DIR}/test_data_русские_буквы/_common_data"; fi
-export TEMP_DATA_DIR="${UGENE_OUTPUT_DIR}/tmp_русские_буквы"
+if [ -z "${COMMON_DATA_DIR}" ]; then export COMMON_DATA_DIR="${TEAMCITY_WORK_DIR}/test_data_русские_буквы_常見的/_common_data"; fi
+export TEMP_DATA_DIR="${UGENE_OUTPUT_DIR}/tmp_русские_буквы_常見的"
 
 echo "Work dir: '${TEAMCITY_WORK_DIR}', UGENE_DIR: '${UGENE_DIR}', test suite path: '${UGENE_TESTS_PATH}/${UGENE_TEST_SUITE}', test data dir: '${COMMON_DATA_DIR}'"
 
