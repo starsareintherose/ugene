@@ -702,6 +702,8 @@ inline int getIntersectingRegionIndex(const U2Region& reg, const QList<U2Region>
 }
 
 Task::ReportResult Primer3SWTask::report() {
+    CHECK(primer3Task != nullptr, Task::ReportResult_Finished);
+
     bestPairs.append(primer3Task->getBestPairs());
     singlePrimers.append(primer3Task->getSinglePrimers());
 
