@@ -604,6 +604,8 @@ void ADVSingleSequenceWidget::addADVSequenceWidgetActionToViewsToolbar(ADVSequen
 }
 
 void ADVSingleSequenceWidget::sl_onSelectRange() {
+    bool hf = hasFocus();
+    bool dvhf = detView->hasFocus();
     ADVSequenceObjectContext* ctx = getSequenceContext();
     DNASequenceSelection* selection = ctx->getSequenceSelection();
 
@@ -627,6 +629,8 @@ void ADVSingleSequenceWidget::sl_onSelectRange() {
             getSequenceContext()->getSequenceSelection()->setSelectedRegions(curRegions);
         }
     }
+    bool hf1 = hasFocus();
+    bool dvhf1 = detView->hasFocus();
 }
 
 QVector<U2Region> ADVSingleSequenceWidget::getSelectedAnnotationRegions(int max) {
