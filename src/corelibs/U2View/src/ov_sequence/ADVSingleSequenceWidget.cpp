@@ -169,6 +169,9 @@ ADVSingleSequenceWidget::ADVSingleSequenceWidget(ADVSequenceObjectContext* seqCt
             coreLog.info(QString("old: %1").arg(old->objectName()));
         }
         if (now) {
+            if ("det_view_IL2_seq" == now->objectName()) {
+                int i = 0;
+            }
             coreLog.info(QString("now: %1").arg(now->objectName()));
         }
         coreLog.info("----------------------------------");
