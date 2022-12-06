@@ -163,6 +163,16 @@ ADVSingleSequenceWidget::ADVSingleSequenceWidget(ADVSequenceObjectContext* seqCt
     setDetViewCollapsed(AppContext::getSettings()->getValue(DET_VIEW_COLLAPSED, QVariant(false)).toBool());
     setPanViewCollapsed(AppContext::getSettings()->getValue(ZOOM_VIEW_COLLAPSED, QVariant(false)).toBool());
     setOverviewCollapsed(AppContext::getSettings()->getValue(OVERVIEW_COLLAPSED, QVariant(false)).toBool());
+
+    connect(qApp, &QApplication::focusChanged, this, [](QWidget *old, QWidget *now){
+        if (old) {
+            coreLog.info(QString("old: %1").arg(old->objectName()));
+        }
+        if (now) {
+            coreLog.info(QString("now: %1").arg(now->objectName()));
+        }
+        coreLog.info("----------------------------------");
+    });
 }
 
 void ADVSingleSequenceWidget::init() {
@@ -611,11 +621,22 @@ void ADVSingleSequenceWidget::sl_onSelectRange() {
 
     const QVector<U2Region>& seqRegions = selection->getSelectedRegions();
     QObjectScopedPointer<MultipleRangeSelector> mrs = new MultipleRangeSelector(this, seqRegions, ctx->getSequenceLength(), ctx->getSequenceObject()->isCircular());
+    bool msrhf = mrs->hasFocus();
+    bool dvhf1 = detView->hasFocus();
     mrs->exec();
+    bool msrhf1 = mrs->hasFocus();
+    bool dvhf2 = detView->hasFocus();
     CHECK(!mrs.isNull(), );
+    bool msrhf2 = mrs->hasFocus();
+    bool dvhf3 = detView->hasFocus();
 
+    bool msrhf3;
+    bool msrhf4;
     if (mrs->result() == QDialog::Accepted) {
+        bool dvhf4 = detView->hasFocus();
+        msrhf3 = mrs->hasFocus();
         QVector<U2Region> curRegions = mrs->getSelectedRegions();
+        msrhf4 = mrs->hasFocus();
         if (curRegions.isEmpty()) {
             return;
         }
@@ -630,7 +651,8 @@ void ADVSingleSequenceWidget::sl_onSelectRange() {
         }
     }
     bool hf1 = hasFocus();
-    bool dvhf1 = detView->hasFocus();
+    bool dvhf5 = detView->hasFocus();
+    int i = 0;
 }
 
 QVector<U2Region> ADVSingleSequenceWidget::getSelectedAnnotationRegions(int max) {
