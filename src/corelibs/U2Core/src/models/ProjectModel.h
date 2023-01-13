@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -56,6 +56,7 @@ class U2OpStatus;
 #define ProjectLoaderHint_DontCheckForExistence "dont-check-for-existence"
 #define ProjectLoaderHint_OpenBySystemIfFormatDetectionFailed "open-by-system-if-format-detection-failed"
 #define ProjectLoaderHint_DoNotAddToRecentDocuments "do-not-add-to-recent-documents"
+#define ProjectLoaderHint_SkipGuiAndMergeSequeencesIntoAlignmentPath "skip-gui-and-merge-sequeences-into-alignment-path"
 
 /**
  * When this hint is provided the 'openWithProjectTask' skips document format detection.

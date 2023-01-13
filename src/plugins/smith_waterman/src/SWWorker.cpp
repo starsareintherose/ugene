@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -134,7 +134,7 @@ void SWWorkerFactory::init() {
         Descriptor ald(ALGO_ATTR,
                        SWWorker::tr("Algorithm"),
                        SWWorker::tr("Version of the Smith-Waterman algorithm. You can use the optimized"
-                                    " versions of the algorithm (SSE, CUDA and OpenCL) if your hardware supports"
+                                    " versions of the algorithm (SSE) if your hardware supports"
                                     " these capabilities."));
 
         Descriptor amd(AMINO_ATTR,
@@ -521,7 +521,7 @@ void SWWorker::sl_taskFinished(Task* t) {
     QList<Task*> subs = multiSw->getTasks();
     SAFE_POINT(!subs.isEmpty(), "Invalid task is encountered", );
     QStringList ptrns;
-    foreach (Task* sub, subs) {
+    for (Task* sub : qAsConst(subs)) {
         SAFE_POINT(nullptr != sub, "Invalid task is encountered", );
         if (sub->isCanceled()) {
             return;

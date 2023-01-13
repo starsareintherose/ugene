@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,9 @@
 #include <primitives/GTSpinBox.h>
 #include <primitives/GTWidget.h>
 
+#include <U2View/TreeViewerFactory.h>
+
+#include "GTUtilsMdi.h"
 #include "GTUtilsOptionsPanelPhyTree.h"
 
 namespace U2 {
@@ -32,7 +35,8 @@ using namespace HI;
 
 #define GT_METHOD_NAME "openTab"
 QWidget* GTUtilsOptionPanelPhyTree::openTab(HI::GUITestOpStatus& os) {
-    QWidget* tabButton = GTWidget::findWidget(os, "OP_TREES_WIDGET");
+    QWidget* activeObjectViewWindow = GTUtilsMdi::getActiveObjectViewWindow(os, TreeViewerFactory::ID);
+    QWidget* tabButton = GTWidget::findWidget(os, "OP_TREES_WIDGET", activeObjectViewWindow);
     GTWidget::click(os, tabButton);
     return getOptionsPanelWidget(os);
 }
@@ -40,30 +44,19 @@ QWidget* GTUtilsOptionPanelPhyTree::openTab(HI::GUITestOpStatus& os) {
 
 #define GT_METHOD_NAME "getOptionsPanelWidget"
 QWidget* GTUtilsOptionPanelPhyTree::getOptionsPanelWidget(HI::GUITestOpStatus& os) {
-    return GTWidget::findWidget(os, "TreeOptionsWidget");
-}
-#undef GT_METHOD_NAME
-
-#define GT_METHOD_NAME "expandFontSettingsPanel"
-void GTUtilsOptionPanelPhyTree::expandFontSettingsPanel(HI::GUITestOpStatus& os) {
-    QWidget* optionsPanel = getOptionsPanelWidget(os);
-    auto labelsColorButton = GTWidget::findWidget(os, "labelsColorButton", optionsPanel);
-    if (!labelsColorButton->isVisible()) {
-        GTWidget::click(os, GTWidget::findWidget(os, "lblFontSettings", optionsPanel));
-    }
+    QWidget* activeObjectViewWindow = GTUtilsMdi::getActiveObjectViewWindow(os, TreeViewerFactory::ID);
+    return GTWidget::findWidget(os, "TreeOptionsWidget", activeObjectViewWindow);
 }
 #undef GT_METHOD_NAME
 
 #define GT_METHOD_NAME "getFontSize"
 int GTUtilsOptionPanelPhyTree::getFontSize(HI::GUITestOpStatus& os) {
-    expandFontSettingsPanel(os);
     return GTSpinBox::getValue(os, "fontSizeSpinBox", getOptionsPanelWidget(os));
 }
 #undef GT_METHOD_NAME
 
 #define GT_METHOD_NAME "setFontSize"
 void GTUtilsOptionPanelPhyTree::setFontSize(HI::GUITestOpStatus& os, int fontSize) {
-    expandFontSettingsPanel(os);
     GTSpinBox::setValue(os, "fontSizeSpinBox", fontSize, getOptionsPanelWidget(os));
 }
 #undef GT_METHOD_NAME

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -24,13 +24,8 @@
 #include <QDir>
 
 #include <U2Core/AppContext.h>
-#include <U2Core/AppResources.h>
-#include <U2Core/AppSettings.h>
-#include <U2Core/BaseDocumentFormats.h>
 #include <U2Core/Counter.h>
-#include <U2Core/DocumentUtils.h>
 #include <U2Core/MultiTask.h>
-#include <U2Core/UserApplicationsSettings.h>
 
 #include <U2Formats/BAMUtils.h>
 #include <U2Formats/MergeBamTask.h>
@@ -78,11 +73,10 @@ void BwaBuildIndexTask::LogParser::parseErrOutput(const QString& partOfLog) {
 
 // BwaAlignTask
 
-void cleanupTempDir(const QStringList& tempDirFiles) {
-    foreach (const QString& url, tempDirFiles) {
-        QFile toDelete(url);
-        if (toDelete.exists(url)) {
-            toDelete.remove();
+static void cleanupTempDir(const QStringList& tempDirFiles) {
+    for (const QString& url : qAsConst(tempDirFiles)) {
+        if (QFile::exists(url)) {
+            QFile::remove(url);
         }
     }
 }
@@ -103,7 +97,7 @@ QString BwaAlignTask::getSAIPath(const QString& shortReadsUrl) {
 }
 
 void BwaAlignTask::prepare() {
-    if (readSets.size() == 0) {
+    if (readSets.isEmpty()) {
         setError(tr("Short reads are not provided"));
         return;
     }
@@ -188,6 +182,17 @@ void BwaAlignTask::prepare() {
 
         arguments.append("-f");
         arguments.append(getSAIPath(currentReadSet.url.getURLString()));
+
+        if (!indexPath.isEmpty()) {
+            for (const QString& indexSuffix : BwaTask::indexSuffixes) {
+                QFileInfo indexFileInfo(indexPath + indexSuffix);
+                if (!indexFileInfo.exists()) {
+                    stateInfo.setError(tr("Index file \"%1\" does not exist").arg(indexFileInfo.absoluteFilePath()));
+                    return;
+                }
+            }
+        }
+
         arguments.append(indexPath);
         arguments.append(currentReadSet.url.getURLString());
         ExternalToolRunTask* alignTask = new ExternalToolRunTask(BwaSupport::ET_BWA_ID, arguments, new LogParser(), nullptr);
@@ -248,8 +253,7 @@ QList<Task*> BwaAlignTask::onSubTaskFinished(Task* subTask) {
         foreach (const QString& url, urlsToMerge) {
             QFileInfo urlToConvertFileInfo(url);
             QString convertedBamUrl = settings.tmpDirPath + "/" + resultPathFileInfo.baseName() + "_" + QString::number(i) + ".bam";
-            BAMUtils::ConvertOption options(true);
-            BAMUtils::convertToSamOrBam(url, convertedBamUrl, options, stateInfo);
+            BAMUtils::convertSamToBam(stateInfo, url, convertedBamUrl);
             bamUrlstoMerge.append(convertedBamUrl);
             if (stateInfo.isCoR()) {
                 cleanupTempDir(urlsToMerge);
@@ -263,8 +267,7 @@ QList<Task*> BwaAlignTask::onSubTaskFinished(Task* subTask) {
     if (subTask == mergeTask) {
         // converting BAM -> SAM
         QString bamResultPath = resultPathFileInfo.dir().canonicalPath() + "/" + resultPathFileInfo.baseName() + ".bam";
-        BAMUtils::ConvertOption options(false);
-        BAMUtils::convertToSamOrBam(resultPath, bamResultPath, options, stateInfo);
+        BAMUtils::convertBamToSam(stateInfo, bamResultPath, resultPath);
         cleanupTempDir(urlsToMerge);
     }
 
@@ -312,7 +315,7 @@ BwaMemAlignTask::BwaMemAlignTask(const QString& indexPath, const DnaAssemblyToRe
 }
 
 void BwaMemAlignTask::prepare() {
-    if (settings.shortReadSets.size() == 0) {
+    if (settings.shortReadSets.isEmpty()) {
         setError(tr("Short reads are not provided"));
         return;
     }
@@ -390,6 +393,16 @@ void BwaMemAlignTask::prepare() {
         arguments.append("-T");
         arguments.append(settings.getCustomValue(BwaTask::OPTION_SCORE_THRESHOLD, 30).toString());
 
+        if (!indexPath.isEmpty()) {
+            for (const QString& indexSuffix : BwaTask::indexSuffixes) {
+                QFileInfo indexFileInfo(indexPath + indexSuffix);
+                if (!indexFileInfo.exists()) {
+                    stateInfo.setError(tr("Index file \"%1\" does not exist").arg(indexFileInfo.absoluteFilePath()));
+                    return;
+                }
+            }
+        }
+
         arguments.append(indexPath);
 
         if (settings.pairedReads) {
@@ -441,8 +454,7 @@ QList<Task*> BwaMemAlignTask::onSubTaskFinished(Task* subTask) {
             QString resultFilePathWithpartNumber = settings.tmpDirPath + "/" + resultFileInfo.baseName() + "_" +
                                                    QString::number(i) + "." + resultFileInfo.completeSuffix();
             QString bamFilePath = settings.tmpDirPath + "/" + resultFileInfo.baseName() + "_" + QString::number(i) + ".bam";
-            BAMUtils::ConvertOption options(true);
-            BAMUtils::convertToSamOrBam(resultFilePathWithpartNumber, bamFilePath, options, stateInfo);
+            BAMUtils::convertSamToBam(stateInfo, resultFilePathWithpartNumber, bamFilePath);
             bamUrlstoMerge.append(bamFilePath);
             if (stateInfo.isCoR()) {
                 cleanupTempDir(bamUrlstoMerge);
@@ -458,8 +470,7 @@ QList<Task*> BwaMemAlignTask::onSubTaskFinished(Task* subTask) {
             cleanupTempDir(bamUrlstoMerge);
         }
         QString bamResultPath = settings.tmpDirPath + "/" + resultFileInfo.baseName() + ".bam";
-        BAMUtils::ConvertOption options(false);
-        BAMUtils::convertToSamOrBam(resultPath, bamResultPath, options, stateInfo);
+        BAMUtils::convertBamToSam(stateInfo, bamResultPath, resultPath);
     }
     return result;
 }
@@ -473,7 +484,7 @@ BwaSwAlignTask::BwaSwAlignTask(const QString& indexPath, const DnaAssemblyToRefT
 }
 
 void BwaSwAlignTask::prepare() {
-    if (settings.shortReadSets.size() == 0) {
+    if (settings.shortReadSets.isEmpty()) {
         setError(tr("Short reads are not provided"));
         return;
     }

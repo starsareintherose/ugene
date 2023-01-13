@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -65,7 +65,7 @@ public:
     static void doubleClickItem(HI::GUITestOpStatus& os, const QModelIndex& itemIndex);
     static void doubleClickItem(HI::GUITestOpStatus& os, const QString& itemName);
     static void click(HI::GUITestOpStatus& os, const QString& itemName, Qt::MouseButton button = Qt::LeftButton);
-    static void click(HI::GUITestOpStatus& os, const QString& itemName, const QString& parentName, Qt::MouseButton button = Qt::LeftButton);
+    static void click(HI::GUITestOpStatus& os, const QString& itemName, const QString& parentName, Qt::MouseButton button = Qt::LeftButton, const GTGlobals::FindOptions& itemOptions = {});
 
     static void callContextMenu(HI::GUITestOpStatus& os, const QString& itemName);
     static void callContextMenu(HI::GUITestOpStatus& os, const QString& itemName, const QString& parentName);
@@ -130,6 +130,9 @@ public:
 
     // Get all documents names with their object names (database connections are processed incorrectly)
     static QMap<QString, QStringList> getDocuments(HI::GUITestOpStatus& os);
+    
+    // Counts visible top level items in project tree (after applying filtering, if present).
+    static int countTopLevelItems(HI::GUITestOpStatus& os);
 
     static const QString widgetName;
 

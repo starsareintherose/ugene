@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@ class MaConsensusModeWidget : public QWidget, public Ui_MaConsensusModeWidget {
 public:
     MaConsensusModeWidget(QWidget* parent = nullptr);
     void init(MultipleAlignmentObject* maObject, MaEditorConsensusArea* consArea);
+    void reInit(MultipleAlignmentObject* maObject, MaEditorConsensusArea* consArea);
 
     void updateState();
     void updateThresholdState(bool enable, int minVal = 0, int maxVal = 0, int value = 0);

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,6 @@ class LoadUnloadedDocumentTask;
 
 class U2GUI_EXPORT ProjectUtils {
 public:
-    static bool isFolderInRecycleBin(const QString& folderPath);
-    static bool isFolderInRecycleBinSubtree(const QString& folderPath);
-
     static bool isSystemFolder(const QString& folderPath);
 
     static Document* findDocument(const QString& url);
@@ -43,9 +40,8 @@ public:
     static LoadUnloadedDocumentTask* findLoadTask(const QString& url);
 
     static const int MAX_OBJS_TO_SHOW_LOAD_PROGRESS;
-    static const QString RECYCLE_BIN_FOLDER_PATH;
 };
 
 }  // namespace U2
 
-#endif  // _U2_PROJECTUTILS_H_
+#endif  // _U2_PROJECT_UTILS_H_

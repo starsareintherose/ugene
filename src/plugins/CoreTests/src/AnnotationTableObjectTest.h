@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -82,13 +82,13 @@ class GTest_FindAnnotationByName : public XmlTest {
     Q_OBJECT
     SIMPLE_XML_TEST_BODY_WITH_FACTORY(GTest_FindAnnotationByName, "find-annotation-by-name")
 
-    ReportResult report();
+    ReportResult report() override;
 
     Annotation* getAnnotation() const {
         return result;
     }
 
-    void cleanup();
+    void cleanup() override;
 
 private:
     QString objContextName;

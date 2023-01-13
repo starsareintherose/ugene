@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2017 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -68,6 +68,9 @@ public:
     // fails if widget is NULL, not visible or not enabled; if p isNull, clicks in the center of widget
     static void click(GUITestOpStatus& os, QWidget* w, Qt::MouseButton mouseButton = Qt::LeftButton, QPoint p = QPoint());
 
+    // use this method if you need to click on a point and not on a widget.
+    static void moveToAndClick(const QPoint& point);
+
     // fails if widget is NULL, GTWidget::click fails or widget hasn't got focus
     static void setFocus(GUITestOpStatus& os, QWidget* w);
 
@@ -75,6 +78,8 @@ public:
     static QWidget* findWidget(GUITestOpStatus& os, const QString& objectName, QWidget* parentWidget = nullptr, const GTGlobals::FindOptions& = {});
 
     static QPoint getWidgetCenter(QWidget* widget);
+    static QPoint getWidgetVisibleCenter(QWidget* widget);
+    static QPoint getWidgetVisibleCenterGlobal(QWidget* widget);
 
     static QAbstractButton* findButtonByText(GUITestOpStatus& os, const QString& text, QWidget* parentWidget = nullptr, const GTGlobals::FindOptions& = {});
 
@@ -109,15 +114,14 @@ public:
     static void close(GUITestOpStatus& os, QWidget* widget);
     static void showMaximized(GUITestOpStatus& os, QWidget* widget);
     static void showNormal(GUITestOpStatus& os, QWidget* widget);
+    static void showMinimized(GUITestOpStatus& os, QWidget* widget);
 
     static void clickLabelLink(GUITestOpStatus& os, QWidget* label, int step = 10, int indent = 0);
     static void clickWindowTitle(GUITestOpStatus& os, QWidget* window);
-    static void moveWidgetTo(GUITestOpStatus& os, QWidget* window, const QPoint& point);
     static void resizeWidget(GUITestOpStatus& os, QWidget* widget, const QSize& size);
     static QPoint getWidgetGlobalTopLeftPoint(GUITestOpStatus& os, QWidget* widget);
 
     static QWidget* getActiveModalWidget(GUITestOpStatus& os);
-    static QWidget* getActivePopupWidget(GUITestOpStatus& os);
     static QMenu* getActivePopupMenu(GUITestOpStatus& os);
 
     static void checkEnabled(GUITestOpStatus& os, QWidget* widget, bool expectedEnabledState = true);

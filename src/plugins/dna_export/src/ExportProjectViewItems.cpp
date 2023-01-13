@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -254,8 +254,8 @@ bool hasNucleicForAll(const QList<GObject*>& set) {
 QList<SharedAnnotationData> getAllRelatedAnnotations(const U2SequenceObject* so, const QList<GObject*>& annotationTables) {
     QList<GObject*> relatedAnnotationTables = GObjectUtils::findObjectsRelatedToObjectByRole(so, GObjectTypes::ANNOTATION_TABLE, ObjectRole_Sequence, annotationTables, UOF_LoadedOnly);
     QList<SharedAnnotationData> anns;
-    foreach (GObject* aObj, relatedAnnotationTables) {
-        AnnotationTableObject* annObj = qobject_cast<AnnotationTableObject*>(aObj);
+    for (GObject* aObj : qAsConst(relatedAnnotationTables)) {
+        auto annObj = qobject_cast<AnnotationTableObject*>(aObj);
         foreach (Annotation* ann, annObj->getAnnotations()) {
             anns.append(ann->getData());
         }

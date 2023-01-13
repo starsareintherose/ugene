@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -73,10 +73,10 @@ Task* MaEditorFactory::createViewTask(const MultiGSelection& multiSelection, boo
                                                                            false);
     QList<OpenMaEditorTask*> resTasks;
 
-    foreach (Document* doc, docsWithMSA) {
+    for (Document* doc : qAsConst(docsWithMSA)) {
         QList<GObject*> docObjs = doc->findGObjectByType(type, UOF_LoadedAndUnloaded);
         if (!docObjs.isEmpty()) {
-            foreach (GObject* obj, docObjs) {
+            for (GObject* obj : qAsConst(docObjs)) {
                 if (!msaObjects.contains(obj)) {
                     msaObjects.append(obj);
                 }

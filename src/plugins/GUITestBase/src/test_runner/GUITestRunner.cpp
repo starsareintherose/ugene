@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 #include <harness/UGUITestBase.h>
 
 #include <QMessageBox>
+#include <QTextStream>
 #include <QTreeView>
 #include <QTreeWidgetItem>
 
@@ -98,6 +99,7 @@ void GUITestRunner::sl_runSelected() {
         }
     }
 }
+
 void GUITestRunner::sl_runAllGUITests() {
     GUITestService::setEnvVariablesForGuiTesting();
     if (GUITestService::getGuiTestService()->isEnabled()) {

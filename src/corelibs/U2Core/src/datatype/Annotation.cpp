@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -317,10 +317,10 @@ bool Annotation::annotationLessThan(Annotation* first, Annotation* second) {
 }
 
 bool Annotation::annotationLessThanByRegion(Annotation* first, Annotation* second) {
-    SAFE_POINT(nullptr != first && nullptr != second, "Invalid annotation detected", false);
+    SAFE_POINT(first != nullptr && second != nullptr, "Invalid annotation detected", false);
 
-    const U2Location firstLocation = first->getLocation();
-    const U2Location secondLocation = second->getLocation();
+    const U2Location& firstLocation = first->getLocation();
+    const U2Location& secondLocation = second->getLocation();
     SAFE_POINT(!firstLocation->isEmpty() && !secondLocation->isEmpty(), "Invalid annotation's location detected!", false);
 
     const U2Region& r1 = firstLocation->regions.first();

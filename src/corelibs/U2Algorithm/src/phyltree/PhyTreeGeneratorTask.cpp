@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -74,14 +74,13 @@ Task::ReportResult PhyTreeGeneratorLauncherTask::report() {
     QList<PhyNode*> nodes = tree->getNodesPreOrder();
     for (PhyNode* node : qAsConst(nodes)) {
         bool ok = false;
-        QString rowName = node->getName();
+        QString rowName = node->name;
         CHECK_CONTINUE(rowName.startsWith(RENAMED_ROW_PREFIX));  // Filter inner nodes. Name may be empty or equal to the distance (PhyML).
         int index = rowName.mid(RENAMED_ROW_PREFIX.length()).toInt(&ok);
         CHECK_EXT(ok && index >= 0 && index < originalRowNameByIndex.length(),
                   setError(tr("Failed to map row name: %1").arg(rowName)),
                   ReportResult_Finished);
-        QString originalRowName = originalRowNameByIndex[index];
-        node->setName(originalRowName);
+        node->name = originalRowNameByIndex[index];
     }
     result = tree;
     return ReportResult_Finished;

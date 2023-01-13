@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -55,7 +55,7 @@ void TestStarter::prepare() {
                 if (!errs.isEmpty()) {
                     ioLog.error("Error reading test suites: \n" + errs.join("\n"));
                 } else {
-                    foreach (GTestSuite* ts, tsl) {
+                    for (GTestSuite* ts : qAsConst(tsl)) {
                         addTestSuite(ts);
                     }
                 }
@@ -214,7 +214,7 @@ TestRunnerTask* TestStarter::createRunTask() {
         return nullptr;
     }
     QList<GTestState*> testsToRun;
-    foreach (GTestSuite* ts, suites) {
+    for (GTestSuite* ts : qAsConst(suites)) {
         foreach (GTestRef* tref, ts->getTests()) {
             testsToRun << new GTestState(tref);
         }
@@ -231,8 +231,7 @@ TestRunnerTask* TestStarter::createRunTask() {
     if (!ok || numberTestsToRun <= 0) {
         numberTestsToRun = 5;
     }
-    TestRunnerTask* ttask = new TestRunnerTask(testsToRun, getEnv(), numberTestsToRun);
-    return ttask;
+    return new TestRunnerTask(testsToRun, getEnv(), numberTestsToRun);
 }
 
 Task::ReportResult TestStarter::report() {

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -96,10 +96,11 @@ Task::ReportResult FindExonRegionsTask::report() {
 
     foreach (GObject* a, relAnns) {
         AnnotationTableObject* att = qobject_cast<AnnotationTableObject*>(a);
-        const QList<Annotation*> anns = att->getAnnotations();
-        foreach (Annotation* ann, anns) {
+        QList<Annotation*> anns = att->getAnnotations();
+        for (Annotation* ann : qAsConst(anns)) {
             if (ann->getName() == exonAnnName) {
-                foreach (const U2Region& r, ann->getRegions()) {
+                QVector<U2Region> regions = ann->getRegions();
+                for (const U2Region& r : qAsConst(regions)) {
                     exonRegions.append(r);
                 }
             }

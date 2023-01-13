@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -55,7 +55,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QPlainTextEdit>
-#include <QProgressBar>
 #include <QPushButton>
 #include <QStandardItemModel>
 #include <QTableWidget>
@@ -384,13 +383,13 @@ GUI_TEST_CLASS_DEFINITION(test_1020) {
     GTUtilsDialog::add(os, new DistanceMatrixDialogFiller(os, DistanceMatrixDialogFiller::HTML, sandBoxDir + "test_1020.html"));
     GTMenu::showContextMenu(os, GTUtilsMdi::activeWindow(os));
 
-    CHECK_SET_ERR(QFileInfo(sandBoxDir + "test_1020.html").exists(), "Distance matrix file not found");
+    CHECK_SET_ERR(QFileInfo::exists(sandBoxDir + "test_1020.html"), "Distance matrix file not found");
 
     GTUtilsDialog::add(os, new PopupChooser(os, {MSAE_MENU_STATISTICS, "Generate distance matrix"}, GTGlobals::UseMouse));
     GTUtilsDialog::add(os, new DistanceMatrixDialogFiller(os, DistanceMatrixDialogFiller::CSV, sandBoxDir + "test_1020.csv"));
     GTMenu::showContextMenu(os, GTUtilsMdi::activeWindow(os));
 
-    CHECK_SET_ERR(QFileInfo(sandBoxDir + "test_1020.csv").exists(), "Distance matrix file not found");
+    CHECK_SET_ERR(QFileInfo::exists(sandBoxDir + "test_1020.csv"), "Distance matrix file not found");
 
     // Expected result : Distance matrix is generated and / or saved correctly in all cases.
     GTUtilsLog::check(os, lt);
@@ -491,8 +490,9 @@ GUI_TEST_CLASS_DEFINITION(test_1021_3) {
 
         // 2) Click "build dotplot" tooltip
         // 3) Click OK in opened dotplot dialog
-        GTUtilsDialog::waitForDialog(os, new DotPlotFiller(os, 120, 100, true));
+        GTUtilsDialog::add(os, new DotPlotFiller(os, 120, 100, true));
         GTWidget::click(os, GTWidget::findWidget(os, "build_dotplot_action_widget"));
+        GTThread::waitForMainThread();
 
         if (i == 0) {
             // GTUtilsMdi::click(os, GTGlobals::Minimize);
@@ -500,9 +500,10 @@ GUI_TEST_CLASS_DEFINITION(test_1021_3) {
         }
 
         // 4) Click on human_T1.fa project tree view item
-        GTUtilsDialog::waitForDialog(os, new MessageBoxDialogFiller(os, QMessageBox::No, "Save dot-plot data before closing?"));
+        GTUtilsDialog::add(os, new MessageBoxDialogFiller(os, QMessageBox::No, "Save dot-plot data before closing?"));
         GTMouseDriver::moveTo(GTUtilsProjectTreeView::getItemCenter(os, "human_T1.fa"));
         GTMouseDriver::click();
+        GTThread::waitForMainThread();
 
         // 5) Press delete key
         GTKeyboardDriver::keyClick(Qt::Key_Delete);
@@ -523,7 +524,7 @@ GUI_TEST_CLASS_DEFINITION(test_1021_4) {
 
         // 2) Click "build dotplot" tooltip
         // 3) Click OK in opened dotplot dialog
-        GTUtilsDialog::waitForDialog(os, new DotPlotFiller(os, 110, 100, true));
+        GTUtilsDialog::add(os, new DotPlotFiller(os, 110, 100, true));
         GTWidget::click(os, GTWidget::findWidget(os, "build_dotplot_action_widget"));
 
         if (i == 0) {
@@ -532,7 +533,7 @@ GUI_TEST_CLASS_DEFINITION(test_1021_4) {
         }
 
         // 4) Click on human_T1.fa project tree view item
-        GTUtilsDialog::waitForDialog(os, new MessageBoxDialogFiller(os, QMessageBox::No, "Save dot-plot data before closing?"));
+        GTUtilsDialog::add(os, new MessageBoxDialogFiller(os, QMessageBox::No, "Save dot-plot data before closing?"));
         GTMouseDriver::moveTo(GTUtilsProjectTreeView::getItemCenter(os, "human_T1.fa"));
         GTMouseDriver::click();
 
@@ -813,7 +814,7 @@ GUI_TEST_CLASS_DEFINITION(test_1049) {
     };
     GTUtilsDialog::waitForDialog(os, new DistanceMatrixDialogFiller(os, new custom()));
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"MSAE_MENU_STATISTICS", "Generate distance matrix"}));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTMenu::showContextMenu(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
     //    Expected state: the "Generate Distance matrix" dialog appeared.
 
     //    Expected state: Statistics View opened, it contains two tables: full statistics and additional group statistics.
@@ -2064,23 +2065,23 @@ GUI_TEST_CLASS_DEFINITION(test_1203_1) {
 
     //    Select "Database" to "ncbi-blastn"
     //    Expected state: "Entrez query" lineedit is enabled
-    GTUtilsWorkflowDesigner::setParameter(os, "Database", "ncbi-blastn", GTUtilsWorkflowDesigner::comboValue);
+    GTUtilsWorkflowDesigner::setParameter(os, "Program", "ncbi-blastn", GTUtilsWorkflowDesigner::comboValue);
     CHECK_SET_ERR(GTUtilsWorkflowDesigner::isParameterEnabled(os, "Entrez query"), "Parameter is unexpectedly disabled");
 
     //    Select "Database" to "ncbi-blastp"
     //    Expected state: "Entrez query" lineedit is enabled
-    GTUtilsWorkflowDesigner::setParameter(os, "Database", "ncbi-blastp", GTUtilsWorkflowDesigner::comboValue);
+    GTUtilsWorkflowDesigner::setParameter(os, "Program", "ncbi-blastp", GTUtilsWorkflowDesigner::comboValue);
     CHECK_SET_ERR(GTUtilsWorkflowDesigner::isParameterEnabled(os, "Entrez query"), "Parameter is unexpectedly disabled");
 
     //    Select "Database" to "ncbi-cdd"
     //    Expected state: "Entrez query" lineedit is not visible
-    GTUtilsWorkflowDesigner::setParameter(os, "Database", "ncbi-cdd", GTUtilsWorkflowDesigner::comboValue);
+    GTUtilsWorkflowDesigner::setParameter(os, "Program", "ncbi-cdd", GTUtilsWorkflowDesigner::comboValue);
     CHECK_SET_ERR(!GTUtilsWorkflowDesigner::isParameterVisible(os, "Entrez query"), "Parameter is unexpectedly visible");
 
     //    Select "Database" to "ncbi-blastn"
     //    Expected state: "Entrez query" lineedit is enabled
     GTUtilsWorkflowDesigner::clickParameter(os, "BLAST output");
-    GTUtilsWorkflowDesigner::setParameter(os, "Database", "ncbi-blastn", GTUtilsWorkflowDesigner::comboValue);
+    GTUtilsWorkflowDesigner::setParameter(os, "Program", "ncbi-blastn", GTUtilsWorkflowDesigner::comboValue);
     CHECK_SET_ERR(GTUtilsWorkflowDesigner::isParameterEnabled(os, "Entrez query"), "Parameter is unexpectedly disabled");
 }
 
@@ -2685,7 +2686,7 @@ GUI_TEST_CLASS_DEFINITION(test_1260) {
     GTLogTracer lt;
     GTUtilsDialog::add(os, new PopupChooser(os, {MSAE_MENU_EXPORT, "Save subalignment"}));
     GTUtilsDialog::add(os, new ExtractSelectedAsMSADialogFiller(os, testDir + "_common_data/scenarios/sandbox/1260.sto", {"Isophya_altaica_EF540820", "Phaneroptera_falcata"}, 1, 51, true, false, false, false, true));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTMenu::showContextMenu(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
     CHECK_SET_ERR(!lt.hasErrors(), "Errors in log: " + lt.getJoinedErrorString());
 }
 
@@ -2754,7 +2755,7 @@ GUI_TEST_CLASS_DEFINITION(test_1263) {
     GTKeyboardDriver::keyClick(Qt::Key_Enter);
 
     // Excepted state: PCR product has been created
-    GTUtilsAnnotationsTreeView::findItem(os, "Fragment (185965-186160)");
+    GTUtilsAnnotationsTreeView::findItem(os, "Fragment (22172-22388)");
 }
 
 GUI_TEST_CLASS_DEFINITION(test_1266) {
@@ -4904,13 +4905,13 @@ GUI_TEST_CLASS_DEFINITION(test_1531) {
     // 1. Open "samples/CLUSTALW/COI.aln".
     // 2. Activate the "Statistics" options panel.
     // 3. Click "Show distances column"
-    // Expected: the hint about reference abcense is shown.
+    // Expected: the hint about reference absence is shown.
     // 4. Right click "Phaneroptera_falcata" -> Set this sequence as reference.
-    // Expected: the hint about reference abcense is not shown.
+    // Expected: the hint about reference absence is not shown.
     // 5. Activate the "General" options panel.
     // 6. Click "Clear".
     // 7. Activate the "Statistics" options panel.
-    // Expected: the hint about reference abcense is shown.
+    // Expected: the hint about reference absence is shown.
     GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/", "COI.aln");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
@@ -5125,7 +5126,7 @@ GUI_TEST_CLASS_DEFINITION(test_1573) {
     // 2. Select some sequences in the NameList area.
     GTUtilsMSAEditorSequenceArea::selectArea(os, QPoint(0, 2), QPoint(2, 6));
 
-    // 3. Click to the any sequence in this selection (in the NameList area).
+    // 3. Click to any sequence in this selection (in the NameList area).
     GTUtilsMSAEditorSequenceArea::selectSequence(os, "Montana_montana");
 
     // Expected state: only one sequence is selected (the clicked one).
@@ -5156,10 +5157,10 @@ GUI_TEST_CLASS_DEFINITION(test_1574) {
     //    5. Try to select some area in the NameList area (selection must start from the next row under the last row).
     GTUtilsMsaEditor::selectRows(os, 14, 10, GTGlobals::UseMouse);
 
-    //    Expected state: A region from the alignmnet bottom to the selection end point is selected.
+    //    Expected state: A region from the alignment bottom to the selection end point is selected.
     GTUtilsMSAEditorSequenceArea::checkSelectedRect(os, QRect(QPoint(0, 10), QPoint(11, 13)));
 
-    //    6. Try to select some area in the NameList area (selection must start from the bottom of widget.
+    //    6. Try to select some area in the NameList area (selection must start from the bottom of widget).
     GTUtilsMsaEditor::selectRows(os, 30, 10, GTGlobals::UseMouse);
 
     //    Expected state: A region from the alignment bottom to the selection end point is selected.
@@ -5246,7 +5247,7 @@ GUI_TEST_CLASS_DEFINITION(test_1584) {
     QFile f1(testDir + "_common_data/genbank/pBR322.gb");
     f1.open(QIODevice::ReadOnly);
     QByteArray firstLine = f1.read(64);  // after 64 position the date of file modification is located,
-                                         // so meaningfull part is before it
+        // so meaningfull part is before it
     f1.close();
 
     GTFileDialog::openFile(os, testDir + "_common_data/genbank/pBR322.gb");
@@ -5379,7 +5380,7 @@ GUI_TEST_CLASS_DEFINITION(test_1595) {
     //    4) Add several files.
     GTUtilsWorkflowDesigner::setDatasetInputFile(os, dataDir + "samples/FASTA/human_T1.fa");
     GTUtilsWorkflowDesigner::setDatasetInputFile(os, dataDir + "samples/Genbank/sars.gb");
-    //    5) Select some of the added items in the list.
+    //    5) Select some added items in the list.
     auto datasetWidget = GTWidget::findWidget(os, "DatasetWidget");
     auto items = GTWidget::findListWidget(os, "itemsArea", datasetWidget);
     GTListWidget::click(os, items, "sars.gb");
@@ -5533,7 +5534,7 @@ GUI_TEST_CLASS_DEFINITION(test_1600_6) {
     CHECK_SET_ERR(GTUtilsMSAEditorSequenceArea::collapsingMode(os) == true, "collapsing mode is unexpectidly off");
     //    Expected state: One collapsible item has appeared in MSA
 
-    //    3. Choose in MSA context menu { Align -> Align with MUSCLE… }
+    //    3. Choose in MSA context menu { Align -> Align with MUSCLE… }.
     GTUtilsDialog::waitForDialog(os, new MuscleDialogFiller(os));
 
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {MSAE_MENU_ALIGN, "Align with muscle"}, GTGlobals::UseMouse));
@@ -5766,7 +5767,7 @@ GUI_TEST_CLASS_DEFINITION(test_1627) {
     GTLogTracer logTracer;
 
     //    1. Select {Tools->Build dotplot...} in the main menu.
-    //    Expected state: the Build dotplot from the sequences" dialog appeared.
+    //    Expected state: the "Build dotplot from the sequences" dialog appeared.
 
     //    2. Fill next fields of the dialog and click the "Next" button:
     //        {File with first sequence:} _common_data/scenarios/dp_view/dpm1.fa
@@ -6185,7 +6186,7 @@ GUI_TEST_CLASS_DEFINITION(test_1672) {
     auto algoCombo = GTWidget::findComboBox(os, "algoComboBox");
     GTComboBox::selectItemByText(os, algoCombo, "Similarity");
     QString num1 = GTUtilsMSAEditorSequenceArea::getSimilarityValue(os, 8);
-    CHECK_SET_ERR(num1 == "100%", "unexpected sumilarity value an line 1: " + num1);
+    CHECK_SET_ERR(num1 == "100%", "unexpected similarity value an line 1: " + num1);
 }
 
 GUI_TEST_CLASS_DEFINITION(test_1673) {
@@ -6689,7 +6690,7 @@ GUI_TEST_CLASS_DEFINITION(test_1701) {
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"Render Style", "Ball-and-Stick"}));
     GTMenu::showContextMenu(os, pdb2Widget);
 
-    QImage pdb2ImageBefore = GTWidget::getImage(os, pdb2Widget, true);
+    QImage pdb2ImageBefore = GTWidget::getImage(os, pdb2Widget);
 
     // Activate PDB 1 and update 3d rendering settings too.
     GTMouseDriver::moveTo(GTUtilsProjectTreeView::getItemCenter(os, "1A5H.pdb"));
@@ -6702,9 +6703,11 @@ GUI_TEST_CLASS_DEFINITION(test_1701) {
     GTMenu::showContextMenu(os, pdb1Widget);
     // Close PDB 1 view.
     GTMenu::clickMainMenuItem(os, {"Actions", "Close active view"}, GTGlobals::UseKey);
+    GTUtilsDialog::checkNoActiveWaiters(os);
+    GTThread::waitForMainThread();
 
     // Check that PDB 2 image was not changed.
-    QImage pdb2ImageAfter = GTWidget::getImage(os, pdb2Widget, true);
+    QImage pdb2ImageAfter = GTWidget::getImage(os, pdb2Widget);
     CHECK_SET_ERR(pdb2ImageBefore == pdb2ImageAfter, "PDB2 3D image is changed");
 }
 

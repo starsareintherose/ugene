@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -26,11 +26,11 @@
 
 namespace U2 {
 
-class MaEditor;
+class MaEditorWgt;
 
 class U2VIEW_EXPORT DrawHelper {
 public:
-    DrawHelper(MaEditor* editor);
+    DrawHelper(MaEditorWgt* ui);
 
     U2Region getVisibleBases(int widgetWidth, bool countFirstClippedBase = true, bool countLastClippedBase = true) const;
     U2Region getVisibleViewRowsRegion(int widgetHeight, bool countFirstClippedRow = true, bool countLastClippedRow = true) const;
@@ -42,7 +42,7 @@ public:
     QRect getScreenRect(const QRect& columnsAndRowsRect) const;
 
 private:
-    MaEditor* const editor;
+    MaEditorWgt* ui;
 };
 
 }  // namespace U2

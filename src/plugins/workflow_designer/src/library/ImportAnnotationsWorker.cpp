@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -104,7 +104,7 @@ static QList<SharedAnnotationData> getAnnsFromDoc(Document* doc) {
         return ret;
     }
     QList<GObject*> objs = doc->findGObjectByType(GObjectTypes::ANNOTATION_TABLE);
-    foreach (GObject* obj, objs) {
+    for (GObject* obj : qAsConst(objs)) {
         AnnotationTableObject* annObj = qobject_cast<AnnotationTableObject*>(obj);
         if (nullptr == annObj) {
             continue;

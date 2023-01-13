@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -435,8 +435,8 @@ void QDElement::contextMenuEvent(QGraphicsSceneContextMenuEvent* event) {
     scheme->setOrder(getActor(), newSerialNum);
     for (int i = from; i <= to; i++) {
         QDActor* a = actors.at(i);
-        const QList<QDSchemeUnit*>& suList = a->getSchemeUnits();
-        foreach (QDSchemeUnit* su, suList) {
+        QList<QDSchemeUnit*> suList = a->getSchemeUnits();
+        for (QDSchemeUnit* su : qAsConst(suList)) {
             foreach (QGraphicsItem* it, qs->getElements()) {
                 QDElement* uv = qgraphicsitem_cast<QDElement*>(it);
                 assert(uv);

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -130,7 +130,8 @@ void ProjectFileUtils::saveProjectFile(U2OpStatus& ts, Project* project, const Q
     QDir projectDir = projectFile.absoluteDir();
 
     // save documents
-    foreach (Document* gbDoc, project->getDocuments()) {
+    QList<Document*> documents = project->getDocuments();
+    for (Document* gbDoc : qAsConst(documents)) {
         gbDoc->getDocumentFormat()->updateFormatSettings(gbDoc);
 
         QString docUrl = gbDoc->getURLString();

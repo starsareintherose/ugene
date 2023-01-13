@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -33,9 +33,6 @@ public:
 
     /** Returns tree-options widget. */
     static QWidget* getOptionsPanelWidget(HI::GUITestOpStatus& os);
-
-    /** Expands label font settings panel if needed. */
-    static void expandFontSettingsPanel(HI::GUITestOpStatus& os);
 
     /** Returns currently shown font size. */
     static int getFontSize(HI::GUITestOpStatus& os);

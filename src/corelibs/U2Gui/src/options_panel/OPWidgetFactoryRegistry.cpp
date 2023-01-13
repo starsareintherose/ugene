@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ QList<OPWidgetFactory*> OPWidgetFactoryRegistry::getRegisteredFactories(const QL
 
     QList<OPWidgetFactory*> factoriesForObjView;
 
-    foreach (OPWidgetFactory* factory, opWidgetFactories) {
+    for (OPWidgetFactory* factory : qAsConst(opWidgetFactories)) {
         bool pass = true;
         foreach (OPFactoryFilterVisitorInterface* filter, filters) {
             pass &= factory->passFiltration(filter);

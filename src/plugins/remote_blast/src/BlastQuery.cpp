@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -125,7 +125,7 @@ void QDCDDActor::sl_onAlgorithmTaskFinished() {
     int minLen = cfg->getParameter(MIN_RES_LEN)->getAttributeValueWithoutScript<int>();
     int maxLen = cfg->getParameter(MAX_RES_LEN)->getAttributeValueWithoutScript<int>();
     const QString& qualVal = cfg->getParameter(QUAL_ATTR)->getAttributeValueWithoutScript<QString>();
-    foreach (const SharedAnnotationData& ad, res) {
+    for (const SharedAnnotationData& ad : qAsConst(res)) {
         const U2Region& reg = ad->location->regions.first();
         if (reg.length < minLen || reg.length > maxLen) {
             continue;

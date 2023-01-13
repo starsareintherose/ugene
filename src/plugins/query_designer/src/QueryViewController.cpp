@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -403,18 +403,18 @@ void QueryScene::dragMoveEvent(QGraphicsSceneDragDropEvent* event) {
 
         QRectF leftArea = sceneRect();
         leftArea.setRight(mousePos.x());
-        const QList<QGraphicsItem*>& annItemsToLeft = getElements(leftArea);
+        QList<QGraphicsItem*> annItemsToLeft = getElements(leftArea);
 
         QRectF rightArea = sceneRect();
         rightArea.setLeft(mousePos.x());
-        const QList<QGraphicsItem*>& annItemsToRight = getElements(rightArea);
+        QList<QGraphicsItem*> annItemsToRight = getElements(rightArea);
 
         qreal delta = sceneRect().width() * sceneRect().width() + sceneRect().height() * sceneRect().height();
         QDElement *src = nullptr, *dst = nullptr;
-        foreach (QGraphicsItem* itLeft, annItemsToLeft) {
+        for (QGraphicsItem* itLeft : qAsConst(annItemsToLeft)) {
             QDElement* leftAnn = qgraphicsitem_cast<QDElement*>(itLeft);
             assert(leftAnn);
-            foreach (QGraphicsItem* itRight, annItemsToRight) {
+            for (QGraphicsItem* itRight : qAsConst(annItemsToRight)) {
                 QDElement* rightAnn = qgraphicsitem_cast<QDElement*>(itRight);
                 assert(rightAnn);
                 QLineF srcToPos(leftAnn->getRightConnector(), mousePos);

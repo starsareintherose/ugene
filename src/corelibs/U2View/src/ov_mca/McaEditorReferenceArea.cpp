@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -87,7 +87,15 @@ void McaEditorReferenceArea::sl_selectMismatch(int pos) {
 }
 
 void McaEditorReferenceArea::sl_visibleRangeChanged() {
-    const U2Region visibleRange = ui->getDrawHelper()->getVisibleBases(ui->getSequenceArea()->width());
+    U2Region visibleRange = ui->getDrawHelper()->getVisibleBases(ui->getSequenceArea()->width());
+    // TODO:ichebyki is it right the following sentence ?
+    // seqLen may not be updated yet here,
+    // so it may be less then editor->getAlignmentLen()
+    //     * getVisibleBases() uses maEditor->getAlignmentLen()
+    // Check this and update range, else we have assertion
+    if (visibleRange.endPos() > seqLen) {
+        visibleRange.length = seqLen - visibleRange.startPos;
+    }
     setVisibleRange(visibleRange);
     update();
 }

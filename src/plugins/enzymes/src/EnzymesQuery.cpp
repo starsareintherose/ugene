@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -83,10 +83,10 @@ Task* QDEnzymesActor::getAlgorithmTask(const QVector<U2Region>& location) {
 }
 
 void QDEnzymesActor::sl_onAlgorithmTaskFinished() {
-    foreach (FindEnzymesTask* st, enzymesTasks) {
+    for (FindEnzymesTask* st : qAsConst(enzymesTasks)) {
         foreach (const QString& id, ids) {
-            QList<SharedAnnotationData> dataz = st->getResultsAsAnnotations(id);
-            foreach (const SharedAnnotationData& ad, dataz) {
+            QList<SharedAnnotationData> resultAnnotations = st->getResultsAsAnnotations(id);
+            for (const SharedAnnotationData& ad : qAsConst(resultAnnotations)) {
                 QDResultUnit ru(new QDResultUnitData);
                 ru->strand = ad->getStrand();
                 ru->quals = ad->qualifiers;

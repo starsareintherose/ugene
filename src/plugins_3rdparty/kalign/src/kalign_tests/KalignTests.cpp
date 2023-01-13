@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -200,9 +200,9 @@ void Kalign_Load_Align_Compare_Task::run() {
     const QList<MultipleSequenceAlignmentRow> alignedSeqs1 = ma1->getMsa()->getMsaRows();
     const QList<MultipleSequenceAlignmentRow> alignedSeqs2 = ma2->getMsa()->getMsaRows();
 
-    foreach (const MultipleSequenceAlignmentRow& maItem1, alignedSeqs1) {
+    for (const MultipleSequenceAlignmentRow& maItem1 : qAsConst(alignedSeqs1)) {
         bool nameFound = false;
-        foreach (const MultipleSequenceAlignmentRow& maItem2, alignedSeqs2) {
+        for (const MultipleSequenceAlignmentRow& maItem2 : qAsConst(alignedSeqs2)) {
             if (maItem1->getName() == maItem2->getName()) {
                 nameFound = true;
                 if (maItem2->getCoreEnd() != maItem1->getCoreEnd()) {

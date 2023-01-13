@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,7 @@
 #include <U2Core/LoadDocumentTask.h>
 #include <U2Core/ProjectModel.h>
 #include <U2Core/ProjectService.h>
+#include <U2Core/Settings.h>
 #include <U2Core/U2AlphabetUtils.h>
 #include <U2Core/U2DbiRegistry.h>
 #include <U2Core/U2OpStatusUtils.h>
@@ -123,6 +124,7 @@ void BlastRunDialog::sl_runQuery() {
 // BlastWithExtFileRunDialog
 BlastWithExtFileRunDialog::BlastWithExtFileRunDialog(QWidget* parent)
     : BlastRunCommonDialog(parent, nullptr) {
+    AppContext::getSettings()->setValue(OpenViewTask::IGNORE_MODAL_WIDGET, true);
     // Create input file widget.
     auto widget = new QWidget(parent);
     inputFileLineEdit = new FileLineEdit("", "", false, widget);
@@ -151,6 +153,10 @@ BlastWithExtFileRunDialog::BlastWithExtFileRunDialog(QWidget* parent)
 
     connect(cancelButton, SIGNAL(clicked()), SLOT(sl_cancel()));
     connect(this, SIGNAL(rejected()), SLOT(sl_cancel()));
+}
+
+ BlastWithExtFileRunDialog::~BlastWithExtFileRunDialog() {
+    AppContext::getSettings()->setValue(OpenViewTask::IGNORE_MODAL_WIDGET, false);
 }
 
 const QList<BlastTaskSettings>& BlastWithExtFileRunDialog::getSettingsList() const {

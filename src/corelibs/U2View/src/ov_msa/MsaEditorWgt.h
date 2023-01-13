@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ class MSADistanceMatrix;
 class MSAEditor;
 class MsaEditorAlignmentDependentWidget;
 class MSAEditorMultiTreeViewer;
+class MSAEditorOverviewArea;
 class MsaEditorSimilarityColumn;
 class MSAEditorTreeViewer;
 class SimilarityStatisticsSettings;
@@ -42,7 +43,9 @@ class U2VIEW_EXPORT MsaEditorWgt : public MaEditorWgt {
     friend class MsaEditorSimilarityColumn;
 
 public:
-    MsaEditorWgt(MSAEditor* editor);
+    MsaEditorWgt(MSAEditor* editor,
+                 MaEditorOverviewArea* overview = nullptr,
+                 MaEditorStatusBar* statusbar = nullptr);
 
     MSAEditor* getEditor() const;
 
@@ -53,6 +56,7 @@ public:
     void addTreeView(GObjectViewWindow* treeView);
 
     void setSimilaritySettings(const SimilarityStatisticsSettings* settings);
+    const SimilarityStatisticsSettings* getSimilaritySettings();
 
     void refreshSimilarityColumn();
 
@@ -65,6 +69,12 @@ public:
 
     MSAEditorMultiTreeViewer* getMultiTreeViewer() const;
 
+    void initOverviewArea(MaEditorOverviewArea* overviewArea = nullptr) override;
+    void initStatusBar(MaEditorStatusBar* statusBar = nullptr) override;
+
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
 private slots:
     void sl_onTabsCountChanged(int tabsCount);
 signals:
@@ -72,11 +82,9 @@ signals:
     void si_hideTreeOP();
 
 protected:
-    void initSeqArea(GScrollBar* shBar, GScrollBar* cvBar);
-    void initOverviewArea();
-    void initNameList(QScrollBar* nhBar);
-    void initConsensusArea();
-    void initStatusBar();
+    void initSeqArea(GScrollBar* shBar, GScrollBar* cvBar) override;
+    void initNameList(QScrollBar* nhBar) override;
+    void initConsensusArea() override;
 
 private:
     MsaEditorSimilarityColumn* dataList = nullptr;

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -123,7 +123,7 @@ QString GTest_RunCMDLine::splitVal(const QString& val, const QString& prefValue,
     foreach (const QString& dsVal, dsVals) {
         QStringList realVals = dsVal.split(splitter);
         QStringList dsResult;
-        foreach (QString s, realVals) {
+        for (QString s : qAsConst(realVals)) {
             if (s.startsWith(prefValue)) {
                 s = s.mid(midSize);
             }
@@ -214,12 +214,13 @@ Task::ReportResult GTest_RunCMDLine::report() {
         if (!output.contains(expectedMessage, Qt::CaseSensitive)) {
             stateInfo.setError(QString("Expected message not found in output"));
         }
-        return ReportResult_Finished;
     }
     if (!unexpectedMessage.isEmpty()) {
         if (output.contains(unexpectedMessage, Qt::CaseSensitive)) {
             stateInfo.setError(QString("Unexpected message is found in output"));
         }
+    }
+    if (!expectedMessage.isEmpty() || !unexpectedMessage.isEmpty()) {
         return ReportResult_Finished;
     }
 

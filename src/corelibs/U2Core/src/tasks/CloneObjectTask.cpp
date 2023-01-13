@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -60,7 +60,7 @@ CloneObjectTask::~CloneObjectTask() {
 void CloneObjectTask::run() {
     DbiConnection con(dstDbiRef, stateInfo);
     CHECK_OP(stateInfo, );
-    SAFE_POINT_EXT(nullptr != con.dbi, setError(tr("Error! No DBI")), );
+    SAFE_POINT_EXT(nullptr != con.dbi, setError(QString("Error! No DBI")), );
 
     QVariantMap hints;
     hints[DocumentFormat::DBI_FOLDER_HINT] = dstFolder;

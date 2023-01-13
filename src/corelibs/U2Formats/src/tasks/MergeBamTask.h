@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -32,14 +32,14 @@ public:
     MergeBamTask(const QStringList& urls, const QString& dir, const QString& outName, bool sortInputBams = false);
 
     QString getResult() const;
-    void run();
+    void run() override;
 
 protected:
     QString outputName;
     QString workingDir;
     QString targetUrl;
     QStringList bamUrls;
-    bool sortInputBams;
+    bool sortInputBams = false;
 };  // MergeBamTask
 
 }  // namespace U2

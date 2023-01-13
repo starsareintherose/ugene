@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -67,6 +67,9 @@ QString MSAEditorConsensusArea::getLastUsedAlgoSettingsKey() const {
 }
 
 void MSAEditorConsensusArea::buildMenu(QMenu* menu) {
+    if (qobject_cast<MaEditorMultilineWgt *>(editor->getUI())->getActiveChild() != ui) {
+        return;
+    }
     menu->addAction(configureConsensusAction);
 }
 

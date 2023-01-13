@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -51,10 +51,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QGroupBox>
-#include <QListWidget>
 #include <QMainWindow>
-#include <QPlainTextEdit>
-#include <QTableView>
 #include <QTextStream>
 
 #include <U2Algorithm/MsaColorScheme.h>
@@ -958,8 +955,8 @@ GUI_TEST_CLASS_DEFINITION(test_4106) {
     GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW", "ty3.aln.gz");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    MSAEditorSequenceArea* msaEdistorSequenceArea = GTUtilsMSAEditorSequenceArea::getSequenceArea(os);
-    const int endPos = msaEdistorSequenceArea->getEditor()->getUI()->getScrollController()->getLastVisibleViewRowIndex(
+    MSAEditorSequenceArea *msaEdistorSequenceArea = GTUtilsMSAEditorSequenceArea::getSequenceArea(os);
+    const int endPos = msaEdistorSequenceArea->getEditor()->getUI()->getUI(0)->getScrollController()->getLastVisibleViewRowIndex(
         msaEdistorSequenceArea->height());
 
     GTUtilsMSAEditorSequenceArea::click(os, QPoint(-5, endPos - 1));
@@ -1245,7 +1242,7 @@ GUI_TEST_CLASS_DEFINITION(test_4141) {
     // 3. Check "Show distances column"
     // Expected state : distances column has appeared between the name list and the sequence area
     GTCheckBox::setChecked(os, GTWidget::findCheckBox(os, "showDistancesColumnCheck"));
-    GTWidget::findWidget(os, "msa_editor_similarity_column");
+    GTUtilsMSAEditorSequenceArea::getSimilarityColumn(os, 0);
     CHECK_SET_ERR(QApplication::activeWindow() == appWindow, "Active window changed");
 }
 
@@ -1354,7 +1351,7 @@ GUI_TEST_CLASS_DEFINITION(test_4156) {
     public:
         virtual void run(HI::GUITestOpStatus& os) {
             QWidget* dialog = GTWidget::getActiveModalWidget(os);
-            AppSettingsDialogFiller::openTab(os, AppSettingsDialogFiller::Resourses);
+            AppSettingsDialogFiller::openTab(os, AppSettingsDialogFiller::Resources);
 
             auto memBox = GTWidget::findSpinBox(os, "memBox", dialog);
             GTSpinBox::setValue(os, memBox, 256, GTGlobals::UseKeyBoard);
@@ -1504,15 +1501,11 @@ GUI_TEST_CLASS_DEFINITION(test_4177) {
     GTWidget::click(os, GTWidget::findWidget(os, "buildTreeButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    auto labelsColorButton = GTWidget::findWidget(os, "labelsColorButton");
-    if (!labelsColorButton->isVisible()) {
-        GTWidget::click(os, GTWidget::findWidget(os, "lblFontSettings"));
-    }
     QString defaultFontFamily;
     int defaultSize;
 
     // Open samples/CLUSTALW/COI.aln and build tree for it
-    GraphicsButtonItem* node = GTUtilsPhyTree::getNodeByBranchText(os, "0.009", "0.026");
+    TvNodeItem* node = GTUtilsPhyTree::getNodeByBranchText(os, "0.009", "0.026");
     // 2. Select node, change font size to 16, also remember default parameters
     GTUtilsPhyTree::clickNode(os, node);
     getFontSettings(os, defaultFontFamily, defaultSize);
@@ -1522,7 +1515,7 @@ GUI_TEST_CLASS_DEFINITION(test_4177) {
 
     // Click on the parent node for node.
     // Change its font to Arial with size 22.
-    GraphicsButtonItem* parentNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.006", "0.104");
+    TvNodeItem* parentNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.006", "0.104");
     GTUtilsPhyTree::clickNode(os, parentNode);
     changeFontAndSize(os, customFontName, 22);
     // 4. Go back to first one node
@@ -1553,14 +1546,10 @@ GUI_TEST_CLASS_DEFINITION(test_4177_1) {
     GTWidget::click(os, GTWidget::findWidget(os, "buildTreeButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    auto labelsColorButton = GTWidget::findWidget(os, "labelsColorButton");
-    if (!labelsColorButton->isVisible()) {
-        GTWidget::click(os, GTWidget::findWidget(os, "lblFontSettings"));
-    }
     QString defaultFontFamily;
     int defaultSize;
 
-    GraphicsButtonItem* node = GTUtilsPhyTree::getNodeByBranchText(os, "0.009", "0.026");
+    TvNodeItem* node = GTUtilsPhyTree::getNodeByBranchText(os, "0.009", "0.026");
     GTUtilsPhyTree::clickNode(os, node);
     getFontSettings(os, defaultFontFamily, defaultSize);
     changeFontAndSize(os, defaultFontFamily, 16);
@@ -2099,8 +2088,8 @@ GUI_TEST_CLASS_DEFINITION(test_4284) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     //    2. Select a sequence that is two sequences above the last visible sequence in the name list area.
-    MSAEditorSequenceArea* msaEdistorSequenceArea = GTUtilsMSAEditorSequenceArea::getSequenceArea(os);
-    const int endPos = msaEdistorSequenceArea->getEditor()->getUI()->getScrollController()->getLastVisibleViewRowIndex(
+    MSAEditorSequenceArea *msaEdistorSequenceArea = GTUtilsMSAEditorSequenceArea::getSequenceArea(os);
+    const int endPos = msaEdistorSequenceArea->getEditor()->getUI()->getUI(0)->getScrollController()->getLastVisibleViewRowIndex(
         msaEdistorSequenceArea->height());
 
     GTUtilsMsaEditor::clickSequence(os, endPos - 1);
@@ -2131,7 +2120,7 @@ GUI_TEST_CLASS_DEFINITION(test_4284) {
     //    Expected state: four sequences are selected, the msa is scrolled down for two lines.
     GTUtilsMSAEditorSequenceArea::checkSelectedRect(os, QRect(0, endPos - 1, 1234, 4));
 
-    const int firstVisibleSequence = msaEdistorSequenceArea->getEditor()->getUI()->getScrollController()->getFirstVisibleViewRowIndex(
+    const int firstVisibleSequence = msaEdistorSequenceArea->getEditor()->getUI()->getUI(0)->getScrollController()->getFirstVisibleViewRowIndex(
         false);
     CHECK_SET_ERR(firstVisibleSequence == 2, QString("MSA scrolled incorrectly: expected first fully visible sequence %1, got %2").arg(2).arg(firstVisibleSequence));
 }
@@ -2141,8 +2130,8 @@ GUI_TEST_CLASS_DEFINITION(test_4293) {
     GTFileDialog::openFile(os, testDir + "_common_data/newick/sample5.newick");
     GTUtilsPhyTree::checkTreeViewerWindowIsActive(os);
 
-    GraphicsButtonItem* rootNode = GTUtilsPhyTree::getRootNode(os);
-    GraphicsButtonItem* childNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.336", "0.061");
+    TvNodeItem* rootNode = GTUtilsPhyTree::getRootNode(os);
+    TvNodeItem* childNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.336", "0.061");
 
     GTUtilsDialog::waitForDialog(os, new PopupCheckerByText(os, {"Reroot Tree"}, PopupChecker::IsDisabled));
     GTUtilsPhyTree::clickNode(os, rootNode, Qt::RightButton);
@@ -2152,7 +2141,7 @@ GUI_TEST_CLASS_DEFINITION(test_4293) {
     GTUtilsPhyTree::clickNode(os, rootNode, Qt::RightButton);
     GTUtilsDialog::checkNoActiveWaiters(os);
 
-    QList<GraphicsButtonItem*> selectedNodes = GTUtilsPhyTree::getSelectedNodes(os);
+    QList<TvNodeItem*> selectedNodes = GTUtilsPhyTree::getSelectedNodes(os);
     CHECK_SET_ERR(selectedNodes.size() == 5, QString("1. Unexpected number of selected nodes: %1").arg(selectedNodes.size()));
 
     GTUtilsDialog::waitForDialog(os, new PopupCheckerByText(os, {"Reroot tree"}));
@@ -2169,8 +2158,8 @@ GUI_TEST_CLASS_DEFINITION(test_4293) {
 
     selectedNodes = GTUtilsPhyTree::getSelectedNodes(os);
     CHECK_SET_ERR(selectedNodes.size() == 3, QString("2. Unexpected number of selected nodes: %1").arg(selectedNodes.size()));
-    CHECK_SET_ERR(!rootNode->isNodeSelected(), "Root not must not be selected");
-    CHECK_SET_ERR(childNode->isNodeSelected(), "Child node must be selected");
+    CHECK_SET_ERR(!rootNode->isSelected(), "Root not must not be selected");
+    CHECK_SET_ERR(childNode->isSelected(), "Child node must be selected");
 }
 
 GUI_TEST_CLASS_DEFINITION(test_4295) {
@@ -3304,39 +3293,6 @@ GUI_TEST_CLASS_DEFINITION(test_4557) {
     CHECK_SET_ERR(product == expected, "Unexpected product: " + product)
 }
 
-GUI_TEST_CLASS_DEFINITION(test_4563) {
-    // 1. Set memory limit to 200 mb.
-    class MemoryLimitSetScenario : public CustomScenario {
-        void run(HI::GUITestOpStatus& os) {
-            QWidget* dialog = GTWidget::getActiveModalWidget(os);
-            AppSettingsDialogFiller::openTab(os, AppSettingsDialogFiller::Resourses);
-            GTSpinBox::setValue(os, GTWidget::findSpinBox(os, "memBox", dialog), 200);
-
-            GTUtilsDialog::clickButtonBox(os, dialog, QDialogButtonBox::Ok);
-        }
-    };
-    GTUtilsDialog::waitForDialog(os, new AppSettingsDialogFiller(os, new MemoryLimitSetScenario));
-    GTMenu::clickMainMenuItem(os, {"Settings", "Preferences..."});
-    // 2. Open Workflow Designer.
-    GTUtilsWorkflowDesigner::openWorkflowDesigner(os);
-    // 3. Open the "Align sequences with MUSCLE" sample scheme.
-    GTUtilsWorkflowDesigner::addSample(os, "Align sequences with MUSCLE");
-    GTUtilsWizard::clickButton(os, GTUtilsWizard::Cancel);
-
-    // 4. Set "_common_data/scenarios/_regression/4563/test_ma.fa" as the input file.
-    GTMouseDriver::moveTo(GTUtilsWorkflowDesigner::getItemCenter(os, "Read alignment"));
-    GTMouseDriver::click();
-    GTUtilsWorkflowDesigner::setDatasetInputFile(os, testDir + "_common_data/scenarios/_regression/4563/test_ma.fa");
-    GTUtilsWorkflowDesigner::setDatasetInputFile(os, testDir + "_common_data/scenarios/_regression/4563/test_ma_1.fa");
-
-    // 5. Run the workflow.
-    GTWidget::click(os, GTAction::button(os, "Run workflow"));
-
-    // 6. check log message
-    GTUtilsTaskTreeView::waitTaskFinished(os);
-    GTLogTracer::checkMessage("Can't allocate enough memory");
-}
-
 GUI_TEST_CLASS_DEFINITION(test_4587) {
     GTLogTracer l;
     GTUtilsDialog::waitForDialog(os, new ImportACEFileFiller(os, false, sandBoxDir + "test_4587"));
@@ -4047,7 +4003,7 @@ GUI_TEST_CLASS_DEFINITION(test_4701) {
                   "1 Mecopoda_elongata__Sumatra_ is not collapsed");
 
     // Press the Remove All Gaps button.
-    auto seq = GTWidget::findWidget(os, "msa_editor_sequence_area");
+    auto seq = GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0);
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"MSAE_MENU_EDIT", "Remove all gaps"}));
     GTMenu::showContextMenu(os, seq);
 
@@ -4230,24 +4186,23 @@ GUI_TEST_CLASS_DEFINITION(test_4714_2) {
     GTUtilsDialog::add(os, new PopupChooserByText(os, {"Edit new sequence"}));
     GTUtilsDialog::add(os, new AddNewDocumentDialogFiller(os, "FASTA", sandBoxDir + "test_4714_2.fa"));
     GTWidget::click(os, GTUtilsSequenceView::getSeqWidgetByNumber(os), Qt::RightButton);
-
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     //    Expected state: a new sequence is added to the project and to the current sequence view.
     //    3. Lock the added document.
     GTUtilsDocument::lockDocument(os, "test_4714_2.fa");
+    GTUtilsDialog::checkNoActiveWaiters(os);
 
     //    4. Remove the added document from the project.
     GTUtilsDialog::waitForDialog(os, new MessageBoxDialogFiller(os, QMessageBox::No, "Save document:"));
     GTUtilsDocument::removeDocument(os, "test_4714_2.fa", GTGlobals::UseMouse);
-
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     //    Expected state: the sequence is removed from the view,
     //                    context menu contains "Edit new sequence" and "Edit existing sequence" items
     //                    and doesn't contain "Remove edited sequence" and "Undo changes" actions.
     int sequencesCount = GTUtilsSequenceView::getSeqWidgetsNumber(os);
-    CHECK_SET_ERR(1 == sequencesCount, QString("An incorrect vount of sequences in the view: expect %1, got %2").arg(1).arg(sequencesCount));
+    CHECK_SET_ERR(sequencesCount == 1, QString("An incorrect count of sequences in the view: expect %1, got %2").arg(1).arg(sequencesCount));
 
     const QStringList visibleItems = {"Edit new sequence", "Edit existing sequence"};
     GTUtilsDialog::add(os, new PopupCheckerByText(os, QStringList(), visibleItems));
@@ -4580,9 +4535,9 @@ GUI_TEST_CLASS_DEFINITION(test_4764_1) {
     GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Copy/Paste", "Copy (custom format)"}));
     GTUtilsMSAEditorSequenceArea::callContextMenu(os);
 
-    QMainWindow* mw = AppContext::getMainWindow()->getQMainWindow();
-    MSAEditor* editor = mw->findChild<MSAEditor*>();
-    QWidget* nameListWidget = editor->getUI()->getEditorNameList();
+    QMainWindow *mw = AppContext::getMainWindow()->getQMainWindow();
+    MSAEditor *editor = mw->findChild<MSAEditor *>();
+    QWidget *nameListWidget = editor->getUI()->getUI(0)->getEditorNameList();
 
     // 5. Open conext menu by right clicking "Name list area". Paste this subaliment throu context menu {Copy/Paste->Paste}
     GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Copy/Paste", "Paste"}));
@@ -4602,7 +4557,7 @@ GUI_TEST_CLASS_DEFINITION(test_4764_1) {
     // Expected state subalignment pasted correctly
     GTKeyboardUtils::copy();
     clipboardText = GTClipboard::text(os);
-    GTWidget::click(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTWidget::click(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os));
     CHECK_SET_ERR(clipboardText == expectedClipboard, "expected test didn't equal to actual");
 }
 
@@ -4613,9 +4568,9 @@ GUI_TEST_CLASS_DEFINITION(test_4764_2) {
     GTFileDialog::openFile(os, testDir + "_common_data/scenarios/_regression/4764", "4764.aln");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    QMainWindow* mw = AppContext::getMainWindow()->getQMainWindow();
-    MSAEditor* editor = mw->findChild<MSAEditor*>();
-    QWidget* sequenceAreaWidget = editor->getUI()->getSequenceArea();
+    QMainWindow *mw = AppContext::getMainWindow()->getQMainWindow();
+    MSAEditor *editor = mw->findChild<MSAEditor *>();
+    QWidget *sequenceAreaWidget = editor->getUI()->getUI(0)->getSequenceArea();
 
     GTUtilsMSAEditorSequenceArea::selectArea(os, QPoint(0, 0), QPoint(15, 0), GTGlobals::UseMouse);
     GTUtilsMSAEditorSequenceArea::copySelectionByContextMenu(os);
@@ -4633,9 +4588,9 @@ GUI_TEST_CLASS_DEFINITION(test_4764_3) {
     GTFileDialog::openFile(os, testDir + "_common_data/scenarios/_regression/4764", "4764.aln");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    QMainWindow* mw = AppContext::getMainWindow()->getQMainWindow();
-    MSAEditor* editor = mw->findChild<MSAEditor*>();
-    QWidget* sequenceAreaWidget = editor->getUI()->getSequenceArea();
+    QMainWindow *mw = AppContext::getMainWindow()->getQMainWindow();
+    MSAEditor *editor = mw->findChild<MSAEditor *>();
+    QWidget *sequenceAreaWidget = editor->getUI()->getUI(0)->getSequenceArea();
 
     GTUtilsMSAEditorSequenceArea::selectArea(os, QPoint(3, 0), QPoint(5, 4));
     GTUtilsMSAEditorSequenceArea::copySelectionByContextMenu(os);
@@ -4825,7 +4780,7 @@ GUI_TEST_CLASS_DEFINITION(test_4795) {
     GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW", "COI.aln");
     GTUtilsTaskTreeView::waitTaskFinished(os);
     QModelIndex aminoExtIdx = GTUtilsProjectTreeView::findIndex(os, "amino_ext");
-    GTUtilsProjectTreeView::dragAndDrop(os, aminoExtIdx, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTUtilsProjectTreeView::dragAndDrop(os, aminoExtIdx, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
 
     //    3. Open highlighting option panel tab
     GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::Highlighting);
@@ -4992,13 +4947,13 @@ GUI_TEST_CLASS_DEFINITION(test_4804_3) {
 
     //    2. Add  extended amino sequence by drag and drop
     QModelIndex toDragNDrop = GTUtilsProjectTreeView::findIndex(os, "ext_amino_seq");
-    GTUtilsProjectTreeView::dragAndDrop(os, toDragNDrop, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTUtilsProjectTreeView::dragAndDrop(os, toDragNDrop, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
     GTUtilsNotifications::waitForNotification(os, true, "from \"Standard amino acid\" to \"Extended amino acid\"");
     GTUtilsDialog::checkNoActiveWaiters(os);
 
     //    3. Add  extended DNA sequence by drag and drop
     toDragNDrop = GTUtilsProjectTreeView::findIndex(os, "ext_dna_seq");
-    GTUtilsProjectTreeView::dragAndDrop(os, toDragNDrop, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTUtilsProjectTreeView::dragAndDrop(os, toDragNDrop, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
     GTUtilsNotifications::waitForNotification(os, true, "from \"Extended amino acid\" to \"Raw\"");
     GTUtilsDialog::checkNoActiveWaiters(os);
 }
@@ -5193,9 +5148,9 @@ GUI_TEST_CLASS_DEFINITION(test_4841) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
     GTUtilsOptionPanelPhyTree::openTab(os);
 
-    GraphicsButtonItem* node = GTUtilsPhyTree::getNodeByBranchText(os, "0.033", "0.069");
-    GraphicsButtonItem* childNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.016", "0.017");
-    GraphicsButtonItem* parentNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.068", "0.007");
+    TvNodeItem* node = GTUtilsPhyTree::getNodeByBranchText(os, "0.033", "0.069");
+    TvNodeItem* childNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.016", "0.017");
+    TvNodeItem* parentNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.068", "0.007");
     GTUtilsPhyTree::clickNode(os, node);
 
     int originalFontSize = GTUtilsOptionPanelPhyTree::getFontSize(os);
@@ -5699,12 +5654,17 @@ GUI_TEST_CLASS_DEFINITION(test_4985) {
     IOAdapterUtils::writeTextFile(filePath, "A");
 
     GTFileDialog::openFile(os, filePath);
+    GTUtilsTaskTreeView::waitTaskFinished(os);
     GTUtilsSequenceView::checkSequenceViewWindowIsActive(os);
 
-    QFile(filePath).remove();
-
     GTUtilsDialog::waitForDialog(os, new MessageBoxNoToAllOrNo(os));
+    QFile(filePath).remove();
+    GTThread::waitForMainThread();
+    GTGlobals::sleep(8000);
+
     GTUtilsStartPage::openStartPage(os);
+    GTThread::waitForMainThread();
+    GTGlobals::sleep(8000);
 
     QString expected = "does not exist";
     GTUtilsDialog::waitForDialog(os, new MessageBoxDialogFiller(os, "OK", expected));

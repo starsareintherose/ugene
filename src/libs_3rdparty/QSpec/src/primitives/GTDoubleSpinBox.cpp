@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2017 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -89,7 +89,7 @@ void GTDoubleSpinbox::setValue(GUITestOpStatus& os, QDoubleSpinBox* spinBox, dou
                 break;
             }
             case GTGlobals::UseKeyBoard:
-                QString s = QString::number(v);
+                QString s = QString::number(v).replace('.', QLocale().decimalPoint());
                 GTWidget::setFocus(os, spinBox);
 
                 GTGlobals::sleep(100);

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,8 @@ class ImportWidget;
 class DocumentProviderSelectorController : public QDialog, private Ui_DocumentProviderSelectorDialog {
     Q_OBJECT
 public:
+    ~DocumentProviderSelectorController();
+
     static int selectResult(const GUrl& url, QList<FormatDetectionResult>& results);
 
 private slots:
@@ -46,6 +48,7 @@ private slots:
 
 private:
     DocumentProviderSelectorController(const GUrl& url, QList<FormatDetectionResult>& results, QWidget* parent);
+
     ImportWidget* getRadioButtonWgt(const FormatDetectionResult& result, QString& radioButtonName, const GUrl& url, int it);
     int getSelectedFormatIdx() const;
     void addFormatRadioButton(const GUrl& url, QList<FormatDetectionResult>& results, QButtonGroup* bg, int it);

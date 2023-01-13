@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ namespace U2 {
 class U2VIEW_EXPORT MaSimpleOverview : public MaOverview {
     Q_OBJECT
 public:
-    MaSimpleOverview(MaEditorWgt* ui);
+    MaSimpleOverview(MaEditor* editor, QWidget* ui);
 
     /** Height of the overview. */
     const static int FIXED_HEIGHT = 70;

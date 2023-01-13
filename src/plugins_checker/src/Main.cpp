@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,6 @@
 #include <QApplication>
 #include <QMessageBox>
 
-#include <U2Algorithm/OpenCLGpuRegistry.h>
-
 #include <U2Core/CMDLineCoreOptions.h>
 #include <U2Core/CMDLineRegistry.h>
 #include <U2Core/ConsoleShutdownTask.h>
@@ -38,7 +36,6 @@
 // U2Private
 #include <AppContextImpl.h>
 #include <AppSettingsImpl.h>
-#include <DocumentFormatRegistryImpl.h>
 #include <IOAdapterRegistryImpl.h>
 #include <PluginSupportImpl.h>
 #include <ServiceRegistryImpl.h>
@@ -143,11 +140,6 @@ int main(int argc, char** argv) {
 
     ServiceRegistryImpl* sreg = new ServiceRegistryImpl();
     appContext->setServiceRegistry(sreg);
-
-#ifdef OPENCL_SUPPORT
-    OpenCLGpuRegistry* oclgr = new OpenCLGpuRegistry();
-    appContext->setOpenCLGpuRegistry(oclgr);
-#endif
 
     registerCoreServices();
 

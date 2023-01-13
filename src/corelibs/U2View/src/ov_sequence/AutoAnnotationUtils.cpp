@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -213,7 +213,7 @@ QAction* AutoAnnotationUtils::findAutoAnnotationsToggleAction(ADVSequenceObjectC
         AutoAnnotationsADVAction* aaAction = qobject_cast<AutoAnnotationsADVAction*>(advAction);
         assert(aaAction != nullptr);
         QList<QAction*> toggleActions = aaAction->getToggleActions();
-        foreach (QAction* tAction, toggleActions) {
+        for (QAction* tAction : qAsConst(toggleActions)) {
             if (tAction->property(AUTO_ANNOTATION_GROUP_NAME) == groupName) {
                 return tAction;
             }
@@ -276,7 +276,7 @@ QList<QAction*> AutoAnnotationUtils::getAutoAnnotationToggleActions(ADVSequenceO
         res = aaAction->getToggleActions();
 
         int selectedCount = 0;
-        foreach (QAction* a, res) {
+        for (QAction* a : qAsConst(res)) {
             if (a->isChecked()) {
                 selectedCount += 1;
             }

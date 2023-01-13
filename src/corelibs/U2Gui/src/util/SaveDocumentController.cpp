@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -174,7 +174,7 @@ void SaveDocumentController::sl_fileDialogButtonClicked() {
 
     cutGzExtension(defaultUrl);
 
-    lod.url = U2FileDialog::getSaveFileName(conf.parentWidget, conf.saveTitle, defaultUrl, filter, &defaultFilter);
+    lod.url = U2FileDialog::getSaveFileName(conf.parentWidget, conf.saveTitle, defaultUrl, filter, defaultFilter);
     if (lod.url.isEmpty()) {
         return;
     }

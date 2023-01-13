@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -140,7 +140,8 @@ void ScriptWorker::bindPortVariables() {
         }
 
         QVariantMap busData = bus->lookMessage().getData().toMap();
-        foreach (const QString& slotId, busData.keys()) {
+        QList<QString> slotIds = busData.keys();
+        for (const QString& slotId : slotIds) {
             QString attrId = "in_" + slotId;
             if (script->hasVarWithId(attrId)) {
                 script->setVarValueWithId(attrId, busData.value(slotId));

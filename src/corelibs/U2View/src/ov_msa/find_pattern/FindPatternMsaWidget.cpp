@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -51,6 +51,7 @@
 
 #include "FindPatternMsaTask.h"
 #include "ov_msa/MaCollapseModel.h"
+#include "ov_msa/MultilineScrollController.h"
 #include "ov_sequence/find_pattern/FindPatternWidget.h"
 
 namespace U2 {
@@ -909,10 +910,18 @@ void FindPatternMsaWidget::sl_nextButtonClicked() {
 void FindPatternMsaWidget::selectCurrentResult() {
     CHECK(currentResultIndex >= 0 && currentResultIndex < visibleSearchResults.length(), );
     const FindPatternWidgetResult& result = visibleSearchResults[currentResultIndex];
-    MaEditorSequenceArea* seqArea = msaEditor->getUI()->getSequenceArea();
+
+    auto mui = qobject_cast<MsaEditorMultilineWgt*>(msaEditor->getUI());
+    SAFE_POINT(mui != nullptr, "FindPatternMsaWidget: MsaEditorMultilineWgt is not found", );
     QRect selection(result.region.startPos, result.viewRowIndex, result.region.length, 1);
+    MaEditorSequenceArea* seqArea = mui->getUI(0)->getSequenceArea();
     seqArea->setSelectionRect(selection);
-    seqArea->centerPos(selection.topLeft());
+    if (msaEditor->getUI()->getMultilineMode()) {
+        // mui->getScrollController()->setCenterVisibleBase(selection.topLeft().x());
+        mui->getScrollController()->scrollToPoint(selection.topLeft());
+    } else {
+        seqArea->centerPos(selection.topLeft());
+    }
     updateCurrentResultLabel();
 }
 
@@ -1050,7 +1059,7 @@ void FindPatternMsaWidget::sl_groupResultsButtonClicked() {
     CHECK(!maObject->isStateLocked(), );
 
     // Switch to the Original row order mode.
-    msaEditor->getUI()->getSequenceArea()->sl_toggleSequenceRowOrder(false);
+    msaEditor->getUI()->sl_toggleSequenceRowOrder(false);
 
     QSet<qint64> resultUidSet;
     for (const FindPatternWidgetResult& result : qAsConst(allSearchResults)) {

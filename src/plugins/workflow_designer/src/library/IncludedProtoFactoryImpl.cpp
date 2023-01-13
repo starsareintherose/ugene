@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -214,7 +214,7 @@ ActorPrototype* IncludedProtoFactoryImpl::_getSchemaActorProto(Schema* schema, c
 
     QMap<QString, PropertyDelegate*> delegateMap;
     QList<Actor*> procs = schema->getProcesses();
-    foreach (Actor* proc, procs) {
+    for (Actor* proc : qAsConst(procs)) {
         if (proc->hasParamAliases()) {
             DelegateEditor* ed = (DelegateEditor*)(proc->getProto()->getEditor());
             QMap<QString, QString> paramAliases = proc->getParamAliases();

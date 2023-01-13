@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@ namespace GUITest_common_scenarios_tree_viewer {
 #undef GUI_TEST_SUITE
 #define GUI_TEST_SUITE "GUITest_common_scenarios_tree_viewer"
 
-GUI_TEST_CLASS_DECLARATION(test_0001)
 GUI_TEST_CLASS_DECLARATION(test_0001_1)
 GUI_TEST_CLASS_DECLARATION(test_0001_2)
 
@@ -59,6 +58,9 @@ GUI_TEST_CLASS_DECLARATION(test_0026)
 GUI_TEST_CLASS_DECLARATION(test_0027)
 GUI_TEST_CLASS_DECLARATION(test_0028)
 GUI_TEST_CLASS_DECLARATION(test_0029)
+GUI_TEST_CLASS_DECLARATION(test_0030)
+GUI_TEST_CLASS_DECLARATION(test_0031)
+GUI_TEST_CLASS_DECLARATION(test_0032)
 
 #undef GUI_TEST_SUITE
 }  // namespace GUITest_common_scenarios_tree_viewer

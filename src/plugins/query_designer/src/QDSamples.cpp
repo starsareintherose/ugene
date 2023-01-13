@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ QList<QDSample> QDSamplesRegistry::data;
 
 QDLoadSamplesTask::QDLoadSamplesTask(const QStringList& _dirs)
     : Task(tr("Load query samples"), TaskFlag_NoRun) {
-    foreach (const QString& s, _dirs) {
+    for (const QString& s : qAsConst(_dirs)) {
         QDir dir(s);
         QStringList names(QString("*.%1").arg(QUERY_SCHEME_EXTENSION));
         foreach (const QFileInfo& fi, dir.entryInfoList(names, QDir::Files | QDir::NoSymLinks)) {

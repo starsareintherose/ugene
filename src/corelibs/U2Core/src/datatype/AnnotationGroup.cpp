@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -272,7 +272,7 @@ AnnotationGroup* AnnotationGroup::addSubgroup(const U2Feature& feature) {
         return result;
     } else {
         AnnotationGroup* parentGroup = findSubgroupById(feature.parentFeatureId);
-        SAFE_POINT(nullptr != parentGroup, L10N::nullPointerError("annotation group"), nullptr);
+        SAFE_POINT(parentGroup != nullptr, L10N::nullPointerError("annotation group"), nullptr);
         return parentGroup->addSubgroup(feature);
     }
 }

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -41,8 +41,8 @@ public:
     inline QList<bool>& getSelected() {
         return selected;
     }
-    inline bool hasIndex() const {
-        return _hasIndex;
+    inline bool hasNotEmptyIndex() const {
+        return _hasIndex && !index.isEmpty();
     }
     inline bool isReferenceSelected(int id) {
         if (id == -1)

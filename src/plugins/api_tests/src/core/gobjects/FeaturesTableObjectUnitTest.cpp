@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -22,20 +22,16 @@
 #include "FeaturesTableObjectUnitTest.h"
 
 #include <QBitArray>
-#include <QDir>
 #include <QScopedPointer>
 
 #include <U2Core/AnnotationTableObjectConstraints.h>
 #include <U2Core/AppContext.h>
-#include <U2Core/AppSettings.h>
 #include <U2Core/U2FeatureDbi.h>
 #include <U2Core/U2FeatureKeys.h>
 #include <U2Core/U2FeatureUtils.h>
 #include <U2Core/U2ObjectDbi.h>
 #include <U2Core/U2OpStatusUtils.h>
 #include <U2Core/U2SafePoints.h>
-
-#include <U2Test/TestRunnerSettings.h>
 
 namespace U2 {
 
@@ -167,7 +163,7 @@ IMPLEMENT_TEST(FeatureTableObjectUnitTest, addAnnotationMultipleRegion) {
     CHECK_TRUE(!objRootFeatureId.isEmpty(), "invalid root feature id");
 
     U2OpStatusImpl os;
-    const QList<U2Feature> annSubfeatures = U2FeatureUtils::getSubAnnotations(objRootFeatureId, dbiRef, os, Recursive, Root);
+    QList<U2Feature> annSubfeatures = U2FeatureUtils::getSubAnnotations(objRootFeatureId, dbiRef, os, Recursive, Root);
     CHECK_NO_ERROR(os);
     CHECK_EQUAL(1, annSubfeatures.size(), "annotating subfeatures of root feature");
 
@@ -175,11 +171,11 @@ IMPLEMENT_TEST(FeatureTableObjectUnitTest, addAnnotationMultipleRegion) {
     CHECK_NO_ERROR(os);
     CHECK_EQUAL(1, groupSubfeatures.size(), "group subfeatures of root feature");
 
-    const U2Feature subAnnotation = annSubfeatures.first();
-    const U2Feature subGroup = groupSubfeatures.first();
+    U2Feature subAnnotation = annSubfeatures.first();
+    U2Feature subGroup = groupSubfeatures.first();
 
     CHECK_EQUAL(aname, subAnnotation.name, "feature name");
-    CHECK_EQUAL(U2Region(), subAnnotation.location.region, "feature region");
+    CHECK_EQUAL(U2Region(1, 2), subAnnotation.location.region, "feature region");
     CHECK_EQUAL(subGroup.id, subAnnotation.parentFeatureId, "feature parent id");
 
     // check groups and qualifiers
@@ -458,7 +454,6 @@ IMPLEMENT_TEST(FeatureTableObjectUnitTest, removeAnnotations) {
 IMPLEMENT_TEST(FeatureTableObjectUnitTest, clone) {
     const QString aname1 = "aname1";
     const QString aname2 = "aname2";
-    const QString aname3 = "aname3";
     const U2Region areg1(7, 100);
     const U2Region areg2(1000, 200);
     const U2DbiRef dbiRef(getDbiRef());
@@ -499,7 +494,7 @@ IMPLEMENT_TEST(FeatureTableObjectUnitTest, clone) {
         const QList<Annotation*> clonedAnns = clonedSubgroup->getAnnotations();
 
         bool groupMatched = false;
-        foreach (AnnotationGroup* sourceSubgroup, sourceSubgroups) {
+        for (AnnotationGroup* sourceSubgroup : qAsConst(sourceSubgroups)) {
             if (sourceSubgroup->getName() == clonedSubgroup->getName()) {
                 groupMatched = true;
                 const QList<Annotation*> sourceAnns = sourceSubgroup->getAnnotations();

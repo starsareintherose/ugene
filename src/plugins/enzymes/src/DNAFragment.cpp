@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -72,7 +72,7 @@ QList<DNAFragment> DNAFragment::findAvailableFragments() {
 
 QList<DNAFragment> DNAFragment::findAvailableFragments(const QList<GObject*>& aObjects, const QList<GObject*>& sObjects) {
     QList<DNAFragment> fragments;
-    foreach (GObject* obj, aObjects) {
+    for (GObject* obj : qAsConst(aObjects)) {
         AnnotationTableObject* aObj = qobject_cast<AnnotationTableObject*>(obj);
         assert(aObj != nullptr);
         foreach (Annotation* a, aObj->getAnnotations()) {
@@ -80,7 +80,7 @@ QList<DNAFragment> DNAFragment::findAvailableFragments(const QList<GObject*>& aO
                 // Find related sequence object
                 U2SequenceObject* dnaObj = nullptr;
                 QList<GObjectRelation> relations = aObj->getObjectRelations();
-                foreach (const GObjectRelation& relation, relations) {
+                for (const GObjectRelation& relation : qAsConst(relations)) {
                     if (relation.role != ObjectRole_Sequence) {
                         continue;
                     }
@@ -96,7 +96,7 @@ QList<DNAFragment> DNAFragment::findAvailableFragments(const QList<GObject*>& aO
                 DNAFragment fragment;
                 fragment.annotatedFragment = a->getData();
                 fragment.dnaObj = dnaObj;
-                foreach (GObject* relAnn, relatedAnns) {
+                for (GObject* relAnn : qAsConst(relatedAnns)) {
                     AnnotationTableObject* related = qobject_cast<AnnotationTableObject*>(relAnn);
                     fragment.relatedAnnotations.append(related);
                 }

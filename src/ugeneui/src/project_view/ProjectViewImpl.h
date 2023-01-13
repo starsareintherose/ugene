@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -106,6 +106,7 @@ public:
     }
 
     static const QString SETTINGS_ROOT;
+    static const int MAX_SEARCH_PATTERN_LENGTH = 1000;
 
 protected:
     /// returns NULL if no actions are required to enable service

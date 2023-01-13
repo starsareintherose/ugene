@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2017 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@ namespace HI {
 
 #define GT_METHOD_NAME "getToolbar"
 QToolBar* GTToolbar::getToolbar(GUITestOpStatus& os, const QString& toolbarSysName) {
-    QToolBar* toolbar = qobject_cast<QToolBar*>(GTWidget::findWidget(os, toolbarSysName));
+    auto toolbar = qobject_cast<QToolBar*>(GTWidget::findWidget(os, toolbarSysName));
     GT_CHECK_RESULT(toolbar != nullptr, "No such toolbar: " + toolbarSysName, nullptr);
     return toolbar;
 }
@@ -91,6 +91,14 @@ QAction* GTToolbar::getActionByObjectName(GUITestOpStatus& os, const QString& ac
         }
     }
     GT_CHECK_RESULT(false, "No such action:" + actionName, nullptr);
+}
+#undef GT_METHOD_NAME
+
+#define GT_METHOD_NAME "clickWidgetByActionName"
+void GTToolbar::clickWidgetByActionName(GUITestOpStatus& os, const QString& toolbarSysName, const QString& actionObjectName) {
+    QWidget* widget = GTToolbar::getWidgetForActionObjectName(os, getToolbar(os, toolbarSysName), actionObjectName);
+    GT_CHECK(widget->isEnabled(), "Widget is disabled: " + actionObjectName);
+    GTWidget::click(os, widget);
 }
 #undef GT_METHOD_NAME
 

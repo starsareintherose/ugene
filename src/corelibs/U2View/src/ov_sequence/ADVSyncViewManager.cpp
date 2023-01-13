@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -525,11 +525,11 @@ void ADVSyncViewManager::updateAutoAnnotationActions() {
     foreach (ADVSequenceWidget* w, adv->getSequenceWidgets()) {
         QList<ADVSequenceWidgetAction*> actions = w->getADVSequenceWidgetActions();
         bool active = false;
-        foreach (ADVSequenceWidgetAction* action, actions) {
+        for (ADVSequenceWidgetAction* action : qAsConst(actions)) {
             AutoAnnotationsADVAction* aaAction = qobject_cast<AutoAnnotationsADVAction*>(action);
             if (aaAction != nullptr) {
                 QList<QAction*> aaToggleActions = aaAction->getToggleActions();
-                foreach (QAction* toggleAction, aaToggleActions) {
+                for (QAction* toggleAction : qAsConst(aaToggleActions)) {
                     if (toggleAction->isEnabled()) {
                         aaActionMap.insertMulti(toggleAction->text(), toggleAction);
                         active = true;
@@ -571,7 +571,7 @@ void ADVSyncViewManager::sl_toggleAutoAnnotationHighlighting() {
 void ADVSyncViewManager::sl_updateAutoAnnotationsMenu() {
     QList<QAction*> menuActions = toggleAutoAnnotationsMenu->actions();
 
-    foreach (QAction* menuAction, menuActions) {
+    for (QAction* menuAction : qAsConst(menuActions)) {
         QString aName = menuAction->objectName();
         bool haveEnabledAutoAnnotations = false;
         // if have at least 1 checked  -> uncheck all

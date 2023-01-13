@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ void LoadInfoTask::run() {
             ioAdapter.reset(factory->createIOAdapter());
         }
 
-        GUrl baiUrl = BAMUtils::getBamIndexUrl(sourceUrl);
+        GUrl baiUrl = BAMUtils::getBamIndexUrl(sourceUrl.getURLString());
 
         QScopedPointer<IOAdapter> ioIndexAdapter;
         IOAdapterFactory* factory = AppContext::getIOAdapterRegistry()->getIOAdapterFactoryById(IOAdapterUtils::url2io(baiUrl));

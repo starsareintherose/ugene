@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -116,7 +116,7 @@ int SequenceWithChromatogramAreaRenderer::drawRow(QPainter& painter, const Multi
 
     SAFE_POINT(getSeqArea() != nullptr, "seqAreaWgt is NULL", -1);
     const int width = getSeqArea()->width();
-    const int seqRowHeight = editor->getUI()->getRowHeightController()->getSingleRowHeight();
+    const int seqRowHeight = ui->getRowHeightController()->getSingleRowHeight();
     if (editor->isChromatogramRowExpanded(rowIndex)) {
         painter.save();
         painter.translate(0, yStart + seqRowHeight);

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -84,15 +84,25 @@ MaEditorStatusBar::MaEditorStatusBar(MaEditor* _editor)
 
     connect(editor->getSelectionController(),
             SIGNAL(si_selectionChanged(const MaEditorSelection&, const MaEditorSelection&)),
-            SLOT(sl_update()));
+            SLOT(sl_updateStatusBar()));
     MultipleAlignmentObject* maObject = editor->getMaObject();
-    connect(maObject, SIGNAL(si_alignmentChanged(const MultipleAlignment&, const MaModificationInfo&)), SLOT(sl_update()));
+    connect(maObject, SIGNAL(si_alignmentChanged(const MultipleAlignment&, const MaModificationInfo&)), SLOT(sl_updateStatusBar()));
     connect(maObject, SIGNAL(si_lockedStateChanged()), SLOT(sl_lockStateChanged()));
+    // Workaround
+    // updateLabels() must be called after all queued signals,
+    // so we use Qt::QueuedConnection and signal si_updateStatusBar2()
+    // which is emitted in intermediate signal si_updateStatusBar()
+    connect(this, &MaEditorStatusBar::si_updateStatusBar2, this, &MaEditorStatusBar::sl_updateStatusBar2, Qt::QueuedConnection);
 
     updateLock();
 }
 
-void MaEditorStatusBar::sl_update() {
+void MaEditorStatusBar::sl_updateStatusBar() {
+    // See comments in constructor
+    emit si_updateStatusBar2();
+}
+
+void MaEditorStatusBar::sl_updateStatusBar2() {
     updateLabels();
 }
 

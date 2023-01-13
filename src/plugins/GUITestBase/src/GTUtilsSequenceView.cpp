@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@
 #include <QClipboard>
 #include <QDialogButtonBox>
 #include <QPlainTextEdit>
-#include <QPushButton>
 
 #include <U2Core/AnnotationSettings.h>
 #include <U2Core/AppContext.h>
@@ -70,10 +69,10 @@ public:
     GTSequenceReader(HI::GUITestOpStatus& _os, QString* _str)
         : Filler(_os, "EditSequenceDialog"), str(_str) {
     }
-    void commonScenario() {
+    void commonScenario() override {
         QWidget* widget = GTWidget::getActiveModalWidget(os);
 
-        QPlainTextEdit* textEdit = widget->findChild<QPlainTextEdit*>();
+        auto textEdit = widget->findChild<QPlainTextEdit*>();
         GT_CHECK(textEdit != nullptr, "PlainTextEdit not found");
 
         *str = textEdit->toPlainText();
@@ -231,10 +230,15 @@ void GTUtilsSequenceView::checkSequence(HI::GUITestOpStatus& os, const QString& 
 #undef GT_METHOD_NAME
 
 #define GT_METHOD_NAME "selectSequenceRegion"
-void GTUtilsSequenceView::selectSequenceRegion(HI::GUITestOpStatus& os, int from, int to) {
+void GTUtilsSequenceView::selectSequenceRegion(HI::GUITestOpStatus& os, int from, int to, bool useHotkey) {
     GTUtilsDialog::waitForDialog(os, new SelectSequenceRegionDialogFiller(os, from, to));
-    clickMouseOnTheSafeSequenceViewArea(os);
-    GTKeyboardUtils::selectAll();
+    if (useHotkey) {
+        clickMouseOnTheSafeSequenceViewArea(os);
+        GTKeyboardUtils::selectAll();
+    } else {
+        GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"select_range_action"}, GTGlobals::UseMouse));
+        GTMenu::showContextMenu(os, getPanOrDetView(os));
+    }
 }
 #undef GT_METHOD_NAME
 
@@ -287,6 +291,7 @@ void GTUtilsSequenceView::clickMouseOnTheSafeSequenceViewArea(HI::GUITestOpStatu
 void GTUtilsSequenceView::openPopupMenuOnSequenceViewArea(HI::GUITestOpStatus& os, int number) {
     QWidget* panOrDetView = getPanOrDetView(os, number);
     GT_CHECK(panOrDetView != nullptr, "No pan or det-view found!");
+    GT_CHECK(panOrDetView->isVisible(), "Pan or det-view is not visible!");
     GTWidget::click(os, panOrDetView, Qt::RightButton);
 }
 #undef GT_METHOD_NAME
@@ -308,7 +313,7 @@ ADVSingleSequenceWidget* GTUtilsSequenceView::getSeqWidgetByNumber(HI::GUITestOp
                                        getActiveSequenceViewWindow(os),
                                        options);
 
-    ADVSingleSequenceWidget* seqWidget = qobject_cast<ADVSingleSequenceWidget*>(widget);
+    auto seqWidget = qobject_cast<ADVSingleSequenceWidget*>(widget);
 
     if (options.failIfNotFound) {
         GT_CHECK_RESULT(widget != nullptr, QString("Sequence widget %1 was not found!").arg(number), nullptr);
@@ -327,7 +332,7 @@ DetView* GTUtilsSequenceView::getDetViewByNumber(HI::GUITestOpStatus& os, int nu
         return nullptr;
     }
 
-    DetView* result = seq->findChild<DetView*>();
+    auto result = seq->findChild<DetView*>();
     CHECK(result->isVisible(), nullptr);
 
     if (options.failIfNotFound) {
@@ -346,7 +351,7 @@ PanView* GTUtilsSequenceView::getPanViewByNumber(HI::GUITestOpStatus& os, int nu
         return nullptr;
     }
 
-    PanView* result = seq->findChild<PanView*>();
+    auto result = seq->findChild<PanView*>();
     CHECK(result->isVisible(), nullptr);
 
     if (options.failIfNotFound) {
@@ -366,7 +371,7 @@ Overview* GTUtilsSequenceView::getOverviewByNumber(HI::GUITestOpStatus& os, int 
         return nullptr;
     }
 
-    Overview* result = seq->findChild<Overview*>();
+    auto result = seq->findChild<Overview*>();
     CHECK(result->isVisible(), nullptr);
 
     if (options.failIfNotFound) {
@@ -432,7 +437,7 @@ void GTUtilsSequenceView::moveMouseToAnnotationInDetView(HI::GUITestOpStatus& os
             }
         }
     }
-    GT_CHECK(selectedAnnotationList.size() != 0, QString("Annotation with annotationName %1 and startPos %2").arg(annotationName).arg(annotationRegionStartPos));
+    GT_CHECK(!selectedAnnotationList.empty(), QString("Annotation with annotationName %1 and startPos %2").arg(annotationName).arg(annotationRegionStartPos));
     GT_CHECK(selectedAnnotationList.size() == 1, QString("Several annotation with annotationName %1 and startPos %2. Number is: %3").arg(annotationName).arg(annotationRegionStartPos).arg(selectedAnnotationList.size()));
 
     Annotation* annotation = selectedAnnotationList.first();
@@ -492,10 +497,10 @@ void GTUtilsSequenceView::clickAnnotationDet(HI::GUITestOpStatus& os,
 #undef GT_METHOD_NAME
 
 #define GT_METHOD_NAME "clickAnnotationPan"
-void GTUtilsSequenceView::clickAnnotationPan(HI::GUITestOpStatus& os, QString name, int startPos, int number, const bool isDoubleClick, Qt::MouseButton button) {
+void GTUtilsSequenceView::clickAnnotationPan(HI::GUITestOpStatus& os, const QString& name, int startPos, int number, const bool isDoubleClick, Qt::MouseButton button) {
     ADVSingleSequenceWidget* seq = getSeqWidgetByNumber(os, number);
     GSequenceLineViewRenderArea* area = seq->getPanView()->getRenderArea();
-    PanViewRenderArea* pan = dynamic_cast<PanViewRenderArea*>(area);
+    auto pan = dynamic_cast<PanViewRenderArea*>(area);
     GT_CHECK(pan != nullptr, "pan view render area not found");
 
     ADVSequenceObjectContext* context = seq->getSequenceContext();
@@ -503,7 +508,8 @@ void GTUtilsSequenceView::clickAnnotationPan(HI::GUITestOpStatus& os, QString na
 
     QList<Annotation*> anns;
     foreach (const AnnotationTableObject* ao, context->getAnnotationObjects(true)) {
-        foreach (Annotation* a, ao->getAnnotations()) {
+        const QList<Annotation*>& annotations = ao->getAnnotations();
+        for (Annotation* a : qAsConst(annotations)) {
             const int sp = a->getLocation().data()->regions.first().startPos;
             const QString annName = a->getName();
             if (sp == startPos - 1 && annName == name) {
@@ -511,7 +517,7 @@ void GTUtilsSequenceView::clickAnnotationPan(HI::GUITestOpStatus& os, QString na
             }
         }
     }
-    GT_CHECK(anns.size() != 0, QString("Annotation with name %1 and startPos %2").arg(name).arg(startPos));
+    GT_CHECK(!anns.empty(), QString("Annotation with name %1 and startPos %2").arg(name).arg(startPos));
     GT_CHECK(anns.size() == 1, QString("Several annotation with name %1 and startPos %2. Number is: %3").arg(name).arg(startPos).arg(anns.size()));
 
     Annotation* a = anns.first();
@@ -554,7 +560,7 @@ void GTUtilsSequenceView::clickAnnotationPan(HI::GUITestOpStatus& os, QString na
 
 #define GT_METHOD_NAME "getGraphView"
 GSequenceGraphView* GTUtilsSequenceView::getGraphView(HI::GUITestOpStatus& os) {
-    GSequenceGraphView* graph = getSeqWidgetByNumber(os)->findChild<GSequenceGraphView*>();
+    auto graph = getSeqWidgetByNumber(os)->findChild<GSequenceGraphView*>();
     GT_CHECK_RESULT(graph != nullptr, "Graph view is NULL", nullptr);
     return graph;
 }

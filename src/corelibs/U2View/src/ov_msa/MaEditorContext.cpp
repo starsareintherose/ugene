@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -29,10 +29,10 @@
 
 namespace U2 {
 
-MaEditorContext::MaEditorContext(MaEditor* maEditor)
+MaEditorContext::MaEditorContext(MaEditor* maEditor, QWidget* wgt)
     : editor(maEditor),
       maObject(maEditor->getMaObject()),
-      ui(maEditor->getUI()),
+      ui(wgt),
       selectionController(maEditor->getSelectionController()),
       collapseModel(editor->getCollapseModel()) {
     SAFE_POINT(maObject != nullptr, "maObject is null", );

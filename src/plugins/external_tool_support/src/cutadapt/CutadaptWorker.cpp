@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -294,7 +294,7 @@ void CutAdaptParser::parseErrOutput(const QString& partOfLog) {
 }
 
 QString CutAdaptParser::parseTextForErrors(const QStringList& lastPartOfLog) {
-    foreach (const QString& buf, lastPartOfLog) {
+    for (const QString& buf : qAsConst(lastPartOfLog)) {
         bool ignoredStringFound = false;
         foreach (const QString& ignoredStr, stringsToIgnore) {
             if (buf.contains(ignoredStr, Qt::CaseInsensitive)) {

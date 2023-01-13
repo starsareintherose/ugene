@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -53,14 +53,12 @@ public:
         SharedDb
     };
 
-    WriteAnnotationsWorker(Actor* p)
-        : BaseWorker(p), annotationsPort(nullptr) {
-    }
+    WriteAnnotationsWorker(Actor* p);
     ~WriteAnnotationsWorker();
 
-    virtual void init();
-    virtual Task* tick();
-    virtual void cleanup();
+    void init() override;
+    Task* tick() override;
+    void cleanup() override;
 
 private slots:
     void sl_saveDocTaskFinished();
@@ -79,7 +77,7 @@ private:
     Task* getSaveObjTask(const U2DbiRef& dstDbiRef) const;
     Task* createWriteMultitask(const QList<Task*>& taskList) const;
 
-    IntegralBus* annotationsPort;
+    IntegralBus* annotationsPort = nullptr;
     QList<AnnotationTableObject*> createdAnnotationObjects;
     QMap<QString, QList<AnnotationTableObject*>> annotationsByUrl;
     QSet<QString> existedResultFiles;

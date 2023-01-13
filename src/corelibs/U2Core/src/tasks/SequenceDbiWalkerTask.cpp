@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ QList<SequenceDbiWalkerSubtask*> SequenceDbiWalkerTask::prepareSubtasks() {
     } else {
         U2Region wholeSeqReg(0, sequenceObject.getSequenceLength());
         if (!config.walkCircular) {
-            SAFE_POINT_EXT(wholeSeqReg.contains(config.range), stateInfo.setError(tr("Target region out of sequence range")), res);
+            SAFE_POINT_EXT(wholeSeqReg.contains(config.range), stateInfo.setError(QString("Target region out of sequence range")), res);
         }
     }
 

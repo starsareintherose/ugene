@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -257,7 +257,7 @@ void AppFileStorage::cleanup(U2OpStatus& os) {
                 unremovedFiles << info.getKey();  // source url for hash
             }
         } else {
-            newData << triplet;
+            newData.append(triplet);
         }
     }
 

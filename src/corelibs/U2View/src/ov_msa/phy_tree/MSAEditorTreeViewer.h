@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ class MSAEditorTreeViewer : public TreeViewer {
     Q_OBJECT
 public:
     MSAEditorTreeViewer(const QString& viewName, PhyTreeObject* phyTreeObject);
-    ~MSAEditorTreeViewer();
+    ~MSAEditorTreeViewer() override;
 
     const CreatePhyTreeSettings& getCreatePhyTreeSettings() const;
 
@@ -136,22 +136,19 @@ class U2VIEW_EXPORT MSAEditorTreeViewerUI : public TreeViewerUI {
 public:
     MSAEditorTreeViewerUI(MSAEditorTreeViewer* treeViewer);
 
-    void highlightBranches();
-
     /**
      * Return virtual grouping state for MSA that corresponds to the current tree state.
      * All sequences are ordered by 'y' position. All collapsed branches are mapped to the virtual groups.
      */
     QList<QStringList> getGroupingStateForMsa() const;
 
-protected:
-    /** Overrides the original method to trigger MSA related updates as the result of tree update. */
-    void updateScene(bool fitSceneToView) override;
+public slots:
+    // TODO: listen model, not the name list.
+    void sl_sequenceNameChanged(const QString& prevName, const QString& newName);
 
 private slots:
     void sl_selectionChanged(const QStringList& selectedSequenceNameList);
-    void sl_sequenceNameChanged(QString prevName, QString newName);
-    void sl_onBranchCollapsed(GraphicsBranchItem* branch) override;
+    void sl_onBranchCollapsed(TvBranchItem* branch) override;
 
 private:
     MSAEditorTreeViewer* const msaEditorTreeViewer;
@@ -159,7 +156,7 @@ private:
 
 class MSAEditorTreeViewerUtils {
 public:
-    static QStringList getSeqsNamesInBranch(const GraphicsBranchItem* branch);
+    static QStringList getSeqsNamesInBranch(const TvBranchItem* branch);
 };
 
 }  // namespace U2

@@ -45,6 +45,7 @@ if (CMAKE_COMPILER_IS_GNUCXX)
             " -Werror=unused-parameter"
             " -Werror=unused-value"
             " -Werror=unused-variable"
+            " -Wno-deprecated-declarations"
             )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_WARNING_FLAGS}")
     LIST(APPEND COMPILER_FLAGS -Wl,--no-undefined )
@@ -92,6 +93,7 @@ add_subdirectory(src/plugins/dna_stat)
 add_subdirectory(src/plugins/dotplot)
 add_subdirectory(src/plugins/enzymes)
 add_subdirectory(src/plugins/external_tool_support)
+add_subdirectory(src/plugins/genecut)
 add_subdirectory(src/plugins/genome_aligner)
 add_subdirectory(src/plugins/linkdata_support)
 add_subdirectory(src/plugins/orf_marker)

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@
 #include "AnnotationTableObjectTest.h"
 #include "AnnotationUtilsTests.h"
 #include "AsnParserTests.h"
-#include "BinaryFindOpenCLTests.h"
 #include "BioStruct3DObjectTests.h"
 #include "CMDLineTests.h"
 #include "DNASequenceObjectTests.h"
@@ -148,12 +147,7 @@ void CoreTests::registerFactories() {
     // GUrl tests
     registerFactory<GUrlTests>(xmlTestFormat);
 
-    // BinaryFindOpencl tests
-#ifdef OPENCL_SUPPORT
-    registerFactory<BinaryFindOpenCLTests>(xmlTestFormat);
-#endif
-
-    // FindAlforithm tests
+    // FindAlgorithm tests
     registerFactory<FindAlgorithmTests>(xmlTestFormat);
 
     // Automatic format detection tests

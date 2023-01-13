@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@
 
 #include <U2Gui/ObjectViewModel.h>
 
-#include <U2View/GraphicsRectangularBranchItem.h>
 #include <U2View/MSAEditor.h>
 
 #include "MsaEditorTreeTabArea.h"
@@ -37,7 +36,7 @@ namespace U2 {
 MSAEditorMultiTreeViewer::MSAEditorMultiTreeViewer(const QString& title, MSAEditor* msaEditor)
     : editor(msaEditor) {
     treeTabArea = new MsaEditorTreeTabArea(editor, this);
-    titleWidget = msaEditor->getUI()->createHeaderLabelWidget(title);
+    titleWidget = msaEditor->getMaEditorWgt()->createHeaderLabelWidget(title);
 
     auto maUtilsWidget = dynamic_cast<MaUtilsWidget*>(titleWidget);
     maUtilsWidget->setHeightMargin(-55);

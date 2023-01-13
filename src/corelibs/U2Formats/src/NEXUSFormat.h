@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ protected:
 
 private:
     QList<GObject*> loadObjects(IOAdapter* io, const U2DbiRef& dbiRef, const QVariantMap& fs, U2OpStatus& ti);
-    void storeObjects(QList<GObject*> objects, bool simpleNames, IOAdapter* io, U2OpStatus& ti);
+    void storeObjects(const QList<GObject*>& objects, bool simpleNames, IOAdapter* io, U2OpStatus& ti);
 };
 
 }  // namespace U2

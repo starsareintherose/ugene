@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 #include <U2Core/U2Msa.h>
 
 #include "MaEditor.h"
+#include "MsaEditorMultilineWgt.h"
 #include "MsaEditorWgt.h"
 #include "phy_tree/MSAEditorTreeManager.h"
 
@@ -94,8 +95,7 @@ public:
     void buildStaticToolbar(QToolBar* tb) override;
 
     void buildMenu(QMenu* m, const QString& type) override;
-
-    MsaEditorWgt* getUI() const override;
+    void fillMenu(QMenu* m, const QString& type);
 
     // Return alignment row that is displayed on target line in MSAEditor
     MultipleSequenceAlignmentRow getRowByViewRowIndex(int viewRowIndex) const;
@@ -135,6 +135,24 @@ public:
      * The MSA Editor uses by-value caches (QVector/QList) that are proportional to the MSA length which can't grow above 2Gb limit.
      */
     static constexpr int MAX_SUPPORTED_MSA_OBJECT_LENGTH = 100 * 1000 * 1000;
+
+    MaEditorMultilineWgt* getUI() const override {
+        return getMaEditorMultilineWgt();
+    }
+
+    MaEditorWgt* getMaEditorWgt(int index = 0) const override {
+        return qobject_cast<MsaEditorWgt*>(getUI()->getUI(index));
+    }
+
+    // Return multiline widget (parent of the all sequences' widget
+    // Can be nullptr if widget is not yet created, but is used in for example
+    // in font metric calculating in MaEditor
+    // Don't want to update MaEditor
+    MaEditorMultilineWgt* getMaEditorMultilineWgt() const override {
+        return qobject_cast<MsaEditorMultilineWgt*>(ui);
+    }
+
+    void initChildrenActionsAndSignals() override;
 
 protected slots:
     void sl_onContextMenuRequested(const QPoint& pos) override;
@@ -180,19 +198,29 @@ protected slots:
     /** Shows 'Export Image' dialog. */
     void sl_exportImage();
 
+    void sl_multilineViewAction() override;
+
+    bool setMultilineMode(bool newmode) override {
+        multilineMode = newmode;
+        return getUI()->setMultilineMode(multilineMode);
+    }
+
 protected:
     QWidget* createWidget() override;
+    void onAfterViewWindowInit() override;
+
+    void initActions() override;
     bool eventFilter(QObject* o, QEvent* e) override;
     bool onObjectRemoved(GObject* obj) override;
     void onObjectRenamed(GObject* obj, const QString& oldName) override;
 
-    void addCopyPasteMenu(QMenu* m) override;
+    void addCopyPasteMenu(QMenu* m, int uiIndex) override;
     void addEditMenu(QMenu* m) override;
     void addSortMenu(QMenu* m);
     void addAlignMenu(QMenu* m);
     void addExportMenu(QMenu* m) override;
-    void addAppearanceMenu(QMenu* m);
-    void addColorsMenu(QMenu* m);
+    void addAppearanceMenu(QMenu* m, int uiIndex);
+    void addColorsMenu(QMenu* m, int index);
     void addHighlightingMenu(QMenu* m);
     void addNavigationMenu(QMenu* m);
     void addTreeMenu(QMenu* m);
@@ -201,7 +229,7 @@ protected:
 
     void updateActions() override;
 
-    void initDragAndDropSupport();
+    void initDragAndDropSupport(MaEditorWgt* wgt);
 
 public:
     QAction* buildTreeAction = nullptr;
@@ -247,6 +275,10 @@ public:
     QAction* convertRawToAminoAction = nullptr;
 
 private:
+    MsaEditorWgt* createChildWidget(int index,
+                                    MaEditorOverviewArea* overview = nullptr,
+                                    MaEditorStatusBar* statusbar = nullptr);
+
     PairwiseAlignmentWidgetsSettings* pairwiseAlignmentWidgetsSettings = nullptr;
     MSAEditorTreeManager treeManager;
 
@@ -269,6 +301,12 @@ private:
 
     /** Selection state controller. */
     MaEditorSelectionController* selectionController;
+
+    // Main windows toolbar and menu
+    // we need to save it for recreating actions while switching singleline <-> multiline modes
+    QToolBar* staticToolBar;
+    QMenu* staticMenu;
+    QString staticMenuType;
 };
 
 /** Set of custom menu actions in MSA editor. */

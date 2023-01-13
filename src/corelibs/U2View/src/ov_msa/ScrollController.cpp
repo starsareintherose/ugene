@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,22 +38,23 @@ namespace U2 {
 ScrollController::ScrollController(MaEditor* maEditor, MaEditorWgt* maEditorUi)
     : QObject(maEditorUi),
       maEditor(maEditor),
-      ui(maEditorUi),
-      savedFirstVisibleMaRow(0),
-      savedFirstVisibleMaRowOffset(0) {
-    connect(this, SIGNAL(si_visibleAreaChanged()), maEditorUi, SIGNAL(si_completeRedraw()));
-    connect(maEditor->getCollapseModel(), SIGNAL(si_aboutToBeToggled()), SLOT(sl_collapsibleModelIsAboutToBeChanged()));
-    connect(maEditor->getCollapseModel(), SIGNAL(si_toggled()), SLOT(sl_collapsibleModelChanged()));
+      ui(maEditorUi) {
+    connect(this, &ScrollController::si_visibleAreaChanged, maEditorUi, &MaEditorWgt::si_completeRedraw);
+    MaCollapseModel* collapseModel = maEditor->getCollapseModel();
+    connect(collapseModel, &MaCollapseModel::si_aboutToBeToggled, this, &ScrollController::sl_collapsibleModelIsAboutToBeChanged);
+    connect(collapseModel, &MaCollapseModel::si_toggled, this, &ScrollController::sl_collapsibleModelChanged);
 }
 
-void ScrollController::init(GScrollBar* hScrollBar, GScrollBar* vScrollBar) {
-    this->hScrollBar = hScrollBar;
+void ScrollController::init(GScrollBar* horizontalScrollBar, GScrollBar* verticalScrollBar) {
+    SAFE_POINT(hScrollBar == nullptr, "Horizontal scrollbar is already set!", );
+    SAFE_POINT(vScrollBar == nullptr, "Vertical scrollbar is already set!", );
+    hScrollBar = horizontalScrollBar;
     hScrollBar->setValue(0);
-    connect(hScrollBar, SIGNAL(valueChanged(int)), SIGNAL(si_visibleAreaChanged()));
+    connect(hScrollBar, &QScrollBar::valueChanged, this, &ScrollController::si_visibleAreaChanged);
 
-    this->vScrollBar = vScrollBar;
+    this->vScrollBar = verticalScrollBar;
     vScrollBar->setValue(0);
-    connect(vScrollBar, SIGNAL(valueChanged(int)), SIGNAL(si_visibleAreaChanged()));
+    connect(vScrollBar, &QScrollBar::valueChanged, this, &ScrollController::si_visibleAreaChanged);
 
     sl_updateScrollBars();
 }
@@ -198,7 +199,6 @@ void ScrollController::scrollStep(ScrollController::Direction direction) {
             break;
         default:
             FAIL("An unknown direction", );
-            break;
     }
 }
 
@@ -218,7 +218,6 @@ void ScrollController::scrollPage(ScrollController::Direction direction) {
             break;
         default:
             FAIL("An unknown direction", );
-            break;
     }
 }
 
@@ -238,7 +237,6 @@ void ScrollController::scrollToEnd(ScrollController::Direction direction) {
             break;
         default:
             FAIL("An unknown direction", );
-            break;
     }
 }
 
@@ -278,7 +276,6 @@ void ScrollController::scrollToMovedSelection(ScrollController::Direction direct
             return;
         default:
             FAIL("An unknown direction", );
-            break;
     }
 
     const bool selectionEdgeIsFullyVisible = fullyVisibleRegion.contains(selectionEdgePosition);
@@ -292,11 +289,8 @@ void ScrollController::scrollToMovedSelection(ScrollController::Direction direct
             case Right:
                 scrollToBase(static_cast<int>(selectionEdgePosition), widgetSize.width());
                 break;
-            case None:
-                return;
             default:
                 FAIL("An unknown direction", );
-                break;
         }
     }
 }
@@ -309,7 +303,9 @@ int ScrollController::getFirstVisibleBase(bool countClipped) const {
     int hScrollBarValue = hScrollBar->value();
     int column = ui->getBaseWidthController()->globalXPositionToColumn(hScrollBarValue);
     int firstVisibleBase = column + (removeClippedBase && additionalXOffset != 0 ? 1 : 0);
-    SAFE_POINT(firstVisibleBase < alignmentLength, "Invalid first visible base: " + QString::number(firstVisibleBase), 0);
+
+    // The following comment is a fix for UGENE-7605
+    // SAFE_POINT(firstVisibleBase < alignmentLength, "Invalid first visible base: " + QString::number(firstVisibleBase), 0);
     return qMin(firstVisibleBase, alignmentLength - 1);
 }
 
@@ -352,10 +348,13 @@ void ScrollController::updateScrollBarsOnFontOrZoomChange() {
     QSignalBlocker signalBlocker(hScrollBar);
 
     // Keep the top-left point in place while zooming,
-    // so when zooming in an just opened alignment the start position is always visible.
+    // so when zooming in a just opened alignment the start position is always visible.
     double sequenceAreaWidth = ui->getSequenceArea()->width();
     double leftX = hScrollBar->value();
     double alignmentLength = maEditor->getAlignmentLen();
+
+    int baseWidth = (hScrollBar->maximum() + sequenceAreaWidth) / alignmentLength;
+    sequenceAreaWidth = ui->getSequenceArea()->width() - ui->getSequenceArea()->width() % (int)baseWidth;
     double maxX = hScrollBar->maximum() + sequenceAreaWidth;
     double leftXPointPos = alignmentLength * leftX / (double)maxX;
     updateHorizontalScrollBarPrivate();
@@ -412,21 +411,35 @@ void ScrollController::updateHorizontalScrollBarPrivate() {
     SAFE_POINT(nullptr != hScrollBar, "Horizontal scrollbar is not initialized", );
     QSignalBlocker signalBlocker(hScrollBar);
 
+    maEditor->multilineViewAction->setEnabled(!maEditor->isAlignmentEmpty() || maEditor->getMultilineMode());
     CHECK_EXT(!maEditor->isAlignmentEmpty(), hScrollBar->setVisible(false), );
 
-    int alignmentLength = maEditor->getAlignmentLen();
-    int columnWidth = maEditor->getColumnWidth();
-    int sequenceAreaWidth = ui->getSequenceArea()->width();
+    const int alignmentLength = maEditor->getAlignmentLen();
+    const int columnWidth = maEditor->getColumnWidth();
+    const int sequenceAreaWidth = qMax(1,
+                                       ui->getSequenceArea()->width() - ui->getSequenceArea()->width() % columnWidth);
+
+    maEditor->multilineViewAction->setEnabled(hScrollBar->maximum() > sequenceAreaWidth || maEditor->getMultilineMode());
 
     hScrollBar->setMinimum(0);
+    // TODO:ichebyki
     int hScrollBarMax = qMax(0, alignmentLength * columnWidth - sequenceAreaWidth);
+    if (maEditor->getMultilineMode()) {
+        int moreLength = (alignmentLength * columnWidth / sequenceAreaWidth +
+                          (alignmentLength * columnWidth % sequenceAreaWidth > 0 ? 1 : 0)) *
+                             sequenceAreaWidth -
+                         sequenceAreaWidth;
+        hScrollBarMax = qMax(hScrollBarMax, moreLength);
+    }
     hScrollBar->setMaximum(hScrollBarMax);
     hScrollBar->setSingleStep(columnWidth);
     hScrollBar->setPageStep(sequenceAreaWidth);
 
     int numVisibleBases = getLastVisibleBase(sequenceAreaWidth) - getFirstVisibleBase();
     SAFE_POINT(numVisibleBases <= alignmentLength, "Horizontal scrollbar appears unexpectedly: numVisibleBases is too small", );
-    hScrollBar->setVisible(numVisibleBases < alignmentLength);
+
+    // hide scrollbar
+    hScrollBar->setVisible(hScrollBarVisible && numVisibleBases < alignmentLength);
 }
 
 void ScrollController::updateVerticalScrollBarPrivate() {
@@ -448,7 +461,9 @@ void ScrollController::updateVerticalScrollBarPrivate() {
     int lastVisibleViewRowIndex = getLastVisibleViewRowIndex(sequenceAreaHeight);
     int numVisibleSequences = lastVisibleViewRowIndex - firstVisibleViewRowIndex + 1;
     SAFE_POINT(numVisibleSequences <= viewRowCount, "Vertical scrollbar appears unexpectedly: numVisibleSequences is too small", );
-    vScrollBar->setVisible(numVisibleSequences < viewRowCount);
+
+    // hide scrollbar
+    vScrollBar->setVisible(vScrollBarVisible && numVisibleSequences < viewRowCount);
 }
 
 QPoint ScrollController::getViewPosByScreenPoint(const QPoint& point, bool reportOverflow) const {
@@ -464,6 +479,22 @@ QPoint ScrollController::getViewPosByScreenPoint(const QPoint& point, bool repor
         return QPoint(column, row);
     }
     return QPoint(-1, -1);
+}
+
+void ScrollController::setHScrollBarVisible(bool visible) {
+    hScrollBarVisible = visible;
+}
+
+bool ScrollController::getHScrollBarVisible() const {
+    return hScrollBarVisible;
+}
+
+void ScrollController::setVScrollBarVisible(bool visible) {
+    vScrollBarVisible = visible;
+}
+
+bool ScrollController::getVScrollBarVisible() const {
+    return vScrollBarVisible;
 }
 
 }  // namespace U2

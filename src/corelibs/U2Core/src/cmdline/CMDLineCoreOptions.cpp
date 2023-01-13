@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -74,7 +74,7 @@ void CMDLineCoreOptions::initHelp() {
     CMDLineHelpProvider* translSection = new CMDLineHelpProvider(
         TRANSLATION,
         tr("Specifies the language to use."),
-        tr("Specifies the language to use. The following values are available: CS, EN, RU, ZH."),
+        tr("Specifies the language to use. The following values are available: EN, RU, TR."),
         tr("<language_code>"));
 
     CMDLineHelpProvider* tmpDirSection = new CMDLineHelpProvider(

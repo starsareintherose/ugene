@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -70,6 +70,14 @@ public:
 
     static const QColor WARNING_COLOR;
     static const QColor OK_COLOR;
+
+    /**
+     * Maximum size of the pixmap that can be safely created for UGENE.
+     * Pixmaps with dimensions larger than this size may cause memory errors or not supported by OS.
+     * Example: https://github.com/radekp/qt/blob/b881d8fb99972f1bd04ab4c84843cc8d43ddbeed/src/gui/image/qpixmap_x11.cpp#L1823
+     */
+    static constexpr int MAX_SAFE_PIXMAP_WIDTH = 10 * 1000;
+    static constexpr int MAX_SAFE_PIXMAP_HEIGHT = 10 * 1000;
 };
 
 }  // namespace U2

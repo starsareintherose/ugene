@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -129,8 +129,8 @@ void InSilicoPcrTask::run() {
     algoLog.details(tr("Forward primers found: %1").arg(forwardResults.size()));
     algoLog.details(tr("Reverse primers found: %1").arg(reverseResults.size()));
 
-    foreach (const FindAlgorithmResult& forward, forwardResults) {
-        foreach (const FindAlgorithmResult& reverse, reverseResults) {
+    for (const FindAlgorithmResult& forward : qAsConst(forwardResults)) {
+        for (const FindAlgorithmResult& reverse : qAsConst(reverseResults)) {
             CHECK(!isCanceled(), );
             if (forward.strand == reverse.strand) {
                 continue;

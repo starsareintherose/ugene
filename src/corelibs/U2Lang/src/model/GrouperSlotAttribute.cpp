@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -54,7 +54,7 @@ void GrouperOutSlotAttribute::addOutSlot(const GrouperOutSlot& outSlot) {
 
 void GrouperOutSlotAttribute::updateActorIds(const QMap<ActorId, ActorId>& actorIdsMap) {
     QList<GrouperOutSlot> newOutSlots;
-    foreach (const GrouperOutSlot& gSlot, outSlots) {
+    for (const GrouperOutSlot& gSlot : qAsConst(outSlots)) {
         QString slotStr = gSlot.getInSlotStr();
         slotStr = GrouperOutSlot::readable2busMap(slotStr);
         Workflow::IntegralBusType::remapSlotString(slotStr, actorIdsMap);

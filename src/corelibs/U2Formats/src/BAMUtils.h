@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -39,43 +39,35 @@ class AssemblyObject;
 class U2FORMATS_EXPORT BAMUtils : public QObject {
     Q_OBJECT
 public:
-    class U2FORMATS_EXPORT ConvertOption {
-    public:
-        ConvertOption(bool samToBam, const QString& referenceUrl = "");
-        bool samToBam;
-        QString referenceUrl;
-    };
-    /**
-     * Returns the url to the output BAM or SAM file
-     */
-    static void convertToSamOrBam(const GUrl& samUrl, const GUrl& bamUrl, const ConvertOption& options, U2OpStatus& os);
+    /** Converts BAM file to SAM file. */
+    static void convertBamToSam(U2OpStatus& os, const QString& bamPath, const QString& samPath);
 
-    static bool isSortedBam(const GUrl& bamUrl, U2OpStatus& os);
+    /** Converts SAM file to BAM file. */
+    static void convertSamToBam(U2OpStatus& os, const QString& samPath, const QString& bamPath, const QString& referencePath = "");
+
+    static bool isSortedBam(const QString& bamUrl, U2OpStatus& os);
 
     /**
      * @sortedBamBaseName is the result file path without extension.
      * Returns @sortedBamBaseName.bam
      */
-    static GUrl sortBam(const GUrl& bamUrl, const QString& sortedBamBaseName, U2OpStatus& os);
+    static GUrl sortBam(const QString& bamUrl, const QString& sortedBamFilePath, U2OpStatus& os);
 
-    static GUrl mergeBam(const QStringList& bamUrl, const QString& mergetBamTargetUrl, U2OpStatus& os);
+    static GUrl mergeBam(const QStringList& bamUrl, const QString& mergedBamTargetUrl, U2OpStatus& os);
 
-    // deprecated because hangs up on big files
-    static GUrl rmdupBam(const QString& bamUrl, const QString& rmdupBamTargetUrl, U2OpStatus& os, bool removeSingleEnd = false, bool treatReads = false);
+    static bool hasValidBamIndex(const QString& bamUrl);
 
-    static bool hasValidBamIndex(const GUrl& bamUrl);
+    static bool hasValidFastaIndex(const QString& fastaUrl);
 
-    static bool hasValidFastaIndex(const GUrl& fastaUrl);
+    static void createBamIndex(const QString& bamUrl, U2OpStatus& os);
 
-    static void createBamIndex(const GUrl& bamUrl, U2OpStatus& os);
-
-    static GUrl getBamIndexUrl(const GUrl& bamUrl);
+    static GUrl getBamIndexUrl(const QString& bamUrl);
 
     static void writeDocument(Document* doc, U2OpStatus& os);
 
-    static void writeObjects(const QList<GObject*>& objects, const GUrl& url, const DocumentFormatId& formatId, U2OpStatus& os, const U2Region& desiredRegion = U2_REGION_MAX);
+    static void writeObjects(const QList<GObject*>& objects, const QString& url, const DocumentFormatId& formatId, U2OpStatus& os, const U2Region& desiredRegion = U2_REGION_MAX);
 
-    static bool isEqualByLength(const GUrl& fileUrl1, const GUrl& fileUrl2, U2OpStatus& os, bool isBAM = false);
+    static bool isEqualByLength(const QString& fileUrl1, const QString& fileUrl2, U2OpStatus& os);
 
     /**
      * Returns the list of names of references (despite "*") found among reads.

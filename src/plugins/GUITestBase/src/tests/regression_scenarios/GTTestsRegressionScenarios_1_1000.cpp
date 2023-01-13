@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -732,9 +732,9 @@ GUI_TEST_CLASS_DEFINITION(test_0627) {
             exceptions << "start_edit_line"
                        << "end_edit_line"
                        << "region_type_combo"
-                       << "edit_PRIMER_LEFT_INPUT"
-                       << "edit_PRIMER_RIGHT_INPUT"
-                       << "edit_PRIMER_INTERNAL_OLIGO_INPUT"
+                       << "edit_SEQUENCE_PRIMER"
+                       << "edit_SEQUENCE_PRIMER_REVCOMP"
+                       << "edit_SEQUENCE_INTERNAL_OLIGO"
                        << "cbExistingTable"
                        << "cbAnnotationType"
                        << "leNewTablePath"
@@ -744,7 +744,7 @@ GUI_TEST_CLASS_DEFINITION(test_0627) {
                        << "leGroupName"
                        << "leAnnotationName";
 
-            foreach (const QString& name, objsWithoutTooltips) {
+            for (const QString& name : objsWithoutTooltips) {
                 CHECK_SET_ERR(exceptions.contains(name), QString("The following field has no tool tip: %1").arg(name));
             }
 
@@ -1259,7 +1259,7 @@ GUI_TEST_CLASS_DEFINITION(test_0768) {
     }
 
     GTUtilsDialog::waitForDialog(os, new CreateElementWithScriptDialogFiller(os, "test_0768"));
-    GTMenu::clickMainMenuItem(os, {"Actions", "Create element with script..."}, GTGlobals::UseMouse);
+    GTMenu::clickMainMenuItem(os, {"Actions", "Create element with script..."});
 
     //    4. Select created worker. Press toolbar button "Edit script text".
     //    Expected state: Script editor dialog appears.
@@ -1271,7 +1271,7 @@ GUI_TEST_CLASS_DEFINITION(test_0768) {
     GTMouseDriver::click();
 
     GTUtilsDialog::waitForDialog(os, new ScriptEditorDialogSyntaxChecker(os, "xyz", "Syntax is OK!"));
-    GTMenu::clickMainMenuItem(os, {"Actions", "Edit script of the element..."}, GTGlobals::UseMouse);
+    GTMenu::clickMainMenuItem(os, {"Actions", "Edit script of the element..."});
 }
 
 GUI_TEST_CLASS_DEFINITION(test_0774) {
@@ -2688,7 +2688,7 @@ GUI_TEST_CLASS_DEFINITION(test_0940) {
 
     GTUtilsDialog::add(os, new PopupChooser(os, {MSAE_MENU_EXPORT, "Save subalignment"}));
     GTUtilsDialog::add(os, new ExtractSelectedAsMSADialogFiller(os, sandBoxDir + "test_0940.aln", GTUtilsMSAEditorSequenceArea::getNameList(os)));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTMenu::showContextMenu(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
 }
 
 GUI_TEST_CLASS_DEFINITION(test_0941) {
@@ -2700,15 +2700,15 @@ GUI_TEST_CLASS_DEFINITION(test_0941) {
 
     GTUtilsMSAEditorSequenceArea::selectSequence(os, "Phaneroptera_falcata");
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {MSAE_MENU_EDIT, "replace_selected_rows_with_reverse"}));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTMenu::showContextMenu(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
 
     GTUtilsMSAEditorSequenceArea::selectSequence(os, "Isophya_altaica_EF540820");
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {MSAE_MENU_EDIT, "replace_selected_rows_with_reverse-complement"}));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTMenu::showContextMenu(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
 
     GTUtilsDialog::add(os, new PopupChooser(os, {MSAE_MENU_EXPORT, "Save subalignment"}));
     GTUtilsDialog::add(os, new ExtractSelectedAsMSADialogFiller(os, sandBoxDir + "test_0941.aln", GTUtilsMSAEditorSequenceArea::getNameList(os)));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTMenu::showContextMenu(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     QString resultFileContent = GTFile::readAll(os, sandBoxDir + "test_0941.aln");
@@ -2872,8 +2872,8 @@ GUI_TEST_CLASS_DEFINITION(test_0967_1) {
     CHECK_SET_ERR(GTUtilsProjectTreeView::isVisible(os), "ProjectTreeView is not visible (check #1)");
 
     QMainWindow* mainWindow = AppContext::getMainWindow()->getQMainWindow();
-    GTMainWindow::minimizeMainWindow(os, mainWindow);
-    GTMainWindow::maximizeMainWindow(os, mainWindow);
+    GTWidget::showMinimized(os, mainWindow);
+    GTWidget::showMaximized(os, mainWindow);
 
     // Check that the project is still visible.
     CHECK_SET_ERR(GTUtilsProjectTreeView::isVisible(os), "ProjectTreeView is not visible (check #2)");
@@ -2888,8 +2888,8 @@ GUI_TEST_CLASS_DEFINITION(test_0967_2) {
     CHECK_SET_ERR(logView->isVisible(), "Log View is not visible (check #1)");
 
     QMainWindow* mainWindow = AppContext::getMainWindow()->getQMainWindow();
-    GTMainWindow::minimizeMainWindow(os, mainWindow);
-    GTMainWindow::maximizeMainWindow(os, mainWindow);
+    GTWidget::showMinimized(os, mainWindow);
+    GTWidget::showMaximized(os, mainWindow);
 
     logView = GTWidget::findWidget(os, "dock_log_view");
     CHECK_SET_ERR(logView->isVisible(), "Log View is not visible (check #2)");
@@ -2904,8 +2904,8 @@ GUI_TEST_CLASS_DEFINITION(test_0967_3) {
     CHECK_SET_ERR(tasksView->isVisible(), "taskViewTree is not visible (check #1)");
 
     QMainWindow* mainWindow = AppContext::getMainWindow()->getQMainWindow();
-    GTMainWindow::minimizeMainWindow(os, mainWindow);
-    GTMainWindow::maximizeMainWindow(os, mainWindow);
+    GTWidget::showMinimized(os, mainWindow);
+    GTWidget::showMaximized(os, mainWindow);
 
     tasksView = GTWidget::findWidget(os, "taskViewTree");
     CHECK_SET_ERR(tasksView->isVisible(), "taskViewTree is not visible (check #2)");

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -221,7 +221,9 @@ GUI_TEST_CLASS_DEFINITION(test_0008) {
     GTUtilsMSAEditorSequenceArea::selectArea(os, QPoint(0, 0), QPoint(10, 10));
     GTUtilsMSAEditorSequenceArea::moveTo(os, QPoint(5, 5));
     GTMouseDriver::press();
+    GTThread::waitForMainThread();
     GTUtilsMSAEditorSequenceArea::moveTo(os, QPoint(15, 5));
+    GTThread::waitForMainThread();
 
     //    Expected state: while mouse button is pressed graph overview is blocked. On mouse release overview updating starts.
     //    Simple overview updates simultaneously.

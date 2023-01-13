@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2017 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -39,6 +39,9 @@ public:
     static QString data(GUITestOpStatus& os, QTableView* table, int row, int column);
 
     static void scrollTo(GUITestOpStatus& os, QTableView* table, const QModelIndex& index);
+
+    // Scrolls to a cell (`row`, `column`) and clicks on it.
+    static void click(GUITestOpStatus& os, QTableView* table, int row, int column);
 };
 
 }  // namespace HI

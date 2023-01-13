@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -684,7 +684,7 @@ bool Document::unload(bool deleteObjects) {
     QList<StateLock*> locks = findLocks(StateLockableTreeFlags_ItemAndChildren, StateLockFlag_LiveLock);
     bool liveLocked = (locks.size() > 1);
     if (locks.size() == 1 && !liveLocked) {
-        SAFE_POINT(locks.first() != nullptr, tr("Lock is NULL"), false);
+        SAFE_POINT(locks.first() != nullptr, "Lock is NULL", false);
         liveLocked &= (locks.first()->getUserDesc() == UNLOAD_LOCK_NAME);
     }
     if (liveLocked) {

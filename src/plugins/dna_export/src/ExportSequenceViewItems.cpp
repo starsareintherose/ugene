@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -601,7 +601,8 @@ void ADVExportContext::prepareMAFromSequences(MultipleSequenceAlignment& ma, boo
         }
         const DNAAlphabet* seqAl = seqCtx->getAlphabet();
         DNATranslation* aminoTT = ((translate || forceTranslation) && seqAl->isNucleic()) ? seqCtx->getAminoTT() : nullptr;
-        foreach (const U2Region& r, seqCtx->getSequenceSelection()->getSelectedRegions()) {
+        QVector<U2Region> regions = seqCtx->getSequenceSelection()->getSelectedRegions();
+        for (const U2Region& r : qAsConst(regions)) {
             maxLen = qMax(maxLen, r.length);
             CHECK_EXT(maxLen * ma->getRowCount() <= MAX_ALI_MODEL, os.setError(tr("Alignment is too large")), );
             QByteArray seq = seqCtx->getSequenceData(r, os);

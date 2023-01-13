@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,18 +38,19 @@ class U2GUI_EXPORT CreateAnnotationDialog : public QDialog {
     Q_OBJECT
 public:
     // saves the results to the provided model
-    CreateAnnotationDialog(QWidget* p, CreateAnnotationModel& m);
+    CreateAnnotationDialog(QWidget* p, CreateAnnotationModel& m, const QString& helpButtonCode = "");
     ~CreateAnnotationDialog();
 
     void updateAppearance(const QString& newTitle, const QString& newHelpPage, const QString& newOkButtonName);
+
 private slots:
-    void accept();
+    void accept() override;
 
 private:
     CreateAnnotationModel& model;
-    CreateAnnotationWidgetController* annWidgetController;
-    Ui_CreateAnnotationDialog* ui;
-    HelpButton* helpButton;
+    CreateAnnotationWidgetController* annWidgetController = nullptr;
+    Ui_CreateAnnotationDialog* ui = nullptr;
+    HelpButton* helpButton = nullptr;
 };
 
 }  // namespace U2

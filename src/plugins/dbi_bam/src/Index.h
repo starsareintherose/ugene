@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,8 @@ public:
     };
     Index(const QList<ReferenceIndex>& referenceIndices);
     const QList<ReferenceIndex>& getReferenceIndices() const;
-
+    bool isEmpty() const;
+    
 private:
     QList<ReferenceIndex> referenceIndices;
 };

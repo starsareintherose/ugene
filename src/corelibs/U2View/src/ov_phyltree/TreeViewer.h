@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -45,10 +45,10 @@ namespace U2 {
 
 class GObjectView;
 class TreeViewerUI;
-class GraphicsBranchItem;
-class GraphicsButtonItem;
-class GraphicsRectangularBranchItem;
-class CreateBranchesTask;
+class TvBranchItem;
+class TvNodeItem;
+class TvTextItem;
+class TvRectangularBranchItem;
 
 class TreeViewer : public GObjectView {
     Q_OBJECT
@@ -71,12 +71,6 @@ public:
 
     PhyTreeObject* getPhyObject() const {
         return phyObject;
-    }
-    GraphicsRectangularBranchItem* getRoot() const {
-        return root;
-    }
-    void setRoot(GraphicsRectangularBranchItem* rectRoot) {
-        root = rectRoot;
     }
 
     void setZoomLevel(double zoomLevel);
@@ -108,33 +102,34 @@ public:
     QAction* branchesSettingsAction = nullptr;
 
     QAction* nameLabelsAction = nullptr;
-    QAction* nodeLabelsAction = nullptr;
+    QAction* showNodeLabelsAction = nullptr;
     QAction* distanceLabelsAction = nullptr;
     QAction* textSettingsAction = nullptr;
     QAction* alignTreeLabelsAction = nullptr;
 
-    QAction* zoomToSelectionAction = nullptr;
-    QAction* zoomToAllAction = nullptr;
+    QAction* zoomInAction = nullptr;
+    QAction* resetZoomAction = nullptr;
     QAction* zoomOutAction = nullptr;
 
     QAction* printAction = nullptr;
-    QAction* captureTreeAction = nullptr;
-    QAction* exportAction = nullptr;
+    QAction* saveVisibleViewToFileAction = nullptr;
+    QAction* saveWholeTreeToSvgAction = nullptr;
+    QAction* copyWholeTreeImageToClipboardAction = nullptr;
 
     QAction* collapseAction = nullptr;
     QAction* rerootAction = nullptr;
     QAction* swapAction = nullptr;
 
+    PhyTreeObject* const phyObject;
+
 private:
     QActionGroup* layoutActionGroup = nullptr;
 
     QByteArray state;
-    PhyTreeObject* phyObject = nullptr;
-    GraphicsRectangularBranchItem* root = nullptr;
 
     void setupLayoutSettingsMenu(QMenu* m);
-    void setupShowLabelsMenu(QMenu* m);
-    void setupExportTreeImageMenu(QMenu* m);
+    void setupShowLabelsMenu(QMenu* m) const;
+    void setupExportTreeImageMenu(QMenu* m) const;
 
 protected:
     TreeViewerUI* ui = nullptr;
@@ -146,18 +141,17 @@ class U2VIEW_EXPORT TreeViewerUI : public QGraphicsView {
     friend class TreeViewer;
 
 public:
-    TreeViewerUI(TreeViewer* treeViewer);
-    virtual ~TreeViewerUI();
+    explicit TreeViewerUI(TreeViewer* treeViewer);
+    ~TreeViewerUI() override;
 
-    const QMap<TreeViewOption, QVariant>& getSettings() const;
-    QVariant getOptionValue(TreeViewOption option) const;
-    void setOptionValue(TreeViewOption option, QVariant value);
-
-    void updateSettings(const OptionsMap& settings);
-    void changeOption(TreeViewOption option, const QVariant& newValue);
+    /** Returns option value by looking up first in 'selectionSettings and next in the 'setting'. */
+    QVariant getOption(const TreeViewOption& option) const;
 
     QVariantMap getSettingsState() const;
     void setSettingsState(const QVariantMap& m);
+
+    /** Returns current settings adjusted by 'selectionSettings'. */
+    OptionsMap getSelectionSettings() const;
 
     TreeLayout getTreeLayout() const;
 
@@ -165,23 +159,29 @@ public:
         return getTreeLayout() == RECTANGULAR_LAYOUT;
     }
 
-    bool isCircularLayoutMode() const {
-        return getTreeLayout() == CIRCULAR_LAYOUT;
-    }
-
-    void onPhyTreeChanged();
-
     bool isOnlyLeafSelected() const;
 
     void updateRect();
 
     /** Returns current root item of the tree. */
-    GraphicsBranchItem* getRoot() const;
+    TvBranchItem* getRoot() const;
 
     bool isSelectionStateManagedByChildOnClick = false;
-signals:
-    /* emits when branch settings is updated */
-    void si_updateBranch();
+
+    /** Makes 1 zoom-in step, until maximum zoom limit is reached. */
+    void zoomIn();
+
+    /** Makes 1 zoom-out step, until minimum zoom limit is reached. */
+    void zoomOut();
+
+    /** Resets zoom. Fits the tree into view. */
+    void resetZoom();
+
+    /** Updates single option. */
+    void updateOption(const TreeViewOption& option, const QVariant& newValue);
+
+    /** Updates all options from the 'changedOptions' map. */
+    void updateOptions(const OptionsMap& changedOptions);
 
 protected:
     void wheelEvent(QWheelEvent* e) override;
@@ -198,9 +198,6 @@ protected:
     /** Fits current scene into the view, so the whole tree is visible. Does not change aspect ratio. **/
     void fitIntoView();
 
-    virtual void onLayoutChanged(const TreeLayout&) {
-    }
-
     /**
      * Recomputes scene layout and triggers redraw.
      * Updates legend, scene rect, label alignment and other UI properties.
@@ -211,24 +208,18 @@ protected:
     /** Updates parameter of rect-layout branches using current settings. */
     void updateRectLayoutBranches();
 
-    virtual void onSettingsChanged(const TreeViewOption& option, const QVariant& newValue);
-
 signals:
-    void si_optionChanged(TreeViewOption option, const QVariant& value);
+    /** Emitted when option is changed: either due to selection change or an explicit option update. */
+    void si_optionChanged(const TreeViewOption& option, const QVariant& value);
 
 protected slots:
     virtual void sl_swapTriggered();
     virtual void sl_collapseTriggered();
-    virtual void sl_onBranchCollapsed(GraphicsBranchItem*);
-    virtual void sl_zoomToAll();
-    virtual void sl_zoomToSel();
-    virtual void sl_zoomOut();
+    virtual void sl_onBranchCollapsed(TvBranchItem*);
 
 private slots:
     void sl_printTriggered();
-    void sl_captureTreeTriggered();
     void sl_contTriggered(bool on);
-    void sl_exportTriggered();
     void sl_showNameLabelsTriggered(bool on);
     void sl_showDistanceLabelsTriggered(bool on);
     void sl_rectangularLayoutTriggered();
@@ -242,10 +233,39 @@ private slots:
     void sl_branchSettings();
 
 private:
+    /**
+     * Returns true if there is a selection and only part of the tree is selected.
+     * In case of partial selection some UI styling (fonts/colors) are applied only to the selected part of the tree and
+     * are not stored as view default.
+     * See 'isSelectionScopeOption' to check which option can be applied only to selection.
+     */
+    bool hasPartialSelection() const;
+
+    /**
+     * Sets single option value to the settings only (does not handle view update like in updateOption).
+     * Updates only selection settings if there is an active selection and 'option' can be 'selection-only' option.
+     */
+    void saveOptionToSettings(const TreeViewOption& option, const QVariant& value);
+
     void updateDistanceToViewScale();
     void rebuildTreeLayout();
 
-    void setNewTreeLayout(GraphicsBranchItem* newRoot, const TreeLayout& treeLayout);
+    /** Copies whole tree image to clipboard. */
+    void copyWholeTreeImageToClipboard();
+
+    /** Opens ExportImageDialog for visible tree area. */
+    void saveVisibleViewToFile();
+
+    /** Opens SVG file selector and exports the whole tree as SVG. */
+    void saveWholeTreeToSvg();
+
+    /** Update scales of fixed size elements so the elements keeps their on-screen sizes not changed on view zoom/resize ops. */
+    void updateFixedSizeItemScales();
+
+    /** Returns list of fixed size elements: the elements that do not change their on screen dimensions regardless of the current zoom level. */
+    QList<QGraphicsItem*> getFixedSizeItems() const;
+
+    void setNewTreeLayout(TvBranchItem* newRoot, const TreeLayout& treeLayout);
 
     enum LabelType {
         LabelType_SequenceName = 1,
@@ -261,13 +281,10 @@ private:
 
     void collapseSelected();
 
-    void updateSettings();
-
     void updateLayout();
 
-    void updateTextSettings(const TreeViewOption& option);
-
-    void updateBranchSettings();
+    /** Updates 'selectionSettings' every time selection is changed. */
+    void updateSettingsOnSelectionChange();
 
     void recalculateRectangularLayout();
     bool isSelectedCollapsed();
@@ -284,16 +301,34 @@ private:
 
     void changeTreeLayout(const TreeLayout& newTreeLayout);
     void changeNamesDisplay();
-    void changeNodeValuesDisplay();
+
+    /** Updates settings for selected items only. If there is no selection updates setting for all items. */
+    void updateTextOptionOnSelectedItems();
+
+    /** Updates settings for selected items only. If there is no selection updates setting for all items. */
+    void updateTreeSettingsOnSelectedItems();
+
+    /** Updates settings for all nodes in the tree. */
+    void updateTreeSettingsOnAllNodes();
+
     void changeLabelsAlignment();
 
     void initializeSettings();
 
-    PhyTreeObject* phyObject = nullptr;
+public:
+    PhyTreeObject* const phyObject = nullptr;
+    TreeViewer* const treeViewer = nullptr;
 
+protected:
     /** Currently shown tree. Can be rect, circular or unrooted one. */
-    GraphicsBranchItem* root = nullptr;
+    TvBranchItem* root = nullptr;
 
+    TvRectangularBranchItem* rectRoot = nullptr;
+
+    /** View global pos of the last mouse-press event. */
+    QPoint lastMousePressPos;
+
+private:
     double maxNameWidth = 0;
 
     /**
@@ -305,19 +340,15 @@ private:
     /** Used to compute on-screen length of every branch: length = distance * distanceToScreenScale. */
     double distanceToViewScale = 1;
 
-    QGraphicsLineItem* legend = nullptr;
-    QGraphicsSimpleTextItem* scalebarText = nullptr;
+    QGraphicsLineItem* legendItem = nullptr;
+    TvTextItem* scalebarTextItem = nullptr;
     QMenu* buttonPopup = nullptr;
 
-    TreeViewer* treeViewer = nullptr;
+    /** Settings for the whole view. Saved & restored on view creation and applied to all new elements by default. */
     OptionsMap settings;
-    bool dontSendOptionChangedSignal = false;
 
-protected:
-    GraphicsRectangularBranchItem* rectRoot = nullptr;
-
-    /** View global pos of the last mouse-press event. */
-    QPoint lastMousePressPos;
+    /** Settings override for the currently selected items. Contains only option that override 'settings' for the current selection. */
+    OptionsMap selectionSettingsDelta;
 };
 
 }  // namespace U2

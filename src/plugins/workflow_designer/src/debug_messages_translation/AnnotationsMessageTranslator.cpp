@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ QString AnnotationsMessageTranslator::getTranslation() const {
         QVector<U2Region> annotatedRegions = data->getRegions();
         if (!annotatedRegions.isEmpty()) {
             result += QObject::tr(REGION_LIST_LABEL);
-            foreach (const U2Region& region, annotatedRegions) {
+            for (const U2Region& region : qAsConst(annotatedRegions)) {
                 result += region.toString() + INFO_FEATURES_SEPARATOR;
             }
             result = result.left(result.size() - INFO_FEATURES_SEPARATOR.size());

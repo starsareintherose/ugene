@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -162,7 +162,7 @@ const QMap<int, QColor> ChainsColorScheme::getChainColors(const BioStruct3DObjec
 
     if (nullptr != biostructObj->getDocument()) {
         QList<GObject*> aObjs = GObjectUtils::selectRelationsFromParentDoc(biostructObj, GObjectTypes::ANNOTATION_TABLE, ObjectRole_AnnotationTable);
-        foreach (GObject* obj, aObjs) {
+        for (GObject* obj : qAsConst(aObjs)) {
             AnnotationTableObject* ao = qobject_cast<AnnotationTableObject*>(obj);
             SAFE_POINT(nullptr != ao, "Invalid annotation table!", colorMap);
 
@@ -211,9 +211,9 @@ const QMap<QString, QColor> SecStructColorScheme::getSecStructAnnotationColors(c
     Document* doc = biostruct->getDocument();
     if (doc) {
         QList<GObject*> targetAnnotations = GObjectUtils::selectRelationsFromParentDoc(biostruct, GObjectTypes::ANNOTATION_TABLE, ObjectRole_AnnotationTable);
-        foreach (GObject* obj, targetAnnotations) {
+        for (GObject* obj : qAsConst(targetAnnotations)) {
             AnnotationTableObject* ao = qobject_cast<AnnotationTableObject*>(obj);
-            SAFE_POINT(nullptr != ao, "Invalid annotation table!", colors);
+            SAFE_POINT(ao != nullptr, "Invalid annotation table!", colors);
 
             foreach (Annotation* a, ao->getAnnotationsByName(BioStruct3D::SecStructAnnotationTag)) {
                 QString ssName = a->getQualifiers().first().value;

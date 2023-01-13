@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -60,10 +60,11 @@ McaEditorStatusBar::McaEditorStatusBar(McaEditor* editor,
     selectionLabel->hide();
 
     connect(editor->getSelectionController(),
-            SIGNAL(si_selectionChanged(const MaEditorSelection&, const MaEditorSelection&)),
-            SLOT(sl_update()));
+            &MaEditorSelectionController::si_selectionChanged,
+            this,
+            &McaEditorStatusBar::sl_updateStatusBar);
 
-    connect(refCharController, SIGNAL(si_cacheUpdated()), SLOT(sl_update()));
+    connect(refCharController, &McaReferenceCharController::si_cacheUpdated, this, &McaEditorStatusBar::sl_updateStatusBar);
 
     updateLabels();
     setupLayout();

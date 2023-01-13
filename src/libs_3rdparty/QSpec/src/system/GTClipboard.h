@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2017 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,9 @@ public:
     static void setText(GUITestOpStatus& os, QString text);
 
     static void setUrls(GUITestOpStatus& os, const QList<QString>& urls);
+
+    /** Checks that there is an image in the system clipboard. */
+    static void checkHasNonEmptyImage(GUITestOpStatus& os);
 
     static void clear(GUITestOpStatus& os);
 };

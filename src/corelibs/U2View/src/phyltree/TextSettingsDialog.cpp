@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,8 @@
 
 #include <U2Gui/HelpButton.h>
 
+#include "../ov_phyltree/TreeViewerUtils.h"
+
 namespace U2 {
 
 TextSettingsDialog::TextSettingsDialog(QWidget* parent, const OptionsMap& settings)
@@ -43,13 +45,13 @@ TextSettingsDialog::TextSettingsDialog(QWidget* parent, const OptionsMap& settin
     colorButton->setStyle(buttonStyle);
 
     updateColorButton();
-    QFont curFont = qvariant_cast<QFont>(settings[LABEL_FONT_TYPE]);
-    fontComboBox->setCurrentFont(curFont);
-    sizeSpinBox->setValue(qvariant_cast<int>(settings[LABEL_FONT_SIZE]));
-    boldToolButton->setChecked(qvariant_cast<bool>(settings[LABEL_FONT_BOLD]));
-    italicToolButton->setChecked(qvariant_cast<bool>(settings[LABEL_FONT_ITALIC]));
-    underlineToolButton->setChecked(qvariant_cast<bool>(settings[LABEL_FONT_UNDERLINE]));
-    overlineToolButton->setChecked(curFont.overline());
+    QFont font = TreeViewerUtils::getFontFromSettings(settings);
+    fontComboBox->setCurrentFont(font.family());
+    sizeSpinBox->setValue(font.pointSize());
+    boldToolButton->setChecked(font.bold());
+    italicToolButton->setChecked(font.italic());
+    underlineToolButton->setChecked(font.underline());
+    overlineToolButton->setChecked(font.overline());
 
     overlineToolButton->setVisible(false);
 
@@ -79,7 +81,7 @@ void TextSettingsDialog::accept() {
     curFont.setUnderline(underlineToolButton->isChecked());
     curFont.setOverline(overlineToolButton->isChecked());
 
-    updatedSettings[LABEL_FONT_TYPE] = curFont;
+    updatedSettings[LABEL_FONT_FAMILY] = curFont.family();
     updatedSettings[LABEL_FONT_SIZE] = curFont.pointSize();
     updatedSettings[LABEL_FONT_BOLD] = curFont.bold();
     updatedSettings[LABEL_FONT_ITALIC] = curFont.italic();

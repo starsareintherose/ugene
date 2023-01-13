@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@ class QDPrimerActor : public QDActor {
     Q_OBJECT
 public:
     QDPrimerActor(QDActorPrototype const* proto);
+
     int getMinResultLen() const {
         return 1;
     }
@@ -45,13 +46,8 @@ public:
         return QColor(0x88, 0x78, 0xEC);
     }
 
-private:
-    void setDefaultSettings();
 private slots:
     void sl_onAlgorithmTaskFinished(Task* t);
-
-private:
-    Primer3TaskSettings settings;
 };
 
 class QDPrimerActorPrototype : public QDActorPrototype {

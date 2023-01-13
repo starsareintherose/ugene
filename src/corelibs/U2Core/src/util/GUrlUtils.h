@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -144,6 +144,12 @@ public:
     static QString getSlashEndedPath(const QString& dirPath);
 
     static bool containSpaces(const QString& string);
+    /**
+     * Returns, for example, "/home/user/Desktop/File.txt" on Unix, "\\?\C:\Users\User\Desktop\File.txt" on Windows.
+     * Can be used for platform specific system calls. Doesn't check the correctness of the path,
+     * the existence of the directory/file, and other situations. For file systems only.
+     */
+    static QString getNativeAbsolutePath(const GUrl& url);
 };
 
 }  // namespace U2

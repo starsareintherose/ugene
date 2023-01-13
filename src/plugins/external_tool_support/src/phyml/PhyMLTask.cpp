@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -140,7 +140,7 @@ QList<Task*> PhyMLSupportTask::onSubTaskFinished(Task* subTask) {
         res.append(getTreeTask);
     } else if (subTask == getTreeTask) {
         PhyTreeObject* phyObj = getTreeTask->getPhyObject();
-        SAFE_POINT_EXT(nullptr != phyObj, setError(tr("UGENE internal error")), QList<Task*>());
+        SAFE_POINT_EXT(nullptr != phyObj, setError("UGENE internal error"), QList<Task*>());
         result = phyObj->getTree();
     }
 
@@ -184,7 +184,7 @@ void PhyMLLogParser::parseErrOutput(const QString& partOfLog) {
     parseOutput(partOfLog);
 }
 int PhyMLLogParser::getProgress() {
-    SAFE_POINT(sequencesNumber > 0, tr("UGENE internal error"), 0);
+    SAFE_POINT(sequencesNumber > 0, "UGENE internal error", 0);
     return qMin((processedBranches * 100) / sequencesNumber, 99);
 }
 

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -22,8 +22,6 @@
 #include "GenomeAlignerIndexTask.h"
 
 #include <QtEndian>
-
-#include <U2Algorithm/OpenCLGpuRegistry.h>
 
 #include <U2Core/AppContext.h>
 #include <U2Core/AppResources.h>

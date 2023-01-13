@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -51,6 +51,8 @@ class DocumentFormatSelectorController : public QDialog, public Ui_DocumentForma
     DocumentFormatSelectorController(QList<FormatDetectionResult>& results, QWidget* p);
 
 public:
+    ~DocumentFormatSelectorController();
+
     static int selectResult(const GUrl& url, const QString& rawDataPreview, QList<FormatDetectionResult>& results);
     static QString score2Text(int score);
 

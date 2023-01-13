@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -72,8 +72,8 @@ public:
     static void checkNoTreeView(HI::GUITestOpStatus& os);
 
     static MaEditorNameList* getNameListArea(HI::GUITestOpStatus& os);
-    static MSAEditorConsensusArea* getConsensusArea(HI::GUITestOpStatus& os);
-    static MSAEditorSequenceArea* getSequenceArea(HI::GUITestOpStatus& os);
+    static MSAEditorConsensusArea* getConsensusArea(HI::GUITestOpStatus& os, int index = 0);
+    static MSAEditorSequenceArea* getSequenceArea(HI::GUITestOpStatus& os, int index = 0);
 
     static QRect getSequenceNameRect(HI::GUITestOpStatus& os, const QString& sequenceName);
     static QRect getSequenceNameRect(HI::GUITestOpStatus& os, int viewRowIndex);
@@ -188,6 +188,14 @@ public:
 
     /** Returns active Exclude List widget instance. */
     static QListWidget* getExcludeListWidget(HI::GUITestOpStatus& os);
+
+    // Get current multiline mode, return true if multiline mode is active
+    static bool getMultilineMode(HI::GUITestOpStatus &os);
+    // Press "Multiline View" button on toolbar
+    // If mode != getMultilineMode(os)
+    // Then the multiline mode is changed
+    // Else nothing is being done
+    static void setMultilineMode(HI::GUITestOpStatus &os, bool mode);
 };
 
 }  // namespace U2

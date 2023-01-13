@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -382,7 +382,8 @@ public:
           hasReads(false) {
         {
             VirtualOffset minOffset = VirtualOffset(0xffffffffffffLL, 0xffff);
-            foreach (const Index::ReferenceIndex::Bin& bin, index.getReferenceIndices()[referenceId].getBins()) {
+            QList<Index::ReferenceIndex::Bin> bins = index.getReferenceIndices()[referenceId].getBins();
+            for (const Index::ReferenceIndex::Bin& bin : qAsConst(bins)) {
                 foreach (const Index::ReferenceIndex::Chunk& chunk, bin.getChunks()) {
                     if (minOffset > chunk.getStart()) {
                         minOffset = chunk.getStart();
@@ -492,7 +493,7 @@ QList<U2Assembly> ConvertToSQLiteTask::getAssemblies() const {
 bool ConvertToSQLiteTask::isSorted(Reader* reader) const {
     return Header::Coordinate == reader->getHeader().getSortingOrder() ||
            Header::QueryName == reader->getHeader().getSortingOrder() ||
-           bamInfo.hasIndex();
+           bamInfo.hasNotEmptyIndex();
 }
 
 qint64 ConvertToSQLiteTask::importReads() {
@@ -552,7 +553,7 @@ void ConvertToSQLiteTask::packReads() {
 
 void ConvertToSQLiteTask::updateAttributes() {
     DbiConnection connection(dstDbiRef, stateInfo);
-    SAFE_POINT_EXT(!stateInfo.hasError(), throw Exception(getError()), );
+    CHECK(!hasError(), throw Exception(getError()));
     U2AttributeDbi* attributeDbi = connection.dbi->getAttributeDbi();
     CHECK(nullptr != attributeDbi, );
 
@@ -578,7 +579,7 @@ qint64 ConvertToSQLiteTask::importSortedReads(SamReader* samReader, BamReader* b
     qint64 totalReadsImported = 0;
 
     QScopedPointer<Iterator> iterator;
-    if (!bamInfo.hasIndex()) {
+    if (!bamInfo.hasNotEmptyIndex()) {
         if (sam) {
             iterator.reset(new SamIterator(*samReader));
         } else {
@@ -613,7 +614,7 @@ qint64 ConvertToSQLiteTask::importMappedSortedReads(BamReader* bamReader, Reader
             enableCoverageOnImport(importInfo.coverageInfo, references[referenceId].getLength());
 
             QScopedPointer<DbiIterator> dbiIterator;
-            if (bamInfo.hasIndex()) {
+            if (bamInfo.hasNotEmptyIndex()) {
                 dbiIterator.reset(new IndexedBamDbiIterator(referenceId, !bamInfo.isUnmappedSelected(), *bamReader, bamInfo.getIndex(), stateInfo, *ioAdapter));
             } else {
                 dbiIterator.reset(new SequentialDbiIterator(referenceId, !bamInfo.isUnmappedSelected(), *iterator, stateInfo, *ioAdapter));
@@ -630,7 +631,7 @@ qint64 ConvertToSQLiteTask::importMappedSortedReads(BamReader* bamReader, Reader
                                 .arg(assembly.visualName)
                                 .arg(totalReadsImported));
         } else {
-            if (!bamInfo.hasIndex()) {
+            if (!bamInfo.hasNotEmptyIndex()) {
                 while (iterator->hasNext() && iterator->peekReferenceId() == referenceId) {
                     iterator->skip();
                 }
@@ -647,13 +648,14 @@ qint64 ConvertToSQLiteTask::importMappedSortedReads(BamReader* bamReader, Reader
 qint64 ConvertToSQLiteTask::importUnmappedSortedReads(BamReader* bamReader, Reader* reader, QScopedPointer<Iterator>& iterator, IOAdapter* ioAdapter) {
     taskLog.details(tr("Importing unmapped reads"));
 
-    if (bamInfo.hasIndex() && !reader->getHeader().getReferences().isEmpty()) {
+    if (bamInfo.hasNotEmptyIndex() && !reader->getHeader().getReferences().isEmpty()) {
         const Index& index = bamInfo.getIndex();
         bool maxOffsetFound = false;
         VirtualOffset maxOffset = VirtualOffset(0, 0);
 
         for (int refId = 0; refId < reader->getHeader().getReferences().size(); ++refId) {
-            foreach (const Index::ReferenceIndex::Bin& bin, index.getReferenceIndices()[refId].getBins()) {
+            QList<Index::ReferenceIndex::Bin> bins = index.getReferenceIndices()[refId].getBins();
+            for (const Index::ReferenceIndex::Bin& bin : qAsConst(bins)) {
                 foreach (const Index::ReferenceIndex::Chunk& chunk, bin.getChunks()) {
                     if (chunk.getStart() < chunk.getEnd() && maxOffset < chunk.getStart()) {
                         maxOffset = chunk.getStart();

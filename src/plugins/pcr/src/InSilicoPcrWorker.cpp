@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -259,7 +259,7 @@ QList<Message> InSilicoPcrWorker::fetchResult(Task* task, U2OpStatus& os) {
         QList<InSilicoPcrWorkflowTask::Result> pcrResults = pcrTask->takeResult();
         tableRow.productsNumber[pairNumber] = pcrResults.size();
 
-        foreach (const InSilicoPcrWorkflowTask::Result& pcrResult, pcrResults) {
+        for (const InSilicoPcrWorkflowTask::Result& pcrResult : qAsConst(pcrResults)) {
             QVariant sequence = fetchSequence(pcrResult.doc);
             QVariant annotations = fetchAnnotations(pcrResult.doc);
             pcrResult.doc->setDocumentOwnsDbiResources(false);

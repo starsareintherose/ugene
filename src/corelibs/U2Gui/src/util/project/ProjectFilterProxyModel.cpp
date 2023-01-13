@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -80,10 +80,7 @@ bool ProjectFilterProxyModel::filterAcceptsFolder(const Folder* folder) const {
 
     if (!settings.isObjectFilterActive()) {
         return true;
-    } else if (ProjectUtils::isFolderInRecycleBinSubtree(path)) {
-        return false;
     }
-
     Document* doc = folder->getDocument();
     QList<GObject*> objs = srcModel->getFolderObjects(doc, path);
     foreach (GObject* obj, objs) {

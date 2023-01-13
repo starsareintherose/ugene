@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -45,6 +45,19 @@
 
 namespace U2 {
 
+bool MaEditorWgtEventFilter::eventFilter(QObject* obj, QEvent* event) {
+    // TODO:ichebyki
+    // Maybe need to check QEvent::FocusIn || QEvent::Enter
+    // Also,there is a question about children (QEvent::ChildAdded)
+
+    // Please, don't forget about QWidget::setAttribute(Qt::WA_Hover, true);
+    if (event->type() == QEvent::HoverEnter) {
+        maEditorWgt->getEditor()->getMaEditorMultilineWgt()->setActiveChild(maEditorWgt);
+    }
+    // standard event processing
+    return QObject::eventFilter(obj, event);
+}
+
 /************************************************************************/
 /* MaEditorWgt */
 /************************************************************************/
@@ -65,7 +78,7 @@ MaEditorWgt::MaEditorWgt(MaEditor* _editor)
       scrollController(new ScrollController(editor, this)),
       baseWidthController(new BaseWidthController(this)),
       rowHeightController(nullptr),
-      drawHelper(new DrawHelper(editor)),
+      drawHelper(new DrawHelper(this)),
       delSelectionAction(nullptr),
       copySelectionAction(nullptr),
       copyFormattedSelectionAction(nullptr),
@@ -85,38 +98,39 @@ QWidget* MaEditorWgt::createHeaderLabelWidget(const QString& text, Qt::Alignment
                              proxyMouseEventsToNameList);
 }
 
-MaEditorStatusBar* MaEditorWgt::getStatusBar() const {
-    return statusBar;
-}
-
-void MaEditorWgt::initWidgets() {
+void MaEditorWgt::initWidgets(bool addStatusBar, bool addOverviewArea) {
     setContextMenuPolicy(Qt::CustomContextMenu);
-    setMinimumSize(300, 200);
+    setMinimumSize(300, 100);
 
     setWindowIcon(GObjectTypes::getTypeInfo(GObjectTypes::MULTIPLE_SEQUENCE_ALIGNMENT).icon);
 
-    GScrollBar* shBar = new GScrollBar(Qt::Horizontal);
-    shBar->setObjectName("horizontal_sequence_scroll");
-    shBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    QScrollBar* nameListHorizontalScrollBar = new QScrollBar(Qt::Horizontal);
-    nameListHorizontalScrollBar->setObjectName("horizontal_names_scroll");
-    GScrollBar* cvBar = new GScrollBar(Qt::Vertical);
-    cvBar->setObjectName("vertical_sequence_scroll");
+    auto horizontalSequenceScrollBar = new GScrollBar(Qt::Horizontal);
+    horizontalSequenceScrollBar->setObjectName("horizontal_sequence_scroll");
+    horizontalSequenceScrollBar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    horizontalSequenceScrollBar->setFocusPolicy(Qt::StrongFocus);
 
-    initSeqArea(shBar, cvBar);
-    scrollController->init(shBar, cvBar);
-    sequenceArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    initOverviewArea();
+    auto horizontalNameListScrollBar = new QScrollBar(Qt::Horizontal);
+    horizontalNameListScrollBar->setObjectName("horizontal_names_scroll");
+    horizontalNameListScrollBar->setFocusPolicy(Qt::StrongFocus);
 
-    initNameList(nameListHorizontalScrollBar);
+    auto verticalSequenceScrollbar = new GScrollBar(Qt::Vertical);
+    verticalSequenceScrollbar->setObjectName("vertical_sequence_scroll");
+    verticalSequenceScrollbar->setFocusPolicy(Qt::StrongFocus);
+
+    initSeqArea(horizontalSequenceScrollBar, verticalSequenceScrollbar);
+    scrollController->init(horizontalSequenceScrollBar, verticalSequenceScrollbar);
+    sequenceArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+
+    initNameList(horizontalNameListScrollBar);
     nameList->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 
     initConsensusArea();
-    initStatusBar();
+    initOverviewArea(overviewArea);
+    initStatusBar(statusBar);
 
     offsetsViewController = new MSAEditorOffsetsViewController(this, editor, sequenceArea);
-    offsetsViewController->leftWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
-    offsetsViewController->rightWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    offsetsViewController->leftWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    offsetsViewController->rightWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
     seqAreaHeader = new QWidget(this);
     seqAreaHeader->setObjectName("alignment_header_widget");
@@ -142,9 +156,9 @@ void MaEditorWgt::initWidgets() {
     seqAreaLayout->addWidget(offsetsViewController->leftWidget, 1, 0);
     seqAreaLayout->addWidget(sequenceArea, 1, 1);
     seqAreaLayout->addWidget(offsetsViewController->rightWidget, 1, 2);
-    seqAreaLayout->addWidget(cvBar, 1, 3);
+    seqAreaLayout->addWidget(verticalSequenceScrollbar, 1, 3);
 
-    seqAreaLayout->addWidget(shBar, 2, 0, 1, 3);
+    seqAreaLayout->addWidget(horizontalSequenceScrollBar, 2, 0, 1, 3);
 
     seqAreaLayout->setRowStretch(1, 1);
     seqAreaLayout->setColumnStretch(1, 1);
@@ -161,12 +175,12 @@ void MaEditorWgt::initWidgets() {
     nameAreaLayout->setSpacing(0);
     nameAreaLayout->addWidget(consensusLabel);
     nameAreaLayout->addWidget(nameList);
-    nameAreaLayout->addWidget(nameListHorizontalScrollBar);
+    nameAreaLayout->addWidget(horizontalNameListScrollBar);
 
     nameAreaContainer = new QWidget();
     nameAreaContainer->setLayout(nameAreaLayout);
     nameAreaContainer->setStyleSheet("background-color: white;");
-    nameListHorizontalScrollBar->setStyleSheet("background-color: normal;");  // avoid white background of scrollbar set 1 line above.
+    horizontalNameListScrollBar->setStyleSheet("background-color: normal;");  // avoid white background of scrollbar set 1 line above.
 
     nameAreaContainer->setMinimumWidth(15);  // Splitter uses min-size to collapse a widget
 
@@ -183,7 +197,10 @@ void MaEditorWgt::initWidgets() {
 
     maContainerLayout->addWidget(nameAndSequenceAreasSplitter);
     maContainerLayout->setStretch(0, 1);
-    maContainerLayout->addWidget(statusBar);
+
+    if (addStatusBar) {
+        maContainerLayout->addWidget(statusBar);
+    }
 
     QWidget* maContainer = new QWidget(this);
     maContainer->setLayout(maContainerLayout);
@@ -197,9 +214,16 @@ void MaEditorWgt::initWidgets() {
     mainSplitter->addWidget(maContainer);
     mainSplitter->setStretchFactor(0, 2);
 
-    mainSplitter->addWidget(overviewArea);
-    mainSplitter->setCollapsible(1, false);
-    MaSplitterUtils::updateFixedSizeHandleStyle(mainSplitter);
+    if (addOverviewArea) {
+        MsaEditorWgt* wgt = qobject_cast<MsaEditorWgt*>(this);
+        if (wgt == nullptr) {
+            mainSplitter->addWidget(overviewArea);
+            mainSplitter->setCollapsible(1, false);
+            MaSplitterUtils::updateFixedSizeHandleStyle(mainSplitter);
+        } else {
+            maContainerLayout->addWidget(overviewArea);
+        }
+    }
     mainLayout->addWidget(mainSplitter);
     setLayout(mainLayout);
 
@@ -273,18 +297,6 @@ MaEditorConsensusArea* MaEditorWgt::getConsensusArea() const {
     return consensusArea;
 }
 
-MaEditorOverviewArea* MaEditorWgt::getOverviewArea() const {
-    return overviewArea;
-}
-
-MSAEditorOffsetsViewController* MaEditorWgt::getOffsetsViewController() const {
-    return offsetsViewController;
-}
-
-ScrollController* MaEditorWgt::getScrollController() const {
-    return scrollController;
-}
-
 BaseWidthController* MaEditorWgt::getBaseWidthController() const {
     return baseWidthController;
 }
@@ -307,6 +319,30 @@ QWidget* MaEditorWgt::getHeaderWidget() const {
 
 QSplitter* MaEditorWgt::getMainSplitter() const {
     return mainSplitter;
+}
+
+MaEditorOverviewArea* MaEditorWgt::getOverviewArea() const {
+    return overviewArea;
+}
+
+void MaEditorWgt::setOverviewArea(MaEditorOverviewArea* overview) {
+    overviewArea = overview;
+}
+
+MaEditorStatusBar* MaEditorWgt::getStatusBar() const {
+    return statusBar;
+}
+
+void MaEditorWgt::setStatusBar(MaEditorStatusBar* statusbar) {
+    statusBar = statusbar;
+}
+
+MSAEditorOffsetsViewController* MaEditorWgt::getOffsetsViewController() const {
+    return offsetsViewController;
+}
+
+ScrollController* MaEditorWgt::getScrollController() const {
+    return scrollController;
 }
 
 }  // namespace U2

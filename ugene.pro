@@ -54,6 +54,7 @@ SUBDIRS += \
           src/plugins/enzymes \
           src/plugins/external_tool_support \
           src/plugins/genome_aligner \
+          src/plugins/genecut \
           src/plugins/linkdata_support \
           src/plugins/orf_marker \
           src/plugins/pcr \
@@ -65,14 +66,6 @@ SUBDIRS += \
           src/plugins/test_runner \
           src/plugins/weight_matrix \
           src/plugins/workflow_designer
-
-use_cuda() {
-    SUBDIRS += src/plugins/cuda_support
-}
-
-use_opencl() {
-    SUBDIRS += src/plugins/opencl_support
-}
 
 #foreach 'language'
 for( i, UGENE_TRANSL_IDX ) {

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -315,8 +315,8 @@ void GTest_CheckYAMLFile::prepare() {
     f.close();
 
     foreach (const QString& el, desiredStrings) {
-        foreach (const QString& fileLane, fileLines) {
-            if (fileLane.contains(el.trimmed())) {
+        for (const QString& fileLine : qAsConst(fileLines)) {
+            if (fileLine.contains(el.trimmed())) {
                 desiredStrings.removeAll(el);
             }
         }

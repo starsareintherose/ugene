@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,13 @@ public:
 private:
     QString originalUrl, result, expectedResult, platform;
     bool isFileUrl, runThisTest;
+};
+
+// For testing GUrlUtils::getNativeAbsolutePath.
+class GTest_ConvertPathToNative : public XmlTest {
+    Q_OBJECT
+public:
+    SIMPLE_XML_TEST_BODY_WITH_FACTORY(GTest_ConvertPathToNative, "convert-path-to-native");
 };
 
 class GTest_CreateTmpDir : public XmlTest {

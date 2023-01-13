@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -334,7 +334,7 @@ void SAMFormat::storeDocument(Document* d, IOAdapter* io, U2OpStatus& os) {
 
     BAMUtils::writeObjects(
         d->findGObjectByType(GObjectTypes::ASSEMBLY),
-        url,
+        url.getURLString(),
         getFormatId(),
         os);
 }

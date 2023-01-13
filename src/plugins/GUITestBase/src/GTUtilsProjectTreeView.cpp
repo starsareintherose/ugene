@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -49,6 +49,16 @@ using namespace HI;
 
 const QString GTUtilsProjectTreeView::widgetName = "documentTreeWidget";
 
+#define GT_METHOD_NAME "countTopLevelItems"
+int GTUtilsProjectTreeView::countTopLevelItems(HI::GUITestOpStatus& os) {
+    QTreeView* treeView = getTreeView(os);
+    QAbstractItemModel* model = treeView->model();
+    CHECK_SET_ERR_RESULT(model != nullptr, "Model is NULL", {});
+
+    return model->rowCount();
+}
+#undef GT_METHOD_NAME
+
 #define GT_METHOD_NAME "checkProjectViewIsOpened"
 void GTUtilsProjectTreeView::checkProjectViewIsOpened(HI::GUITestOpStatus& os) {
     GTWidget::findWidget(os, widgetName);
@@ -58,8 +68,8 @@ void GTUtilsProjectTreeView::checkProjectViewIsOpened(HI::GUITestOpStatus& os) {
 
 #define GT_METHOD_NAME "checkProjectViewIsClosed"
 void GTUtilsProjectTreeView::checkProjectViewIsClosed(HI::GUITestOpStatus& os) {
-    QWidget* documentTreeWidget = nullptr;
-    for (int time = 0; time < GT_OP_WAIT_MILLIS && documentTreeWidget == nullptr; time += GT_OP_CHECK_MILLIS) {
+    QWidget* documentTreeWidget = GTWidget::findWidget(os, widgetName, nullptr, {false});
+    for (int time = 0; time < GT_OP_WAIT_MILLIS && documentTreeWidget != nullptr; time += GT_OP_CHECK_MILLIS) {
         GTGlobals::sleep(time > 0 ? GT_OP_CHECK_MILLIS : 0);
         documentTreeWidget = GTWidget::findWidget(os, widgetName, nullptr, {false});
     }
@@ -215,9 +225,9 @@ void GTUtilsProjectTreeView::click(HI::GUITestOpStatus& os, const QString& itemN
 #undef GT_METHOD_NAME
 
 #define GT_METHOD_NAME "click"
-void GTUtilsProjectTreeView::click(HI::GUITestOpStatus& os, const QString& itemName, const QString& parentName, Qt::MouseButton button) {
+void GTUtilsProjectTreeView::click(HI::GUITestOpStatus& os, const QString& itemName, const QString& parentName, Qt::MouseButton button, const GTGlobals::FindOptions& itemOptions) {
     QModelIndex parentIndex = findIndex(os, parentName);
-    QModelIndex itemIndex = findIndex(os, itemName, parentIndex);
+    QModelIndex itemIndex = findIndex(os, itemName, parentIndex, itemOptions);
     scrollToIndexAndMakeExpanded(os, getTreeView(os), itemIndex);
 
     GTMouseDriver::moveTo(getItemCenter(os, itemIndex));
@@ -678,7 +688,7 @@ void GTUtilsProjectTreeView::sendDragAndDrop(HI::GUITestOpStatus& /*os*/, const 
 }
 
 void GTUtilsProjectTreeView::sendDragAndDrop(HI::GUITestOpStatus& os, const QPoint& enterPos, QWidget* dropWidget) {
-    sendDragAndDrop(os, enterPos, GTWidget::getWidgetCenter(dropWidget));
+    sendDragAndDrop(os, enterPos, GTWidget::getWidgetVisibleCenterGlobal(dropWidget));
 }
 
 void GTUtilsProjectTreeView::expandProjectView(HI::GUITestOpStatus& os) {
@@ -707,10 +717,10 @@ void GTUtilsProjectTreeView::markSequenceAsCircular(HI::GUITestOpStatus& os, con
 QMap<QString, QStringList> GTUtilsProjectTreeView::getDocuments(GUITestOpStatus& os) {
     ensureFilteringIsDisabled(os);
     GTGlobals::FindOptions options(false, Qt::MatchContains, 1);
-    const QModelIndexList documentsItems = findIndeciesInProjectViewNoWait(os, "", QModelIndex(), 0, options);
+    QModelIndexList documentsItems = findIndeciesInProjectViewNoWait(os, "", QModelIndex(), 0, options);
 
     QMap<QString, QStringList> documents;
-    foreach (const QModelIndex& documentItem, documentsItems) {
+    for (const QModelIndex& documentItem : qAsConst(documentsItems)) {
         const QModelIndexList objectsItems = findIndeciesInProjectViewNoWait(os, "", documentItem, 0, options);
         QStringList objects;
         foreach (const QModelIndex& objectItem, objectsItems) {

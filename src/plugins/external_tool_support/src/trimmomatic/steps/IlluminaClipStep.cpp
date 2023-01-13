@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -239,7 +239,7 @@ void IlluminaClipSettingsWidget::sl_browseButtonClicked() {
 
     QString filter = FileFilters::createFileFilterByObjectTypes({BaseDocumentFormats::FASTA});
     QString defaultFilter = FileFilters::createSingleFileFilterByDocumentFormatId(BaseDocumentFormats::FASTA);
-    const QString adaptersFilePath = U2FileDialog::getOpenFileName(this, tr("Open FASTA with adapters"), dirHelper.dir, filter, &defaultFilter);
+    const QString adaptersFilePath = U2FileDialog::getOpenFileName(this, tr("Open FASTA with adapters"), dirHelper.dir, filter, defaultFilter);
     if (!adaptersFilePath.isEmpty()) {
         dirHelper.url = adaptersFilePath;
         fileName->setText(adaptersFilePath);

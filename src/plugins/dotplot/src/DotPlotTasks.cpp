@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -365,7 +365,7 @@ void DotPlotFilterTask::createSuperRegionsList(ADVSequenceObjectContext* seq, Fi
     }
 
     foreach (const QString& aName, cursequenceAnnotationNames) {
-        foreach (AnnotationTableObject* at, aTableSet) {
+        for (AnnotationTableObject* at : qAsConst(aTableSet)) {
             selectedAnnotations << at->getAnnotationsByName(aName);
         }
     }

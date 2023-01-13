@@ -4,89 +4,15 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="62"/>
-        <source>Loading OPENCL driver library</source>
-        <translation>Загрузка драйверов библиотеки OPENCL</translation>
-    </message>
-    <message>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="66"/>
-        <source>Cannot load OpenCL library. Error while loading %1</source>
-        <translation>Невозможно загрузить OpenCL библиотеку. Ошибка в процессе загрузки %1</translation>
-    </message>
-    <message>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="73"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="80"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="87"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="94"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="103"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="110"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="117"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="124"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="131"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="138"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="145"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="152"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="159"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="166"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="173"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="180"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="187"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="194"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="201"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="208"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="215"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="222"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="229"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="236"/>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="243"/>
-        <source>Cannot resolve symbol %1</source>
-        <translation>Невозможно разрешить символ %1</translation>
-    </message>
-    <message>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="258"/>
-        <source>Cannot load library: %1</source>
-        <translation>Невозможно загрузить библиотеку: %1</translation>
-    </message>
-    <message>
-        <location filename="../src/util_gpu/opencl/OpenCLHelper.cpp" line="261"/>
-        <source>Some errors occurs in library: %1</source>
-        <translation>Найдены ошибки в библиотеке: %1</translation>
-    </message>
-    <message>
         <location filename="../src/util_msa_consensus/MSAConsensusUtils.cpp" line="118"/>
         <source>Gaps:</source>
         <translation>Пробелы:</translation>
     </message>
     <message>
-        <location filename="../src/misc/BinaryFindOpenCL.cpp" line="70"/>
-        <source>clear OpenCL resources</source>
-        <translation>очистка OpenCL ресурсов</translation>
-    </message>
-    <message>
-        <location filename="../src/misc/BinaryFindOpenCL.cpp" line="174"/>
-        <source>GPU memory usage: %1 Mb</source>
-        <translation>Использование памяти: %1 Mb</translation>
-    </message>
-    <message>
-        <location filename="../src/misc/BinaryFindOpenCL.cpp" line="190"/>
-        <source>Device&apos;s preferred work group size multiple is %1</source>
-        <translation>Предпочтительный размер рабочей группы кратен %1</translation>
-    </message>
-    <message>
-        <location filename="../src/util_gpu/opencl/OpenCLUtils.cpp" line="72"/>
-        <source>OPENCL: BUILD LOG 
- ******************** 
- %1 
- ********************</source>
-        <translation>OPENCL: BUILD LOG 
- ******************** 
- %1 
- ********************</translation>
-    </message>
-    <message>
-        <location filename="../src/util_gpu/opencl/OpenCLUtils.cpp" line="73"/>
-        <source>OPENCL: Program::build() failed. (%1)</source>
-        <translation>OPENCL: Program::build() failed. (%1)</translation>
+        <location filename="../src/misc/FindAlgorithm.cpp" line="160"/>
+        <location filename="../src/misc/FindAlgorithm.cpp" line="824"/>
+        <source>The search pattern is too long.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -97,11 +23,6 @@
         <translation>Выравнивание в амино форму</translation>
     </message>
     <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="103"/>
-        <source>Invalid MSA object detected</source>
-        <translation>Обнаружен некорректный MSA объект</translation>
-    </message>
-    <message>
         <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="104"/>
         <source>AlignInAminoFormTask: Input alphabet is not nucleic!</source>
         <translation>AlignInAminoFormTask: Входной алфавит не является нуклеотидным!</translation>
@@ -110,31 +31,6 @@
         <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="105"/>
         <source>AlignInAminoFormTask: Input alignment is empty!</source>
         <translation>AlignInAminoFormTask: Входное выравнивание пустое!</translation>
-    </message>
-    <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="112"/>
-        <source>Invalid applications settings detected</source>
-        <translation>Обнаружены некорректные настройки приложений</translation>
-    </message>
-    <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="115"/>
-        <source>Invalid users applications settings detected</source>
-        <translation>Обнаружены некорректные настройки приложений</translation>
-    </message>
-    <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="122"/>
-        <source>Invalid MSA document detected</source>
-        <translation>Обнаружен некорректный MSA документ</translation>
-    </message>
-    <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="142"/>
-        <source>NULL clonedObj in AlignInAminoFormTask::prepare!</source>
-        <translation>NULL clonedObj in AlignInAminoFormTask::prepare!</translation>
-    </message>
-    <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="151"/>
-        <source>Can not find row %1 in original alignment.</source>
-        <translation>Строка %1 не может быть найдена в исходном выравнивании.</translation>
     </message>
 </context>
 <context>
@@ -191,7 +87,7 @@
     <message>
         <location filename="../src/msa_alignment/SimpleAddingToAlignment.cpp" line="153"/>
         <source>Best position find task</source>
-        <translation>Best position find task</translation>
+        <translation>Задача поиска лучшей позиции</translation>
     </message>
 </context>
 <context>
@@ -220,7 +116,7 @@
     <message>
         <location filename="../src/registry/DnaAssemblyTask.cpp" line="37"/>
         <source>Align short reads</source>
-        <translation>Align short reads</translation>
+        <translation>Выравнивание коротких ридов</translation>
     </message>
 </context>
 <context>
@@ -236,27 +132,27 @@
     <message>
         <location filename="../src/misc/GenomeAssemblyMultiTask.cpp" line="80"/>
         <source>Assembly cannot be performed.</source>
-        <translation>Assembly cannot be performed.</translation>
+        <translation>Сборка не может быть выполнена.</translation>
     </message>
     <message>
         <location filename="../src/misc/GenomeAssemblyMultiTask.cpp" line="98"/>
         <source>Assembly task finished with error: %1</source>
-        <translation>Assembly task finished with error: %1</translation>
+        <translation>Сборка завершилась с ошибкой: %1</translation>
     </message>
     <message>
         <location filename="../src/misc/GenomeAssemblyMultiTask.cpp" line="100"/>
         <source>Assembly task wasn&apos;t set</source>
-        <translation>Assembly task wasn&apos;t set</translation>
+        <translation>Задача сборки не установлена</translation>
     </message>
     <message>
         <location filename="../src/misc/GenomeAssemblyMultiTask.cpp" line="103"/>
         <source>Assembly was finished successfully</source>
-        <translation>Assembly was finished successfully</translation>
+        <translation>Сборка завершилась корректно</translation>
     </message>
     <message>
         <location filename="../src/misc/GenomeAssemblyMultiTask.cpp" line="105"/>
         <source>Assembly failed.</source>
-        <translation>Assembly failed.</translation>
+        <translation>Сборка не удалась.</translation>
     </message>
 </context>
 <context>
@@ -583,7 +479,7 @@ For every column selects the most rare symbol in the whole alignment with percen
     <message>
         <location filename="../src/pairwise_alignment/PairwiseAlignmentTask.cpp" line="48"/>
         <source>Pairwise alignment task</source>
-        <translation>Pairwise alignment task</translation>
+        <translation>Задача парного выравнивания</translation>
     </message>
 </context>
 <context>
@@ -602,10 +498,6 @@ For every column selects the most rare symbol in the whole alignment with percen
         <location filename="../src/phyltree/PhyTreeGeneratorTask.cpp" line="81"/>
         <source>Failed to map row name: %1</source>
         <translation>Не удалось сопоставить имя строки: %1</translation>
-    </message>
-    <message>
-        <source>Tree construction algorithm %1 not found</source>
-        <translation type="vanished">Алгоритм %1 построения дерева не найден</translation>
     </message>
 </context>
 <context>
@@ -629,7 +521,7 @@ For every column selects the most rare symbol in the whole alignment with percen
     <message>
         <location filename="../src/misc/SequenceContentFilterTask.cpp" line="39"/>
         <source>Sequence content</source>
-        <translation>Sequence content</translation>
+        <translation>Содержание последовательности</translation>
     </message>
 </context>
 <context>
@@ -637,7 +529,7 @@ For every column selects the most rare symbol in the whole alignment with percen
     <message>
         <location filename="../src/msa_alignment/SimpleAddingToAlignment.cpp" line="51"/>
         <source>Align sequences to alignment with UGENE started</source>
-        <translation>Align sequences to alignment with UGENE started</translation>
+        <translation>Выравнивание последовательностей на выравнивание началось</translation>
     </message>
     <message>
         <location filename="../src/msa_alignment/SimpleAddingToAlignment.cpp" line="136"/>
@@ -730,8 +622,8 @@ For every column selects the most rare symbol in the whole alignment with percen
     <name>U2::SplicedAlignmentTask</name>
     <message>
         <location filename="../src/registry/SplicedAlignmentTask.cpp" line="27"/>
-        <source>SplicedAlignmentTask</source>
-        <translation>SplicedAlignmentTask</translation>
+        <source>Partial Alignment Task</source>
+        <translation>Частичное выравнивание</translation>
     </message>
 </context>
 <context>
@@ -795,7 +687,7 @@ For every column selects the most rare symbol in the whole alignment with percen
     <message>
         <location filename="../src/registry/SubstMatrixRegistry.cpp" line="204"/>
         <source>Can&apos;t parse numeric value &apos;%1&apos;, line %2</source>
-        <translation>Не могу распознать числовое значение &quot;%1&quot; в строке &quot;%2&quot;</translation>
+        <translation>Невозможно распознать числовое значение &quot;%1&quot; в строке &quot;%2&quot;</translation>
     </message>
     <message>
         <location filename="../src/registry/SubstMatrixRegistry.cpp" line="213"/>
@@ -812,26 +704,9 @@ For every column selects the most rare symbol in the whole alignment with percen
         <translation>Трансляция нуклеотидного выравнивания в амино</translation>
     </message>
     <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="48"/>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="60"/>
-        <source>Invalid MSA object detected</source>
-        <translation>Обнаружен некорректный MSA объект</translation>
-    </message>
-    <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="49"/>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="61"/>
-        <source>Multiple alignment already has amino-acid alphabet</source>
-        <translation>Выравнивание уже имеет аминокислотный алфавит</translation>
-    </message>
-    <message>
         <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="53"/>
         <source>Unable to find suitable translation for %1</source>
         <translation>Невозможно найти подходящую трансляцию для %1</translation>
-    </message>
-    <message>
-        <location filename="../src/util_msaedit/MsaUtilTasks.cpp" line="67"/>
-        <source>Invalid translation object</source>
-        <translation>Некорректный объект трансляции</translation>
     </message>
 </context>
 </TS>

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDrag>
-#include <QFileInfo>
 #include <QHeaderView>
 #include <QLineEdit>
 #include <QMap>
@@ -610,7 +609,7 @@ void AnnotationsTreeView::sl_onAnnotationsAdded(const QList<Annotation*>& as) {
             SAFE_POINT(gi != nullptr, "AnnotationsTreeView::sl_onAnnotationsAdded: childGroup not found", );
             buildGroupTree(gi, childGroup);
             createdGroups << childGroup;  // if a group item has been built it already contains corresponding annotation items
-                                          // so in further iterations we skip child annotations of this group
+                // so in further iterations we skip child annotations of this group
         }
         SAFE_POINT(gi != nullptr, "Invalid annotation view item!", );
         toUpdate.insert(gi);
@@ -650,7 +649,7 @@ void AnnotationsTreeView::sl_onAnnotationsRemoved(const QList<Annotation*>& as) 
     foreach (Annotation* a, as) {
         QList<AVAnnotationItem*> aItems;
         groupItem->findAnnotationItems(aItems, a);
-        foreach (AVAnnotationItem* ai, aItems) {
+        for (AVAnnotationItem* ai : qAsConst(aItems)) {
             selectedAnnotation.remove(ai);
 
             AVGroupItem* parentGroup = static_cast<AVGroupItem*>(ai->parent());
@@ -678,7 +677,7 @@ void AnnotationsTreeView::sl_onAnnotationsModified(const QList<AnnotationModific
             case AnnotationModification_TypeChanged: {
                 QList<AVAnnotationItem*> aItems = findAnnotationItems(annotationModification.annotation);
                 assert(!aItems.isEmpty());
-                foreach (AVAnnotationItem* ai, aItems) {
+                for (AVAnnotationItem* ai : qAsConst(aItems)) {
                     ai->updateVisual(ATVAnnUpdateFlag_BaseColumns);
                 }
             } break;
@@ -686,14 +685,14 @@ void AnnotationsTreeView::sl_onAnnotationsModified(const QList<AnnotationModific
             case AnnotationModification_QualifierRemoved: {
                 const QualifierModification& qm = static_cast<const QualifierModification&>(annotationModification);
                 QList<AVAnnotationItem*> aItems = findAnnotationItems(qm.annotation);
-                foreach (AVAnnotationItem* ai, aItems) {
+                for (AVAnnotationItem* ai : qAsConst(aItems)) {
                     ai->removeQualifier(qm.getQualifier());
                 }
             } break;
             case AnnotationModification_QualifierAdded: {
                 const QualifierModification& qm = static_cast<const QualifierModification&>(annotationModification);
                 QList<AVAnnotationItem*> aItems = findAnnotationItems(qm.annotation);
-                foreach (AVAnnotationItem* ai, aItems) {
+                for (AVAnnotationItem* ai : qAsConst(aItems)) {
                     if (ai->isExpanded() || ai->childCount() > 1) {  // if item was expanded - add real qualifier items
                         ai->addQualifier(qm.getQualifier());
                     } else {
@@ -712,11 +711,15 @@ void AnnotationsTreeView::sl_onAnnotationsModified(const QList<AnnotationModific
             case AnnotationModification_RemovedFromGroup: {
                 const AnnotationGroupModification& gmd = static_cast<const AnnotationGroupModification&>(annotationModification);
                 AVAnnotationItem* ai = findAnnotationItem(gmd.getGroup(), gmd.annotation);
-                SAFE_POINT(nullptr != ai, L10N::nullPointerError("annotation view item"), );
-                AVGroupItem* gi = dynamic_cast<AVGroupItem*>(ai->parent());
-                selectedAnnotation.remove(ai);
-                delete ai;
-                gi->updateVisual();
+                // TODO:ichebyki
+                // Need huge fix for annotations tree, see UGENE-7717
+                // This is just a workaround for UGENE-7154
+                if (ai != nullptr) {
+                    auto gi = dynamic_cast<AVGroupItem*>(ai->parent());
+                    selectedAnnotation.remove(ai);
+                    delete ai;
+                    gi->updateVisual();
+                }
             } break;
         }
     }
@@ -1000,7 +1003,7 @@ void AnnotationsTreeView::sl_pasteFinished(Task* _pasteTask) {
     if (docs.length() == 0) {
         return;
     }
-    foreach (Document* doc, docs) {
+    for (Document* doc : qAsConst(docs)) {
         foreach (GObject* annObj, doc->findGObjectByType(GObjectTypes::ANNOTATION_TABLE)) {
             ctx->tryAddObject(annObj);
         }
@@ -1808,8 +1811,9 @@ void AnnotationsTreeView::annotationClicked(AVAnnotationItem* item, QMap<AVAnnot
             }
         }
         foreach (AVAnnotationItem* annItem, selectedAnnotations.keys()) {
-            foreach (U2Region newRegion, selectedAnnotations.value(annItem)) {
-                foreach (const U2Region& toSel, toSelect) {
+            QList<U2Region> regions = selectedAnnotations.value(annItem);
+            for (U2Region newRegion : qAsConst(regions)) {
+                for (const U2Region& toSel : qAsConst(toSelect)) {
                     if (toSel.intersects(newRegion)) {
                         newRegion = U2Region::containingRegion(newRegion, toSel);
                         toSelect.removeOne(toSel);
@@ -1840,8 +1844,8 @@ void AnnotationsTreeView::annotationDoubleClicked(AVAnnotationItem* item, const 
 
     QList<U2Region> regionsToSelect = selectedRegions;
     const QVector<U2Region> regions = sequenceSelection->getSelectedRegions();
-    foreach (const U2Region& reg, regions) {
-        foreach (const U2Region& selectedRegion, selectedRegions) {
+    for (const U2Region& reg : qAsConst(regions)) {
+        for (const U2Region& selectedRegion : qAsConst(selectedRegions)) {
             if (reg.intersects(selectedRegion)) {
                 sequenceSelection->removeRegion(reg);
                 regionsToSelect.removeOne(selectedRegion);
@@ -2248,15 +2252,13 @@ void AnnotationsTreeView::sl_exportAutoAnnotationsGroup() {
     m.groupName = ag->getName();
     m.sequenceObjectRef = GObjectReference(seqCtx->getSequenceObject());
 
-    QObjectScopedPointer<CreateAnnotationDialog> dlg = new CreateAnnotationDialog(this, m);
+    QObjectScopedPointer<CreateAnnotationDialog> dlg = new CreateAnnotationDialog(this, m, "65929453");
     dlg->setWindowTitle(tr("Create Permanent Annotation"));
     dlg->exec();
-    CHECK(!dlg.isNull(), );
+    CHECK(!dlg.isNull() && dlg->result() == QDialog::Accepted, );
 
-    if (dlg->result() == QDialog::Accepted) {
-        auto task = new ExportAutoAnnotationsGroupTask(ag, m.annotationObjectRef, seqCtx, m.description);
-        AppContext::getTaskScheduler()->registerTopLevelTask(task);
-    }
+    auto task = new ExportAutoAnnotationsGroupTask(ag, m.annotationObjectRef, seqCtx, m.description);
+    AppContext::getTaskScheduler()->registerTopLevelTask(task);
 }
 
 //////////////////////////////////////////////////////////////////////////

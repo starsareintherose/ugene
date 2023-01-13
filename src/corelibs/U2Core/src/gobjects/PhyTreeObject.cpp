@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -149,14 +149,14 @@ bool PhyTreeObject::treesAreAlike(const PhyTree& tree1, const PhyTree& tree2) {
     CHECK(track1.size() == track2.size(), false);
 
     for (const PhyNode* n1 : qAsConst(track1)) {
-        if (n1->getName().isEmpty()) {
+        if (n1->name.isEmpty()) {
             continue;
         }
         for (const PhyNode* n2 : qAsConst(track2)) {
-            if (n2->getName() != n1->getName()) {
+            if (n2->name != n1->name) {
                 continue;
             }
-            if (n1->branchCount() != n2->branchCount()) {
+            if (n1->getChildBranches().size() != n2->getChildBranches().size()) {
                 return false;
             }
         }
@@ -165,15 +165,11 @@ bool PhyTreeObject::treesAreAlike(const PhyTree& tree1, const PhyTree& tree2) {
     return true;
 }
 
-bool PhyTreeObject::haveNodeLabels() const {
-    return tree->usingNodeLabels();
-}
-
 const PhyNode* PhyTreeObject::findPhyNodeByName(const QString& name) {
     ensureDataLoaded();
     QList<PhyNode*> nodes = tree.constData()->getNodesPreOrder();
     for (const PhyNode* node : qAsConst(nodes)) {
-        if (node->getName() == name) {
+        if (node->name == name) {
             return node;
         }
     }

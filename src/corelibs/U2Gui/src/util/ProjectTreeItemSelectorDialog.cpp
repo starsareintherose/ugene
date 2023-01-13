@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -125,7 +125,7 @@ void ProjectTreeItemSelectorDialog::selectObjectsAndFolders(const ProjectTreeCon
         SAFE_POINT(nullptr != os, "Invalid object selection", );
         foreach (GObject* obj, os->getSelectedObjects()) {
             bool objectIsAlreadySelected = false;
-            foreach (const Folder& selectedFolder, folderList) {
+            for (const Folder& selectedFolder : qAsConst(folderList)) {
                 if (d->controller->isObjectInFolder(obj, selectedFolder)) {
                     objectIsAlreadySelected = true;
                     break;

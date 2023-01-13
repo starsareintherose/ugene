@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,16 +38,13 @@ namespace LocalWorkflow {
 class GenericDocReader : public BaseWorker {
     Q_OBJECT
 public:
-    GenericDocReader(Actor* a)
-        : BaseWorker(a), ch(nullptr), files(nullptr) {
-    }
-    virtual ~GenericDocReader();
+    GenericDocReader(Actor* a);
+    ~GenericDocReader() override;
 
-    virtual void init();
-    virtual Task* tick();
-    virtual bool isDone() const;
-    virtual void cleanup() {
-    }
+    void init() override;
+    Task* tick() override;
+    bool isDone() const override;
+    void cleanup() override;
 
 protected slots:
     virtual void sl_datasetEnded();
@@ -62,10 +59,10 @@ protected:
     SharedDbiDataHandler getDbObjectHandlerByUrl(const QString& url) const;
     QString getObjectName(const SharedDbiDataHandler& handler, const U2DataType& type) const;
 
-    CommunicationChannel* ch;
+    CommunicationChannel* ch = nullptr;
     QList<Message> cache;
     DataTypePtr mtype;
-    DatasetFilesIterator* files;
+    DatasetFilesIterator* files = nullptr;
 
 private:
     void readObjectFromDb(const QString& url, const QString& datasetName);

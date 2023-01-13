@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -108,7 +108,8 @@ void AnnotatorViewContext::sl_showCollocationDialog() {
     QSet<QString> allNames;
 
     foreach (AnnotationTableObject* ao, av->getAnnotationObjects()) {
-        foreach (Annotation* annotation, ao->getAnnotations()) {
+        QList<Annotation*> annotations = ao->getAnnotations();
+        for (Annotation* annotation : qAsConst(annotations)) {
             allNames.insert(annotation->getName());
         }
     }

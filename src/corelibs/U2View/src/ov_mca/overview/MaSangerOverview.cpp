@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@
 #include "ov_mca/McaReferenceCharController.h"
 #include "ov_msa/BaseWidthController.h"
 #include "ov_msa/MaCollapseModel.h"
+#include "ov_msa/MaEditorMultilineWgt.h"
 #include "ov_msa/MaEditorSequenceArea.h"
 #include "ov_msa/RowHeightController.h"
 #include "ov_msa/ScrollController.h"
@@ -48,8 +49,8 @@ const qreal MaSangerOverview::ARROW_HEAD_LENGTH = 7;
 const QColor MaSangerOverview::ARROW_DIRECT_COLOR = "blue";
 const QColor MaSangerOverview::ARROW_REVERSE_COLOR = "green";
 
-MaSangerOverview::MaSangerOverview(MaEditorWgt* ui)
-    : MaOverview(ui),
+MaSangerOverview::MaSangerOverview(MaEditor* editor, MaEditorWgt* ui)
+    : MaOverview(editor, ui),
       vScrollBar(new QScrollBar(Qt::Vertical, this)),
       renderArea(new QWidget(this)),
       completeRedraw(true) {
@@ -132,10 +133,10 @@ void MaSangerOverview::sl_resetCaches() {
 }
 
 void MaSangerOverview::sl_screenMoved() {
-    const int screenYPosition = ui->getScrollController()->getScreenPosition().y();
-    const int screenHeight = ui->getSequenceArea()->height();
-    const int mappedTopPosition = screenYPosition / stepY;
-    const int mappedBottomPosition = (screenYPosition + screenHeight) / stepY;
+    int screenYPosition = editor->getMaEditorWgt(0)->getScrollController()->getScreenPosition().y();
+    int screenHeight = editor->getMaEditorWgt(0)->getSequenceArea()->height();
+    int mappedTopPosition = screenYPosition / stepY;
+    int mappedBottomPosition = (screenYPosition + screenHeight) / stepY;
 
     if (mappedTopPosition < getScrollBarValue()) {
         vScrollBar->setValue(mappedTopPosition);
@@ -213,8 +214,8 @@ void MaSangerOverview::drawVisibleRange(QPainter& painter) {
     } else {
         recalculateScale();
 
-        const QPoint screenPosition = ui->getScrollController()->getScreenPosition();
-        const QSize screenSize = ui->getSequenceArea()->size();
+        QPoint screenPosition = editor->getMaEditorWgt(0)->getScrollController()->getScreenPosition();
+        QSize screenSize = editor->getMaEditorWgt(0)->getSequenceArea()->size();
 
         cachedVisibleRange.setX(qRound(screenPosition.x() / stepX));
         cachedVisibleRange.setWidth(qRound(screenSize.width() / stepX));
@@ -267,8 +268,8 @@ void MaSangerOverview::drawReads() {
     for (int viewRowIndex = 0; viewRowIndex < rowsCount; viewRowIndex++) {
         int maRowIndex = editor->getCollapseModel()->getMaRowIndexByViewRowIndex(viewRowIndex);
         const MultipleChromatogramAlignmentRow row = mca->getMcaRow(maRowIndex);
-        const U2Region coreRegion = row->getCoreRegion();
-        const U2Region positionRegion = editor->getUI()->getBaseWidthController()->getBasesGlobalRange(coreRegion);
+        U2Region coreRegion = row->getCoreRegion();
+        U2Region positionRegion = editor->getMaEditorWgt(0)->getBaseWidthController()->getBasesGlobalRange(coreRegion);
 
         QRect readRect;
         readRect.setX(qRound(positionRegion.startPos / stepX));
@@ -303,10 +304,10 @@ void MaSangerOverview::moveVisibleRange(QPoint pos) {
         vScrollBar->triggerAction(QScrollBar::SliderSingleStepAdd);
     }
 
-    const int newHScrollBarValue = newVisibleRange.x() * stepX;
-    ui->getScrollController()->setHScrollbarValue(newHScrollBarValue);
-    const int newVScrollBarValue = (newVisibleRange.y() - getReferenceHeight() + getScrollBarValue()) * stepY;
-    ui->getScrollController()->setVScrollbarValue(newVScrollBarValue);
+    int newHScrollBarValue = newVisibleRange.x() * stepX;
+    editor->getMaEditorWgt(0)->getScrollController()->setHScrollbarValue(newHScrollBarValue);
+    int newVScrollBarValue = (newVisibleRange.y() - getReferenceHeight() + getScrollBarValue()) * stepY;
+    editor->getMaEditorWgt(0)->getScrollController()->setVScrollbarValue(newVScrollBarValue);
 }
 
 }  // namespace U2

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -57,13 +57,8 @@ class SmithWatermanTaskFactoryRegistry;
 class MolecularSurfaceFactoryRegistry;
 class SWResultFilterRegistry;
 class SecStructPredictAlgRegistry;
-class CudaGpuRegistry;
 class AlignmentAlgorithmsRegistry;
-#ifdef OPENCL_SUPPORT
-class OpenCLGpuRegistry;
-#endif
 class RecentlyDownloadedCache;
-class DistributedComputingUtil;
 class VirtualFileSystemRegistry;
 class DnaAssemblyAlgRegistry;
 class GenomeAssemblyAlgRegistry;
@@ -120,11 +115,7 @@ private:
     MolecularSurfaceFactoryRegistry* msfr;
     SWResultFilterRegistry* swrfr;
     SecStructPredictAlgRegistry* sspar;
-    CudaGpuRegistry* cgr;
     AlignmentAlgorithmsRegistry* alignmentAlgorithmRegistry;
-#ifdef OPENCL_SUPPORT
-    OpenCLGpuRegistry* oclgr;
-#endif
     RecentlyDownloadedCache* rdc;
     VirtualFileSystemRegistry* vfsReg;
     DnaAssemblyAlgRegistry* assemblyReg;

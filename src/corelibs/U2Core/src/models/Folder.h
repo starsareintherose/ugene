@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -39,11 +39,8 @@ public:
     QString getParentPath() const;
     QString getFolderName() const;
 
-    void setFolderPath(const QString& newPath);
-
     bool operator==(const Folder& other) const;
 
-    static bool isCorrectFolderName(const QString& name);
     static QString createPath(const QString& parentFolder, const QString& folderName);
     static QString getFolderParentPath(const QString& path);
     static QString getFolderName(const QString& path);

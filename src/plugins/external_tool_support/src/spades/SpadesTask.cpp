@@ -1,7 +1,7 @@
 
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -154,10 +154,10 @@ void SpadesTask::writeYamlReads() {
     }
     QString res = "";
     res.append("[\n");
-    foreach (const AssemblyReads& r, settings.reads) {
+    for (const AssemblyReads& r : qAsConst(settings.reads)) {
         res.append("{\n");
 
-        const bool isLibraryPaired = GenomeAssemblyUtils::isLibraryPaired(r.libName);
+        bool isLibraryPaired = GenomeAssemblyUtils::isLibraryPaired(r.libName);
 
         if (isLibraryPaired) {
             res.append(QString("orientation: \"%1\",\n").arg(r.orientation));

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,12 +38,6 @@ namespace U2 {
 
 /** Memory resource - amount of memory in megabytes */
 #define RESOURCE_MEMORY 2
-
-/** CUDA GPU resource - ensures that device is busy or not*/
-#define RESOURCE_CUDA_GPU 3
-
-/** OPENCL GPU resource - ensures that device is busy or not*/
-#define RESOURCE_OPENCL_GPU 4
 
 /**
     Project resource. There is 1 project active in the system and if the resource is locked

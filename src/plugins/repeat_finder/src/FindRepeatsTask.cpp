@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -120,8 +120,8 @@ void FindRepeatsTask::filterTandems(const QList<SharedAnnotationData>& tandems, 
     QByteArray gap;
 
     foreach (const SharedAnnotationData& d, tandems) {
-        const QVector<U2Region>& regs = d->getRegions();
-        foreach (const U2Region& r, regs) {
+        QVector<U2Region> regs = d->getRegions();
+        for (const U2Region& r : qAsConst(regs)) {
             gap.fill(unknownChar, r.length);
             seq.seq.replace(r.startPos, r.length, gap);
         }

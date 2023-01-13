@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -177,7 +177,7 @@ void GTest_FindAlgorithmTest::init(XMLTestFormat*, const QDomElement& el) {
 
             QStringList regList = regStr.split(",", QString::SkipEmptyParts);
             r = U2Region();
-            foreach (QString reg, regList) {
+            for (const QString& reg : qAsConst(regList)) {
                 U2Region regionPart = stringToRegion(reg);
                 if (regionPart.startPos > r.startPos) {
                     r.startPos = regionPart.startPos;

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -77,7 +77,8 @@ void FeatureKeyFilterTask::filterDocument(Document* doc) {
         }
         SafeObjList filteredResult;
         filteredResult.append(annTable);
-        foreach (const QString& filterName, annNames[annTableId]) {
+        QStringList filterNames = annNames[annTableId];
+        for (const QString& filterName : qAsConst(filterNames)) {
             emit si_objectsFiltered(filterName, filteredResult);
         }
         stateInfo.setProgress(stateInfo.getProgress() + (totalDocObjectsNumber / foundObjectsNumber / totalObjectCount) * 100);

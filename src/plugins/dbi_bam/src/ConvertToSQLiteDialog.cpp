@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -77,7 +77,7 @@ ConvertToSQLiteDialog::ConvertToSQLiteDialog(const GUrl& _sourceUrl, BAMInfo& _b
     connect(ui.selectAllToolButton, SIGNAL(clicked()), SLOT(sl_selectAll()));
     connect(ui.selectNoneToolButton, SIGNAL(clicked()), SLOT(sl_unselectAll()));
     connect(ui.inverseSelectionToolButton, SIGNAL(clicked()), SLOT(sl_inverseSelection()));
-    ui.indexNotAvailableLabel->setVisible(!sam && !bamInfo.hasIndex());
+    ui.indexNotAvailableLabel->setVisible(!sam && !bamInfo.hasNotEmptyIndex());
 
     if (sam && bamInfo.getHeader().getReferences().isEmpty()) {
         hideReferencesTable();
@@ -217,8 +217,8 @@ void ConvertToSQLiteDialog::sl_bamInfoButtonClicked() {
             rgList << QString(rg.getSequencingCenter()) << QString(rg.getDescription()) << QString(rg.getDate().toString()) << QString(rg.getLibrary())
                    << QString(rg.getPlatform()) << QString(rg.getPredictedInsertSize()) << QString(rg.getPlatform()) << QString(rg.getPlatformUnit()) << QString(rg.getSample());
             int j = 0;
-            foreach (const QString& s, rgList) {
-                QTableWidgetItem* item = new QTableWidgetItem(s);
+            for (const QString& s : qAsConst(rgList)) {
+                auto item = new QTableWidgetItem(s);
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
                 table->setItem(i, j, item);
                 j++;
@@ -240,8 +240,8 @@ void ConvertToSQLiteDialog::sl_bamInfoButtonClicked() {
             QStringList pgList;
             pgList << QString(pg.getName()) << QString(pg.getVersion()) << QString(pg.getCommandLine()) << QString(pg.getPreviousId());
             int j = 0;
-            foreach (const QString& s, pgList) {
-                QTableWidgetItem* item = new QTableWidgetItem(s);
+            for (const QString& s : qAsConst(pgList)) {
+                auto item = new QTableWidgetItem(s);
                 item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
                 table->setItem(i, j, item);
                 j++;

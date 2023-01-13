@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -73,7 +73,7 @@ void SamtoolsBasedDbi::init(const QHash<QString, QString>& properties, const QVa
         if (!url.isLocalFile()) {
             throw Exception(BAMDbiPlugin::tr("Non-local files are not supported"));
         }
-        bool sorted = BAMUtils::isSortedBam(url, os);
+        bool sorted = BAMUtils::isSortedBam(url.getURLString(), os);
         CHECK_OP_EXT(os, throw Exception(os.getError()), );
         if (!sorted) {
             throw Exception("Only indexed sorted BAM files could be used by this DBI");
@@ -110,7 +110,7 @@ bool SamtoolsBasedDbi::initBamStructures(const GUrl& fileName) {
     }
     bamHandler->owned_file = 1;
 
-    bool indexed = BAMUtils::hasValidBamIndex(fileName);
+    bool indexed = BAMUtils::hasValidBamIndex(filePath);
     if (!indexed) {
         throw Exception("Only indexed sorted BAM files could be used by this DBI");
     }

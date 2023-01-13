@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -43,12 +43,24 @@ enum TreeLayout {
 
 enum TreeViewOption {
     BRANCHES_TRANSFORMATION_TYPE,
+
     TREE_LAYOUT,
-    WIDTH_COEF,
-    HEIGHT_COEF,
+
+    /*
+     * Affects breadth of the tree:
+     * 100% is default,
+     * values < 100% make breadth smaller (a narrower tree),
+     * values > 100% make breadth larger (a wider tree)
+     *
+     * Available only for in the rectangular layout.
+     */
+    BREADTH_SCALE_ADJUSTMENT_PERCENT,
+
+    /** Curvature of branches in Rectangular layout mode. 0 -> no curvature. 100 -> maximum possible curvature. */
+    BRANCH_CURVATURE,
 
     LABEL_COLOR,
-    LABEL_FONT_TYPE,
+    LABEL_FONT_FAMILY,
     LABEL_FONT_SIZE,
     LABEL_FONT_BOLD,
     LABEL_FONT_ITALIC,
@@ -57,13 +69,25 @@ enum TreeViewOption {
     BRANCH_COLOR,
     BRANCH_THICKNESS,
 
+    /**
+     * If true (default): nodes shapes are visible (circles).
+     * If false: the shape is visible only for selected nodes or on hover over the node area.
+     */
+    SHOW_NODE_SHAPE,
     NODE_COLOR,
     NODE_RADIUS,
 
-    SHOW_LABELS,
-    SHOW_DISTANCES,
-    SHOW_NODE_LABELS,
-    ALIGN_LABELS,
+    /** Shows/hides branch distance labels. */
+    SHOW_BRANCH_DISTANCE_LABELS,
+
+    /** Shows/hides inner node labels: names/heights (heights are not implemented yet). */
+    SHOW_INNER_NODE_LABELS,
+
+    /** Shows/hides leaf node labels (sequence/species names). */
+    SHOW_LEAF_NODE_LABELS,
+
+    /** Aligns leaf node labels (sequence/species names). */
+    ALIGN_LEAF_NODE_LABELS,
 
     SCALEBAR_RANGE,
     SCALEBAR_FONT_SIZE,
@@ -73,5 +97,6 @@ enum TreeViewOption {
 };
 
 typedef QMap<TreeViewOption, QVariant> OptionsMap;
+
 }  // namespace U2
 #endif

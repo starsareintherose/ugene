@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -27,8 +27,6 @@
 #include <QString>
 
 #include <U2Core/global.h>
-
-//#define SETTINGS QString("workflowview/")
 
 namespace U2 {
 
@@ -66,13 +64,8 @@ public:
     static QColor getBGColor();
     static void setBGColor(const QColor& color);
 
-    static int getRunMode();
-    static void setRunMode(int md);
-
     static bool getScriptingMode();
     static void setScriptingMode(bool md);
-
-    static QString getCmdlineUgenePath();
 
     static void setExternalToolDirectory(const QString& newDir);
     static const QString getExternalToolDirectory();
@@ -83,10 +76,6 @@ public:
     static bool isOutputDirectorySet();
     static void setWorkflowOutputDirectory(const QString& newDir);
     static const QString getWorkflowOutputDirectory();
-
-    /** Specifies whether hint for load schema button on the dashboard should be shown or not */
-    static bool isShowLoadButtonHint();
-    static void setShowLoadButtonHint(bool value);
 
     static Watcher* const watcher;
 };

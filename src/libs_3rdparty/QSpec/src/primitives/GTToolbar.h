@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2017 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -40,6 +40,9 @@ public:
     static QToolButton* getToolButtonByAction(GUITestOpStatus& os, const QToolBar* toolbar, const QString& actionName);
 
     static void clickButtonByTooltipOnToolbar(GUITestOpStatus& os, const QString& toolbarSysName, const QString& tooltip);
+
+    /** Clicks on a widget with the given action name on the toolbar. Fails if the widget is not found or disabled. */
+    static void clickWidgetByActionName(GUITestOpStatus& os, const QString& toolbarSysName, const QString& actionObjectName);
 
 private:
     static QAction* getActionByObjectName(GUITestOpStatus& os, const QString& actionName, const QToolBar* toolbar);

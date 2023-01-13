@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -345,7 +345,7 @@ void GTest_Bwa::run() {
         return;
     }
     QFileInfo patternFile(env->getVar("COMMON_DATA_DIR") + "/" + patternFileName);
-    BAMUtils::isEqualByLength(config.resultFileName, patternFile.absoluteFilePath(), stateInfo);
+    BAMUtils::isEqualByLength(config.resultFileName.getURLString(), patternFile.absoluteFilePath(), stateInfo);
 }
 
 Task::ReportResult GTest_Bwa::report() {

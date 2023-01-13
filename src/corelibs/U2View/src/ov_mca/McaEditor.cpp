@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -236,7 +236,7 @@ void McaEditor::initActions() {
     connect(showOverviewAction, SIGNAL(triggered(bool)), SLOT(sl_saveOverviewState()));
     bool overviewVisible = s->getValue(getSettingsRoot() + MCAE_SETTINGS_SHOW_OVERVIEW, true).toBool();
     showOverviewAction->setChecked(overviewVisible);
-    ui->getOverviewArea()->setVisible(overviewVisible);
+    getUI()->getOverviewArea()->setVisible(overviewVisible);
     changeFontAction->setText(tr("Change characters font..."));
 
     GCounter::increment(QString("'Show overview' is %1 on MCA open").arg(overviewVisible ? "ON" : "OFF"));
@@ -338,6 +338,10 @@ void McaEditor::addEditMenu(QMenu* menu) {
 
     editMenu->addAction(undoAction);
     editMenu->addAction(redoAction);
+}
+
+MaEditorMultilineWgt* McaEditor::getMaEditorMultilineWgt() const {
+    FAIL("getMaEditorMultilineWgt must never be called on MCA manager", nullptr);
 }
 
 MaEditorSelectionController* McaEditor::getSelectionController() const {

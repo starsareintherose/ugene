@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -34,6 +34,7 @@
 #include "McaEditorSequenceArea.h"
 #include "ov_msa/MSAEditorConsensusCache.h"
 #include "ov_msa/MaEditorSequenceArea.h"
+#include "ov_msa/MaEditorMultilineWgt.h"
 #include "ov_sequence/SequenceObjectContext.h"
 
 namespace U2 {

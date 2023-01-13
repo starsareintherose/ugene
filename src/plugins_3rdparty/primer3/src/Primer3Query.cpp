@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -52,7 +52,6 @@ QDPrimerActor::QDPrimerActor(QDActorPrototype const* proto)
     cfg->setAnnotationKey("top primers");
     units[LEFT_PRIMER_ID] = new QDSchemeUnit(this);
     units[RIGHT_PRIMER_ID] = new QDSchemeUnit(this);
-    setDefaultSettings();
 }
 
 QString QDPrimerActor::getText() const {
@@ -61,17 +60,23 @@ QString QDPrimerActor::getText() const {
 
 Task* QDPrimerActor::getAlgorithmTask(const QVector<U2Region>& /*location*/) {
     Task* t = nullptr;
+
+    auto settings = new Primer3TaskSettings();
+    settings->setIntProperty("PRIMER_FIRST_BASE_INDEX", 0);
+    settings->setIntProperty("PRIMER_LIBERAL_BASE", 1);
+    settings->setDoubleProperty("PRIMER_WT_POS_PENALTY", 0);
+
     const DNASequence& dnaSeq = scheme->getSequence();
-    settings.setSequence(dnaSeq.seq);
+    settings->setSequence(dnaSeq.seq);
 
     U2Region seqRange(0, dnaSeq.length());
-    settings.setIncludedRegion(seqRange.startPos + settings.getFirstBaseIndex(), seqRange.length);
+    settings->setIncludedRegion(seqRange.startPos + settings->getFirstBaseIndex(), seqRange.length);
 
     QList<U2Region> list;
     const QString& excludedRegsStr = cfg->getParameter(EXCLUDED_REGIONS_ATTR)->getAttributeValueWithoutScript<QString>();
     bool ok = Primer3Dialog::parseIntervalList(excludedRegsStr, ",", &list);
     if (ok) {
-        settings.setExcludedRegion(list);
+        settings->setExcludedRegion(list);
     } else {
         algoLog.error(tr("%1 invalid input. Excluded regions.").arg(cfg->getLabel()));
         return nullptr;
@@ -80,44 +85,53 @@ Task* QDPrimerActor::getAlgorithmTask(const QVector<U2Region>& /*location*/) {
     const QString& targetsStr = cfg->getParameter(TARGETS_ATTR)->getAttributeValueWithoutScript<QString>();
     ok = Primer3Dialog::parseIntervalList(targetsStr, ",", &list);
     if (ok) {
-        settings.setTarget(list);
+        settings->setTarget(list);
     } else {
         algoLog.error(tr("%1 invalid input. Targets.").arg(cfg->getLabel()));
         return nullptr;
     }
 
     const QString& sizeRangesAttr = cfg->getParameter(SIZE_RANGES_ATTR)->getAttributeValueWithoutScript<QString>();
-    ok = Primer3Dialog::parseIntervalList(sizeRangesAttr, "-", &list, Primer3Dialog::Start_End);
+    ok = Primer3Dialog::parseIntervalList(sizeRangesAttr, "-", &list, Primer3Dialog::IntervalDefinition::Start_End);
     if (ok) {
-        settings.setProductSizeRange(list);
+        settings->setProductSizeRange(list);
     } else {
         algoLog.error(tr("%1 invalid input. Product size ranges.").arg(cfg->getLabel()));
     }
 
     int numRet = cfg->getParameter(NUM_RETURN_ATTR)->getAttributeValueWithoutScript<int>();
-    settings.setIntProperty("PRIMER_NUM_RETURN", numRet);
+    settings->setIntProperty("PRIMER_NUM_RETURN", numRet);
 
-    qreal maxMispriming = cfg->getParameter(MAX_MISPRIMING_ATTR)->getAttributeValueWithoutScript<double>();
-    settings.setAlignProperty("PRIMER_MAX_MISPRIMING", maxMispriming);
-    assert(settings.getAlignPropertyList().contains("PRIMER_MAX_MISPRIMING"));
+    auto getValue = [this](const QString& attributeName) {
+        return cfg->getParameter(attributeName)->getAttributeValueWithoutScript<double>();
+    };
+    QString errMsg = "There is no property '%1' in the Primer3 settings";
 
-    qreal maxTemplateMispriming = cfg->getParameter(MAX_TEMPLATE_MISPRIMING_ATTR)->getAttributeValueWithoutScript<double>() * 100;
-    settings.setAlignProperty("PRIMER_MAX_TEMPLATE_MISPRIMING", maxTemplateMispriming);
-    assert(settings.getAlignPropertyList().contains("PRIMER_MAX_TEMPLATE_MISPRIMING"));
+    QString propertyKey = "PRIMER_MAX_LIBRARY_MISPRIMING";
+    SAFE_POINT(settings->setDoubleProperty(propertyKey, getValue(MAX_MISPRIMING_ATTR)),
+               errMsg.arg(propertyKey),
+               nullptr);
+
+    propertyKey = "PRIMER_MAX_TEMPLATE_MISPRIMING";
+    SAFE_POINT(settings->setDoubleProperty(propertyKey, getValue(MAX_TEMPLATE_MISPRIMING_ATTR) * 100),
+               errMsg.arg(propertyKey),
+               nullptr);
 
     qreal stability = cfg->getParameter(STABILITY_ATTR)->getAttributeValueWithoutScript<double>();
-    settings.setDoubleProperty("PRIMER_MAX_END_STABILITY", stability);
-    assert(settings.getDoublePropertyList().contains("PRIMER_MAX_END_STABILITY"));
+    settings->setDoubleProperty("PRIMER_MAX_END_STABILITY", stability);
+    assert(settings->getDoublePropertyList().contains("PRIMER_MAX_END_STABILITY"));
 
-    qreal pairMispriming = cfg->getParameter(PAIR_MAX_MISPRIMING_ATTR)->getAttributeValueWithoutScript<double>();
-    settings.setAlignProperty("PRIMER_PAIR_MAX_MISPRIMING", pairMispriming);
-    assert(settings.getAlignPropertyList().contains("PRIMER_PAIR_MAX_MISPRIMING"));
+    propertyKey = "PRIMER_PAIR_MAX_LIBRARY_MISPRIMING";
+    SAFE_POINT(settings->setDoubleProperty(propertyKey, getValue(PAIR_MAX_MISPRIMING_ATTR)),
+               errMsg.arg(propertyKey),
+               nullptr);
 
-    qreal pairtemplateMispriming = cfg->getParameter(PAIR_MAX_TEMPLATE_MISPRIMING_ATTR)->getAttributeValueWithoutScript<double>() * 100;
-    settings.setAlignProperty("PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING", pairtemplateMispriming);
-    assert(settings.getAlignPropertyList().contains("PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING"));
+    propertyKey = "PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING";
+    SAFE_POINT(settings->setDoubleProperty(propertyKey, getValue(PAIR_MAX_TEMPLATE_MISPRIMING_ATTR) * 100),
+               errMsg.arg(propertyKey),
+               nullptr);
 
-    t = new Primer3SWTask(settings);
+    t = new Primer3SWTask(settings, true);
     connect(new TaskSignalMapper(t), SIGNAL(si_taskFinished(Task*)), SLOT(sl_onAlgorithmTaskFinished(Task*)));
 
     return t;
@@ -129,8 +143,8 @@ void QDPrimerActor::sl_onAlgorithmTaskFinished(Task* t) {
     QList<PrimerPair> bestPairs = primerTask->getBestPairs();
     foreach (PrimerPair pair, bestPairs) {
         QList<SharedAnnotationData> annotations;
-        Primer* leftPrimer = pair.getLeftPrimer();
-        Primer* rightPrimer = pair.getRightPrimer();
+        PrimerSingle* leftPrimer = pair.getLeftPrimer();
+        PrimerSingle* rightPrimer = pair.getRightPrimer();
         if (leftPrimer != nullptr && rightPrimer != nullptr) {
             QDResultUnit ru1(new QDResultUnitData);
             ru1->strand = U2Strand::Direct;
@@ -138,7 +152,7 @@ void QDPrimerActor::sl_onAlgorithmTaskFinished(Task* t) {
             ru1->owner = units.value(LEFT_PRIMER_ID);
             QDResultUnit ru2(new QDResultUnitData);
             ru2->strand = U2Strand::Complementary;
-            ru2->region = U2Region(rightPrimer->getStart() - rightPrimer->getLength() - 1,
+            ru2->region = U2Region(rightPrimer->getStart(),
                                    rightPrimer->getLength());
             ru2->owner = units.value(RIGHT_PRIMER_ID);
             QDResultGroup* g = new QDResultGroup;
@@ -147,27 +161,6 @@ void QDPrimerActor::sl_onAlgorithmTaskFinished(Task* t) {
             results.append(g);
         }
     }
-}
-
-void QDPrimerActor::setDefaultSettings() {
-    {
-        QList<U2Region> sizeRange;
-        sizeRange.append(U2Region(150, 101));  // 150-250
-        sizeRange.append(U2Region(100, 201));  // 100-300
-        sizeRange.append(U2Region(301, 100));  // 301-400
-        sizeRange.append(U2Region(401, 100));  // 401-500
-        sizeRange.append(U2Region(501, 100));  // 501-600
-        sizeRange.append(U2Region(601, 100));  // 601-700
-        sizeRange.append(U2Region(701, 150));  // 701-850
-        sizeRange.append(U2Region(851, 150));  // 851-1000
-        settings.setProductSizeRange(sizeRange);
-    }
-    settings.setDoubleProperty("PRIMER_MAX_END_STABILITY", 9.0);
-    settings.setAlignProperty("PRIMER_MAX_TEMPLATE_MISPRIMING", 1200);
-    settings.setAlignProperty("PRIMER_PAIR_MAX_TEMPLATE_MISPRIMING", 2400);
-    settings.setIntProperty("PRIMER_LIBERAL_BASE", 1);
-    settings.setDoubleProperty("PRIMER_WT_POS_PENALTY", 0.0);
-    settings.setIntProperty("PRIMER_FIRST_BASE_INDEX", 1);
 }
 
 QDPrimerActorPrototype::QDPrimerActorPrototype() {

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -47,8 +47,8 @@
 
 namespace U2 {
 
-MoveToObjectMaController::MoveToObjectMaController(MaEditor* maEditor)
-    : QObject(maEditor), MaEditorContext(maEditor) {
+MoveToObjectMaController::MoveToObjectMaController(MaEditor* maEditor, QWidget* wgt)
+    : QObject(maEditor), MaEditorContext(maEditor, wgt) {
     moveSelectionToAnotherObjectAction = new QAction(tr("Move selected rows to another alignment"));
     moveSelectionToAnotherObjectAction->setObjectName("move_selection_to_another_object");
     connect(moveSelectionToAnotherObjectAction, &QAction::triggered, this, &MoveToObjectMaController::showMoveSelectedRowsToAnotherObjectMenu);
@@ -71,7 +71,7 @@ QMenu* MoveToObjectMaController::buildMoveSelectionToAnotherObjectMenu() const {
         menu->addSeparator();
         QList<GObject*> writableMsaObjects = GObjectUtils::findAllObjects(UOF_LoadedOnly, GObjectTypes::MULTIPLE_SEQUENCE_ALIGNMENT, true);
         writableMsaObjects.removeOne(maObject);
-        std::stable_sort(writableMsaObjects.begin(), writableMsaObjects.end(), GObject::objectLessThan); // Sort objects in the menu by name.
+        std::stable_sort(writableMsaObjects.begin(), writableMsaObjects.end(), GObject::objectLessThan);  // Sort objects in the menu by name.
 
         if (writableMsaObjects.isEmpty()) {
             QAction* noObjectsAction = menu->addAction(tr("No other alignment objects in the project"), []() {});
@@ -138,7 +138,7 @@ void MoveToObjectMaController::runMoveSelectedRowsToNewFileDialog() {
     LastUsedDirHelper lod;
     QString filter = FileFilters::createFileFilterByObjectTypes({GObjectTypes::MULTIPLE_SEQUENCE_ALIGNMENT}, true);
     QString selectedFilter = FileFilters::createSingleFileFilterByDocumentFormatId(BaseDocumentFormats::CLUSTAL_ALN);
-    lod.url = U2FileDialog::getSaveFileName(ui, tr("Select a new file to move selected rows"), lod, filter, &selectedFilter);
+    lod.url = U2FileDialog::getSaveFileName(ui, tr("Select a new file to move selected rows"), lod, filter, selectedFilter);
     CHECK(!lod.url.isEmpty(), );
 
     QString url = lod.url;

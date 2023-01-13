@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -44,15 +44,22 @@ public:
     Task::ReportResult report();
 
 private:
+    bool readPrimer(QDomElement element, QString prefix, PrimerSingle* outPrimer, bool internalOligo);
+
     bool checkPrimerPair(const PrimerPair& primerPair, const PrimerPair& expectedPrimerPair, QString suffix);
-    bool checkPrimer(const Primer* primer, const Primer* expectedPrimer, QString prefix, bool internalOligo);
+    bool checkPrimer(const PrimerSingle* primer, const PrimerSingle* expectedPrimer, QString prefix, bool internalOligo);
     bool checkIntProperty(int value, int expectedValue, QString name);
     bool checkDoubleProperty(double value, double expectedValue, QString name);
-    bool checkAlignProperty(short value, short expectedValue, QString name);
-    Primer3SWTask* task;
-    Primer3TaskSettings settings;
-    QList<PrimerPair> currentBestPairs;
+
+    Primer3SWTask* task = nullptr;
+    Primer3TaskSettings* settings = nullptr;
     QList<PrimerPair> expectedBestPairs;
+    QList<PrimerSingle> expectedSinglePrimers;
+    QString expectedErrorMessage;
+    QString expectedWarningMessage;
+    QString localErrorMessage;
+    int stopCodonPos = 0;
+    int qualityNumber = 0;
 };
 
 }  // namespace U2

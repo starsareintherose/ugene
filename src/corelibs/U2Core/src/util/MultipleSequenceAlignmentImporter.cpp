@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -79,7 +79,7 @@ MultipleSequenceAlignmentObject* MultipleSequenceAlignmentImporter::createAlignm
 
     QList<U2MsaRow> rows = importRows(con, al, msaId, sequences, gapsPerRow, os);
     CHECK_OP(os, nullptr);
-    SAFE_POINT_EXT(rows.size() == al->getRowCount(), os.setError(QObject::tr("Unexpected error on MSA rows import")), nullptr);
+    SAFE_POINT_EXT(rows.size() == al->getRowCount(), os.setError(QString("Unexpected error on MSA rows import")), nullptr);
 
     if (!rows.isEmpty()) {
         // if the imported alignment is not empty -> set it length to the max(len, orig-len).

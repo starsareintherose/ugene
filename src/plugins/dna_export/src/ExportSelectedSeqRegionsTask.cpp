@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -96,7 +96,8 @@ QList<SharedAnnotationData> CreateExportItemsFromSeqRegionsTask::findAnnotations
             stateInfo.setError(tr("Invalid annotation table detected"));
             return result;
         }
-        foreach (Annotation* a, aobj->getAnnotationsByRegion(region)) {
+        QList<Annotation*> regionAnnotations = aobj->getAnnotationsByRegion(region);
+        for (Annotation* a : qAsConst(regionAnnotations)) {
             result.append(a->getData());
         }
     }

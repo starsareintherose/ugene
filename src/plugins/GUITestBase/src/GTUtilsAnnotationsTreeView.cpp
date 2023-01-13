@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -218,7 +218,8 @@ QTreeWidgetItem* GTUtilsAnnotationsTreeView::findItem(HI::GUITestOpStatus& os,
         QList<QTreeWidgetItem*> treeItems = GTTreeWidget::getItems(parentItem);
         for (QTreeWidgetItem* item : qAsConst(treeItems)) {
             QString treeItemName = item->text(0);
-            if (treeItemName == itemName) {
+            if ((options.matchPolicy == Qt::MatchExactly && treeItemName == itemName) ||
+                (options.matchPolicy == Qt::MatchContains && treeItemName.contains(itemName))) {
                 if (expandParent && item->parent() != nullptr) {
                     GTTreeWidget::expand(os, item->parent());
                 }
@@ -522,6 +523,18 @@ void GTUtilsAnnotationsTreeView::callContextMenuOnQualifier(HI::GUITestOpStatus&
 void GTUtilsAnnotationsTreeView::checkNoAnnotations(HI::GUITestOpStatus& os) {
     QTreeWidgetItem* annotationItem = findFirstAnnotation(os, {false});
     CHECK_SET_ERR(annotationItem == nullptr, "There should be no annotations");
+}
+#undef GT_METHOD_NAME
+
+#define GT_METHOD_NAME "checkAnnotationRegions"
+void GTUtilsAnnotationsTreeView::checkAnnotationRegions(HI::GUITestOpStatus& os, const QString& groupName, const QList<QPair<int, int>>& annotationRegionsStartAndEnd) {
+    QList<U2Region> group = GTUtilsAnnotationsTreeView::getAnnotatedRegionsOfGroup(os, groupName);
+    CHECK_SET_ERR(!group.isEmpty(), QString("Group %1 is empty, but shouldn't be").arg(groupName));
+
+    for (const auto& pair : qAsConst(annotationRegionsStartAndEnd)) {
+        U2Region region(pair.first - 1, pair.second - pair.first + 1);
+        CHECK_SET_ERR(group.contains(region), QString("No \"%1..%2\" region in \"%3\" group").arg(pair.first).arg(pair.second).arg(groupName));
+    }
 }
 #undef GT_METHOD_NAME
 

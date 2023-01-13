@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -62,7 +62,7 @@ Task* TreeViewerFactory::createViewTask(const MultiGSelection& multiSelection, b
                                                                            false);
     QList<OpenTreeViewerTask*> resTasks;
 
-    foreach (Document* doc, docsWithPhy) {
+    for (Document* doc : qAsConst(docsWithPhy)) {
         QList<GObject*> docObjs = doc->findGObjectByType(GObjectTypes::PHYLOGENETIC_TREE, UOF_LoadedAndUnloaded);
         if (!docObjs.isEmpty()) {
             foreach (GObject* obj, docObjs) {

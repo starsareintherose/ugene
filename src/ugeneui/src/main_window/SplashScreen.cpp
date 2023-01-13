@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -161,7 +161,10 @@ void SplashScreenWidget::drawInfo() {
     QPainter p(&image2);
 
     QFont font = p.font();
-    font.setFamily("Heiti");
+
+    // Error: qt.qpa.fonts: Populating font family aliases took 2647 ms. Replace uses of missing font family "Heiti" with one that exists to avoid this cost
+    // font.setFamily("Heiti");
+
     font.setBold(true);
     font.setPixelSize(VERSION_HEIGHT_PX);
     p.setFont(font);

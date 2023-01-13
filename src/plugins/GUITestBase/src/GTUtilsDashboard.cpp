@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -94,7 +94,7 @@ ExternalToolsTreeNode* GTUtilsDashboard::getExternalToolNodeByText(GUITestOpStat
             return node;
         }
     }
-    GT_CHECK_RESULT(false, "External tool node by text not found: " + textPattern, nullptr);
+    GT_FAIL("External tool node by text not found: " + textPattern, nullptr);
 }
 #undef GT_METHOD_NAME
 

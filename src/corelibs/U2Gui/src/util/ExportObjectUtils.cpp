@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -125,7 +125,7 @@ void ExportObjectUtils::export2Document(const QObjectScopedPointer<ExportDocumen
     }
 
     if (dialog->getSourceDoc() != nullptr && dialog->getSourceDoc()->getURLString() == dstUrl) {
-        QMessageBox::warning(QApplication::activeWindow(), L10N::warningTitle(), QObject::tr("You're trying to export document to its own destination, use option \"Save document...\" instead."));
+        QMessageBox::warning(QApplication::activeWindow(), L10N::warningTitle(), QObject::tr("Can't export document to its own file. Please select another file."));
         return;
     }
 
@@ -194,7 +194,7 @@ Task* ExportObjectUtils::saveAnnotationsTask(const QString& filepath, const Docu
     QMap<U2DataId, AnnotationTableObject*> annTables;
     QMap<AnnotationTableObject*, QMap<QString, QList<SharedAnnotationData>>> annTable2Anns;
 
-    foreach (Annotation* a, annList) {
+    for (Annotation* a : qAsConst(annList)) {
         const AnnotationTableObject* parentObject = a->getGObject();
         if (parentObject != nullptr) {
             U2DataId objId = parentObject->getRootFeatureId();
@@ -216,7 +216,8 @@ Task* ExportObjectUtils::saveAnnotationsTask(const QString& filepath, const Docu
         }
     }
 
-    foreach (AnnotationTableObject* ato, annTable2Anns.keys()) {
+    QList<AnnotationTableObject*> annotationObjects = annTable2Anns.keys();
+    for (AnnotationTableObject* ato : qAsConst(annotationObjects)) {
         foreach (const QString& groupName, annTable2Anns[ato].keys()) {
             ato->addAnnotations(annTable2Anns[ato][groupName], groupName);
         }

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -527,7 +527,8 @@ void URLWidget::setValue(const QVariant& value) {
     if (value.canConvert<QList<Dataset>>()) {
         QStringList urls;
         foreach (const Dataset& set, value.value<QList<Dataset>>()) {
-            foreach (URLContainer* c, set.getUrls()) {
+            QList<URLContainer*> containers = set.getUrls();
+            for (URLContainer* c : qAsConst(containers)) {
                 urls << c->getUrl();
             }
         }

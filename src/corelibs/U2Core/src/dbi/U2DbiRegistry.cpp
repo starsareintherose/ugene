@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -485,7 +485,7 @@ const QString DBI_ID_DELIMETER = "|";
 
 QString getDbiUrlByRef(const U2DbiRef& ref, U2OpStatus& os) {
     U2DbiFactory* dbiFactory = AppContext::getDbiRegistry()->getDbiFactoryById(ref.dbiFactoryId);
-    SAFE_POINT_EXT(nullptr != dbiFactory, os.setError(QObject::tr("Invalid database type: %1").arg(ref.dbiFactoryId)), QString());
+    SAFE_POINT_EXT(nullptr != dbiFactory, os.setError(QString("Invalid database type: %1").arg(ref.dbiFactoryId)), QString());
     return dbiFactory->id2Url(ref.dbiId).getURLString();
 }
 
@@ -493,7 +493,7 @@ QString getDbiUrlByRef(const U2DbiRef& ref, U2OpStatus& os) {
 
 QString U2DbiPool::getId(const U2DbiRef& ref, U2OpStatus& os) {
     const QString url = U2DbiUtils::ref2Url(ref);
-    SAFE_POINT_EXT(!url.isEmpty(), os.setError(tr("Invalid dbi reference")), "");
+    SAFE_POINT_EXT(!url.isEmpty(), os.setError(QString("Invalid dbi reference")), "");
     return url;
 }
 

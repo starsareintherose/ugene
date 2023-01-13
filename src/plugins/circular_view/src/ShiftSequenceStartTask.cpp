@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -76,9 +76,9 @@ Task::ReportResult ShiftSequenceStartTask::report() {
         documentsToUpdate.append(documentWithSequence);
     }
 
-    foreach (Document* document, documentsToUpdate) {
+    for (Document* document : qAsConst(documentsToUpdate)) {
         QList<GObject*> annotationTablesList = document->findGObjectByType(GObjectTypes::ANNOTATION_TABLE);
-        foreach (GObject* object, annotationTablesList) {
+        for (GObject* object : qAsConst(annotationTablesList)) {
             AnnotationTableObject* annotationTableObject = qobject_cast<AnnotationTableObject*>(object);
             if (annotationTableObject->hasObjectRelation(sequenceObject, ObjectRole_Sequence)) {
                 foreach (Annotation* annotation, annotationTableObject->getAnnotations()) {

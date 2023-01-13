@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -604,7 +604,7 @@ void ExportAnnotationSequenceSubTask::run() {
             coreLog.info(tr("Exported sequence has been deleted unexpectedly"));
             continue;
         }
-        foreach (const SharedAnnotationData& ad, ei.annotations) {
+        for (const SharedAnnotationData& ad : qAsConst(ei.annotations)) {
             QVector<U2Region> resultRegions;
             const U2Sequence annSeqDbiObject = importAnnotatedSeq2Dbi(ad, ei, dbiRef, resultRegions, stateInfo);
             CHECK_OP(stateInfo, );

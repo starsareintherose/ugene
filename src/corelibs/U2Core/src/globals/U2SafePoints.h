@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -100,19 +100,6 @@ public:
 #define FAIL(message, result) \
     U2::U2SafePoints::fail(QString("Trying to recover from error: %1 at %2:%3").arg(message).arg(__FILE__).arg(__LINE__)); \
     return result;
-
-/**
- * Assertion triggered in debug or in one of release test modes (like UGENE_GUI_TEST=1).
- * Used to replace standard assert().
- * The important difference from the standard assert method is
- * that the assert 'condition' is always evaluated, even when U2_ASSERT is disabled internally:
- * do not use this assertion in performance hotspots with a resource expensive 'condition'.
- */
-#define U2_ASSERT(condition) \
-    if (Q_UNLIKELY(!(condition))) { \
-        QString message = U2_TOSTRING(condition); \
-        U2::U2SafePoints::fail(QString("Assert: %1 at %2:%3").arg(message).arg(__FILE__).arg(__LINE__)); \
-    }
 
 /**
  * Checks condition and runs the extra op if the condition is falsy.

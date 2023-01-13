@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -24,17 +24,20 @@
 #include <QFileInfo>
 
 #include <U2Core/AppContext.h>
+#include <U2Core/AppSettings.h>
 #include <U2Core/BaseDocumentFormats.h>
 #include <U2Core/DocumentImport.h>
 #include <U2Core/DocumentModel.h>
 #include <U2Core/DocumentProviderTask.h>
 #include <U2Core/DocumentUtils.h>
 #include <U2Core/FileStorageUtils.h>
+#include <U2Core/GUrlUtils.h>
 #include <U2Core/IOAdapter.h>
 #include <U2Core/IOAdapterUtils.h>
 #include <U2Core/U2DbiRegistry.h>
 #include <U2Core/U2OpStatusUtils.h>
 #include <U2Core/U2SafePoints.h>
+#include <U2Core/UserApplicationsSettings.h>
 
 #include <U2Formats/BAMUtils.h>
 
@@ -74,13 +77,12 @@ void ConvertToIndexedBamTask::run() {
     }
 
     GUrl bamUrl = url;
-    if (BaseDocumentFormats::SAM == formatId) {
+    if (formatId == BaseDocumentFormats::SAM) {
         QString bam = FileStorageUtils::getSamToBamConvertInfo(url.getURLString(), ctx->getWorkflowProcess());
         if (bam.isEmpty()) {
             QString dir = fileStorage->createDirectory();
             bamUrl = dir + "/" + url.fileName() + ".bam";
-            BAMUtils::ConvertOption options(true);
-            BAMUtils::convertToSamOrBam(url, bamUrl, options, stateInfo);
+            BAMUtils::convertSamToBam(stateInfo, url.getURLString(), bamUrl.getURLString());
             CHECK_OP(stateInfo, );
 
             addConvertedFile(bamUrl);
@@ -92,7 +94,7 @@ void ConvertToIndexedBamTask::run() {
         CHECK_EXT(BaseDocumentFormats::BAM == formatId, setError("Only BAM/SAM files could be converted"), );
     }
 
-    bool sorted = BAMUtils::isSortedBam(bamUrl, stateInfo);
+    bool sorted = BAMUtils::isSortedBam(bamUrl.getURLString(), stateInfo);
     CHECK_OP(stateInfo, );
 
     GUrl sortedBamUrl = bamUrl;
@@ -105,14 +107,14 @@ void ConvertToIndexedBamTask::run() {
             baseName = dir + "/" + bamUrl.fileName();
         }
         baseName += ".sorted";
-        sortedBamUrl = BAMUtils::sortBam(bamUrl, baseName, stateInfo);
+        sortedBamUrl = BAMUtils::sortBam(bamUrl.getURLString(), baseName, stateInfo);
         CHECK_OP(stateInfo, );
         addConvertedFile(sortedBamUrl);
     }
 
-    bool indexed = sorted && BAMUtils::hasValidBamIndex(sortedBamUrl);
+    bool indexed = sorted && BAMUtils::hasValidBamIndex(sortedBamUrl.getURLString());
     if (!indexed) {
-        BAMUtils::createBamIndex(sortedBamUrl, stateInfo);
+        BAMUtils::createBamIndex(sortedBamUrl.getURLString(), stateInfo);
         CHECK_OP(stateInfo, );
     }
 
@@ -161,7 +163,7 @@ void ReadAssemblyTask::prepare() {
     conf.useImporters = true;
     conf.excludeHiddenFormats = false;
     QList<FormatDetectionResult> fs = DocumentUtils::detectFormat(url, conf);
-
+    
     foreach (const FormatDetectionResult& f, fs) {
         if (nullptr != f.format) {
             if (isConvertingFormat(f.format->getFormatId())) {
@@ -176,15 +178,19 @@ void ReadAssemblyTask::prepare() {
                 break;
             }
         } else if (nullptr != f.importer) {
-            U2OpStatusImpl os;
-            U2DbiRef dbiRef = ctx->getDataStorage()->createTmpDbi(os);
-            SAFE_POINT_OP(os, );
+            if(f.importer->getSupportedObjectTypes().contains(GObjectTypes::ASSEMBLY)) {
+                U2OpStatusImpl os;
+                U2DbiRef dbiRef = ctx->getDataStorage()->createTmpDbi(os);
+                SAFE_POINT_OP(os, );
 
-            QVariantMap hints;
-            hints.insert(DocumentFormat::DBI_REF_HINT, qVariantFromValue(dbiRef));
-            importTask = f.importer->createImportTask(f, false, hints);
-            addSubTask(importTask);
-            return;
+                QVariantMap hints;
+                hints.insert(DocumentFormat::DBI_REF_HINT, qVariantFromValue(dbiRef));
+                QString destination = GUrlUtils::rollFileName(AppContext::getAppSettings()->getUserAppsSettings()->getUserTemporaryDirPath() + "/" + fi.baseName(), "_");
+                hints.insert(ImportHint_DestinationUrl, destination);
+                importTask = f.importer->createImportTask(f, false, hints);
+                addSubTask(importTask);
+                return;
+            }
         }
     }
 

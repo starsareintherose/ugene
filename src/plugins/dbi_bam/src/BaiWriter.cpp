@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,17 +38,19 @@ void BaiWriter::writeIndex(const Index& index) {
         writeInt32(referenceIndex.getBins().size());
         for (int i = 0; i < referenceIndex.getBins().size(); i++) {
             const Index::ReferenceIndex::Bin& bin = referenceIndex.getBins()[i];
-            if (!bin.getChunks().isEmpty()) {
+            QList<Index::ReferenceIndex::Chunk> chunks = bin.getChunks();
+            if (!chunks.isEmpty()) {
                 writeUint32(bin.getBin());
-                writeInt32(bin.getChunks().size());
-                foreach (const Index::ReferenceIndex::Chunk& chunk, bin.getChunks()) {
+                writeInt32(chunks.size());
+                for (const Index::ReferenceIndex::Chunk& chunk : qAsConst(chunks)) {
                     writeUint64(chunk.getStart().getPackedOffset());
                     writeUint64(chunk.getEnd().getPackedOffset());
                 }
             }
         }
-        writeInt32(referenceIndex.getIntervals().size());
-        foreach (const VirtualOffset& offset, referenceIndex.getIntervals()) {
+        QList<VirtualOffset> intervals = referenceIndex.getIntervals();
+        writeInt32(intervals.size());
+        for (const VirtualOffset& offset : qAsConst(intervals)) {
             writeUint64(offset.getPackedOffset());
         }
     }

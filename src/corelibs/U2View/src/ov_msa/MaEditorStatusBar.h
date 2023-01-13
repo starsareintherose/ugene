@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -54,8 +54,16 @@ protected:
 public:
     MaEditorStatusBar(MaEditor* editor);
 
+signals:
+    // See comments in constructor
+    void si_updateStatusBar2();
+
+public slots:
+    void sl_updateStatusBar();
+
 private slots:
-    void sl_update();
+    // See comments in constructor
+    void sl_updateStatusBar2();
     void sl_lockStateChanged();
 
 protected:

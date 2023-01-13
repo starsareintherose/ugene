@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,7 @@ UGUITestBase* UGUITestBase::getInstance() {
 bool UGUITestBase::registerTest(GUITest* test, TestType testType) {
     Q_ASSERT(test);
     QString fullTestName = test->getFullName();
-    if (getTest(fullTestName, type) != nullptr) {
+    if (getTest(fullTestName, testType) != nullptr) {
         return false;
     }
     getMap(testType).insert(fullTestName, test);

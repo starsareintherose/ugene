@@ -22,6 +22,8 @@
 	Please send bug reports, comments etc. to:
 	timolassmann@gmail.com
 */
+#include <U2Core/disable-warnings.h>
+U2_DISABLE_WARNINGS
 
 #include "kalign2.h"
 
@@ -457,8 +459,8 @@ struct ntree_data* find_best_topology(struct ntree_data* ntree_data,int* leaves,
 	//for (i = 0; i < local_ntree-1;i++){
 	//	k_printf("nodes:%d\n",nodes[i]);
 	//}
-	
 
+    assert(local_ntree>0);
 	tmp_tree = malloc(sizeof(int)*(local_ntree+local_ntree-1)*3);
 	for (c = 0; c < (local_ntree+local_ntree-1)*3;c++){
 		tmp_tree[c] = 0;

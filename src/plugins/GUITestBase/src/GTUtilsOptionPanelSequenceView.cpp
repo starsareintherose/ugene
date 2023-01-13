@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -56,6 +56,7 @@ QMap<GTUtilsOptionPanelSequenceView::Tabs, QString> GTUtilsOptionPanelSequenceVi
     result.insert(Statistics, "OP_SEQ_INFO");
     result.insert(InSilicoPcr, "OP_IN_SILICO_PCR");
     result.insert(CircularView, "OP_CV_SETTINGS");
+    result.insert(GeneCut, "OP_GENECUT");
     return result;
 }
 
@@ -66,6 +67,7 @@ QMap<GTUtilsOptionPanelSequenceView::Tabs, QString> GTUtilsOptionPanelSequenceVi
     result.insert(Statistics, "SequenceInfo");
     result.insert(InSilicoPcr, "InSilicoPcrOptionPanelWidget");
     result.insert(CircularView, "CircularViewSettingsWidget");
+    result.insert(GeneCut, "GenecutOPWidget");
     return result;
 }
 

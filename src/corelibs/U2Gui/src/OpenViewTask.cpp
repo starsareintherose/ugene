@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -42,6 +42,7 @@
 #include <U2Core/Log.h>
 #include <U2Core/ProjectModel.h>
 #include <U2Core/ResourceTracker.h>
+#include <U2Core/Settings.h>
 #include <U2Core/U2SafePoints.h>
 
 #include <U2Gui/ObjectViewModel.h>
@@ -51,6 +52,7 @@ namespace U2 {
 /* TRANSLATOR U2::LoadUnloadedDocumentTask */
 
 const int OpenViewTask::MAX_DOC_NUMBER_TO_OPEN_VIEWS = 5;
+const QString OpenViewTask::IGNORE_MODAL_WIDGET = "OpenViewOptions/ignore_modal_widget_and_open_view";
 
 //////////////////////////////////////////////////////////////////////////
 // LoadUnloadedDocumentAndOpenViewTask
@@ -84,13 +86,11 @@ static Task* createOpenViewTask(const MultiGSelection& ms) {
             ls.removeAll(f);
         }
     }
-
-    if (ls.size() == 1) {
-        GObjectViewFactory* f = ls.first();
-        Task* t = f->createViewTask(ms, true);
-        return t;
+    if (QApplication::activeModalWidget() != nullptr && AppContext::getSettings()->getValue(OpenViewTask::IGNORE_MODAL_WIDGET, false) == false) {
+        coreLog.info(QObject::tr("Unable to open view because of active modal widget."));
+        return nullptr;
     }
-    return nullptr;
+    return ls.size() == 1 ? ls[0]->createViewTask(ms, true) : nullptr;
 }
 
 Document* LoadUnloadedDocumentAndOpenViewTask::getDocument() {

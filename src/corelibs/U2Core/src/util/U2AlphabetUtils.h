@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -120,7 +120,7 @@ private:
 
 int ExtendedDNAlphabetComparator::getMatchMask(char c) const {
     int i = c - ' ';
-    SAFE_POINT(i >= 0 && i < DNA_AL_EX_INDEX_SIZE, QObject::tr("Symbol is not belong to alphabet"), 0);
+    SAFE_POINT(i >= 0 && i < DNA_AL_EX_INDEX_SIZE, QString("Symbol is not belong to alphabet"), 0);
     return index[i];
 }
 

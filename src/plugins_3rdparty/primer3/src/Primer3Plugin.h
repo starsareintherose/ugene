@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@
 #define _PRIMER3_PLUGIN_H_ 1
 #include <QMenu>
 
+#include <U2Core/AppResources.h>
 #include <U2Core/PluginModel.h>
 
 #include <U2Gui/ObjectViewModel.h>
@@ -30,6 +31,12 @@
 #include "Primer3Tests.h"
 
 namespace U2 {
+
+/*
+ * Primer3Task should lock this resource before run and unlock after finish
+ * It's required because the original "primer3" tool doesn't support parallel calculations
+ */
+#define PRIMER3_STATIC_LOCK_RESOURCE 15162342
 
 class Primer3ADVContext;
 class XMLTestFactory;
@@ -41,19 +48,19 @@ public:
     ~Primer3Plugin();
 
 private:
-    Primer3ADVContext* viewCtx;
+    Primer3ADVContext* viewCtx = nullptr;
 };
 
 class Primer3ADVContext : public GObjectViewWindowContext {
     Q_OBJECT
 public:
     Primer3ADVContext(QObject* p);
+
 protected slots:
     void sl_showDialog();
 
 protected:
     void initViewContext(GObjectView* v) override;
-    // virtual void makeBaseMenu(GObjectView* v, QMenu* m);
 };
 
 class Primer3Tests {

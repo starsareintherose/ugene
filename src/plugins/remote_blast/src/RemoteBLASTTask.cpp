@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -295,7 +295,7 @@ QList<SharedAnnotationData> CreateAnnotationsFromHttpBlastResultTask::filterAnno
 
     if (cfg.filterResult & FilterResultByAccession) {
         QStringList accessions;
-        foreach (const SharedAnnotationData& ann, annotations) {
+        for (const SharedAnnotationData& ann : qAsConst(annotations)) {
             QString acc = ann->findFirstQualifierValue("accession");
             if (accessions.contains(acc)) {
                 QString eval = ann->findFirstQualifierValue(selectiveQual);
@@ -319,7 +319,7 @@ QList<SharedAnnotationData> CreateAnnotationsFromHttpBlastResultTask::filterAnno
     if (cfg.filterResult & FilterResultByDef) {
         resultList.clear();
         QStringList defs;
-        foreach (const SharedAnnotationData& ann, annotations) {
+        for (const SharedAnnotationData& ann : qAsConst(annotations)) {
             QString def = ann->findFirstQualifierValue("def");
             if (defs.contains(def)) {
                 QString eval = ann->findFirstQualifierValue(selectiveQual);
@@ -343,7 +343,7 @@ QList<SharedAnnotationData> CreateAnnotationsFromHttpBlastResultTask::filterAnno
     if (cfg.filterResult & FilterResultById) {
         resultList.clear();
         QStringList ids;
-        foreach (const SharedAnnotationData& ann, annotations) {
+        for (const SharedAnnotationData& ann : qAsConst(annotations)) {
             QString id = ann->findFirstQualifierValue("id");
             if (ids.contains(id)) {
                 QString eval = ann->findFirstQualifierValue(selectiveQual);
@@ -379,14 +379,14 @@ void CreateAnnotationsFromHttpBlastResultTask::mergeNeighbourResults() {
             if (annotationsAreNeighbours(adStart, adEnd) && annotationsReferToTheSameSeq(adStart, adEnd)) {
                 orderNeighbors(adStart, adEnd);
 
-                bool linearNeighbours = (adStart->findFirstQualifierValue("hit-to").toInt() + 1 == adEnd->findFirstQualifierValue("hit-from").toInt());
+                bool linearNeighbours = adStart->findFirstQualifierValue("hit-to").toInt() + 1 == adEnd->findFirstQualifierValue("hit-from").toInt();
                 if (linearNeighbours) {
                     resultAnnotations << merge(adStart, adEnd);
                     resultAnnotations.removeOne(adStart);
                     resultAnnotations.removeOne(adEnd);
                 }
 
-                bool circularNeighbours = (adEnd->findFirstQualifierValue("hit-from") == "1" && adStart->findFirstQualifierValue("hit-to") == adStart->findFirstQualifierValue("hit_len"));
+                bool circularNeighbours = adEnd->findFirstQualifierValue("hit-from") == "1" && adStart->findFirstQualifierValue("hit-to") == adStart->findFirstQualifierValue("hit_len");
                 if (circularNeighbours) {
                     createCheckTask(adStart, adEnd);
                 }
@@ -494,7 +494,7 @@ void CreateAnnotationsFromHttpBlastResultTask::orderNeighbors(SharedAnnotationDa
 void CreateAnnotationsFromHttpBlastResultTask::createCheckTask(const SharedAnnotationData& adStart, const SharedAnnotationData& adEnd) {
     mergeCandidates.append(QPair<SharedAnnotationData, SharedAnnotationData>(adStart, adEnd));
     QString id = adStart->findFirstQualifierValue("accession");
-    CheckNCBISequenceCircularityTask* checkTask = new CheckNCBISequenceCircularityTask(id);
+    auto checkTask = new CheckNCBISequenceCircularityTask(id);
     circCheckTasks.append(checkTask);
     addSubTask(checkTask);
 }
@@ -511,7 +511,7 @@ QList<Task*> CreateAnnotationsFromHttpBlastResultTask::onSubTaskFinished(Task* s
         return res;
     }
 
-    CheckNCBISequenceCircularityTask* checkCircTask = qobject_cast<CheckNCBISequenceCircularityTask*>(subTask);
+    auto checkCircTask = qobject_cast<CheckNCBISequenceCircularityTask*>(subTask);
     if (checkCircTask == nullptr) {
         return res;
     }
@@ -558,7 +558,8 @@ QList<Task*> CheckNCBISequenceCircularityTask::onSubTaskFinished(Task* subTask) 
     }
 
     if (subTask == loadTask) {
-        LoadRemoteDocumentTask* task = qobject_cast<LoadRemoteDocumentTask*>(loadTask);
+        auto task = qobject_cast<LoadRemoteDocumentTask*>(loadTask);
+        SAFE_POINT(task != nullptr, "Not a LoadRemoteDocumentTask", {});
         GUrl loadedSeq = task->getLocalUrl();
         U2OpStatusImpl os;
         result = GenbankPlainTextFormat::checkCircularity(loadedSeq, os);

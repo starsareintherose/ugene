@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -51,9 +51,7 @@ public:
     bool loadPart(int part);
     void alignShortRead(SearchQuery* qu, BMType bitValue, int startPos, BinarySearchResult firstResult, AlignContext* settings, BMType bitFilter, int w);
     BinarySearchResult bitMaskBinarySearch(BMType bitValue, BMType bitFilter);
-#ifdef OPENCL_SUPPORT
-    BinarySearchResult* bitMaskBinarySearchOpenCL(const BMType* bitValues, int size, const int* windowSizes);
-#endif
+
     const QString& getFirstSequenceObjectName() const {
         return firstSequenceObjectName;
     }

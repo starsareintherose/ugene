@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ namespace U2 {
 
 ServiceRegistryImpl::~ServiceRegistryImpl() {
     for (Service* service : qAsConst(services)) {
-        U2_ASSERT(service->isDisabled());
+        SAFE_POINT(service->isDisabled(), "Service should be disabled.", );
         if (service->isDisabled()) {
             delete service;
         }

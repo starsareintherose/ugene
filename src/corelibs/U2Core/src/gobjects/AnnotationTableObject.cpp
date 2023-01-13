@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -278,7 +278,7 @@ void AnnotationTableObject::emit_onAnnotationsInGroupRemoved(const QList<Annotat
 }
 
 void AnnotationTableObject::loadDataCore(U2OpStatus& os) {
-    SAFE_POINT(nullptr == rootGroup, "Annotation table is initialized unexpectedly", );
+    SAFE_POINT(rootGroup == nullptr, "Annotation table is initialized unexpectedly", );
 
     U2AnnotationTable table = U2FeatureUtils::getAnnotationTable(entityRef, os);
     CHECK_OP(os, );

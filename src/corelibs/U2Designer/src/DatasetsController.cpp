@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -266,12 +266,12 @@ void AttributeDatasetsController::renameDataset(int dsNum, const QString& newNam
 
     Dataset* dSet = sets.at(dsNum);
     SAFE_POINT(nullptr != dSet, "NULL dataset", );
-
+    QPair<QString, QString> oldNewNames(dSet->getName(), newName);
     checkName(newName, os, dSet->getName());
     CHECK_OP(os, );
 
     dSet->setName(newName);
-    update();
+    emit si_datasetRenamed(oldNewNames);
 }
 
 QStringList AttributeDatasetsController::names() const {
@@ -515,7 +515,7 @@ UrlAndDatasetController::UrlAndDatasetController(const QList<Dataset>& _urls, co
 }
 
 void UrlAndDatasetController::initSets(const QList<Dataset>& _urls, const QList<Dataset>& s) {
-    foreach (Dataset urlSet, _urls) {
+    for (Dataset urlSet : qAsConst(_urls)) {
         foreach (URLContainer* urlCon, urlSet.getUrls()) {
             urls << urlCon->getUrl();
         }

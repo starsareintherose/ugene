@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -23,16 +23,18 @@
 #define _TREE_VIEWER_UTILS_H_
 
 #include <QFont>
+#include "TreeSettings.h"
+
 
 namespace U2 {
 
 class TreeViewerUtils {
-    static QFont* font;
 
 public:
-    static const char* IMAGE_FILTERS;
     static void saveImageDialog(const QString& filters, QString& fileName, QString& format);
-    static const QFont& getFont();
+
+    /** Restores QFont from tree viewer settings. */
+    static QFont getFontFromSettings(const OptionsMap& settings);
 };
 
 }  // namespace U2

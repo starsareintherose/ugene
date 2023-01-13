@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -38,15 +38,16 @@
 
 #include <U2Core/AppContext.h>
 
-#include <U2View/GraphicsButtonItem.h>
-#include <U2View/GraphicsRectangularBranchItem.h>
 #include <U2View/MSAEditor.h>
+#include <U2View/TvNodeItem.h>
+#include <U2View/TvRectangularBranchItem.h>
 
 #include "GTTestsCommonScenariousTreeviewer.h"
 #include "GTUtilsBookmarksTreeView.h"
 #include "GTUtilsLog.h"
 #include "GTUtilsMdi.h"
 #include "GTUtilsMsaEditorSequenceArea.h"
+#include "GTUtilsOptionsPanelPhyTree.h"
 #include "GTUtilsPhyTree.h"
 #include "GTUtilsProjectTreeView.h"
 #include "GTUtilsTaskTreeView.h"
@@ -60,80 +61,35 @@ namespace U2 {
 namespace GUITest_common_scenarios_tree_viewer {
 using namespace HI;
 
-GUI_TEST_CLASS_DEFINITION(test_0001) {
-    // Screenshoting MSA editor (regression test)
-
-    // 1. Open file samples/CLUSTALW/COI.aln
-    GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/", "COI.aln");
-    GTUtilsTaskTreeView::waitTaskFinished(os);
-    // 2. Click on "Build tree" button on toolbar
-    GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, testDir + "_common_data/scenarios/sandbox/COI.nwk"));
-
-    QAbstractButton* tree = GTAction::button(os, "Build Tree");
-    GTWidget::click(os, tree);
-    // Expected state: "Create Phylogenetic Tree" dialog appears
-
-    // 3. Set save path to _common_data/scenarios/sandbox/COI.nwk . Click  OK button
-    // Expected state: Phylogenetic tree appears
-    GTUtilsTaskTreeView::waitTaskFinished(os);
-
-    // 4. Use "Capture tree" button on toolbar to make screenshots
-    GTUtilsDialog::add(os, new PopupChooser(os, {"Screen Capture"}));
-    GTUtilsDialog::add(os, new ExportImage(os, testDir + "_common_data/scenarios/sandbox/image.svg", "JPG", 50));
-    GTWidget::click(os, GTWidget::findWidget(os, "exportTreeImageButton"));
-
-    GTFile::getSize(os, testDir + "_common_data/scenarios/sandbox/image.jpg");
-    // Expected state: images on screenshots same as on your screen
-}
-
 GUI_TEST_CLASS_DEFINITION(test_0001_1) {
-    // Screenshoting MSA editor (regression test)
+    // Export tree image to file (via toolbar button).
 
-    // 1. Open file samples/CLUSTALW/COI.aln
-    GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/", "COI.aln");
-    GTUtilsTaskTreeView::waitTaskFinished(os);
-    // 2. Click on "Build tree" button on toolbar
-    GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, testDir + "_common_data/scenarios/sandbox/COI.nwk"));
-
-    QAbstractButton* tree = GTAction::button(os, "Build Tree");
-    GTWidget::click(os, tree);
-    // Expected state: "Create Phylogenetic Tree" dialog appears
-
-    // 3. Set save path to _common_data/scenarios/sandbox/COI.nwk . Click  OK button
-    // Expected state: Phylogenetic tree appears
+    GTFileDialog::openFile(os, dataDir + "samples/Newick/COI.nwk");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    // 4. Use "Capture tree" button on toolbar to make screenshots
-    GTUtilsDialog::add(os, new PopupChooser(os, {"Export Tree Image", "Screen Capture"}));
-    GTUtilsDialog::add(os, new ExportImage(os, testDir + "_common_data/scenarios/sandbox/image.svg", "JPG", 50));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "treeView"));
+    // Use "Capture tree" button on toolbar to make screenshots
+    QString fileName = testDir + "_common_data/scenarios/sandbox/GUITest_common_scenarios_tree_viewer_test_0001_1.jpg";
+    GTUtilsDialog::add(os, new PopupChooser(os, {"saveVisibleViewToFileAction"}));
+    GTUtilsDialog::add(os, new ExportImage(os, fileName, "JPG", 50));
+    GTWidget::click(os, GTAction::button(os, "treeImageActionsButtonMenuAction"));
 
-    GTFile::getSize(os, testDir + "_common_data/scenarios/sandbox/image.jpg");
-    // Expected state: images on screenshots same as on your screen
+    qint64 fileSize = GTFile::getSize(os, fileName);
+    CHECK_SET_ERR(fileSize > 10000, "File is not found or is too small: " + QString::number(fileSize));
 }
 
 GUI_TEST_CLASS_DEFINITION(test_0001_2) {
-    // Screenshoting MSA editor (regression test)
+    // Export tree image to file (via main menu).
 
-    // 1. Open file samples/CLUSTALW/COI.aln
-    GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/", "COI.aln");
+    GTFileDialog::openFile(os, dataDir + "samples/Newick/COI.nwk");
     GTUtilsTaskTreeView::waitTaskFinished(os);
-    // 2. Click on "Build tree" button on toolbar
-    GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, testDir + "_common_data/scenarios/sandbox/COI.nwk"));
 
-    QAbstractButton* tree = GTAction::button(os, "Build Tree");
-    GTWidget::click(os, tree);
-    // Expected state: "Create Phylogenetic Tree" dialog appears
+    // Use "Capture tree" button on toolbar to make screenshots
+    QString fileName = testDir + "_common_data/scenarios/sandbox/GUITest_common_scenarios_tree_viewer_test_0001_2.png";
+    GTUtilsDialog::waitForDialog(os, new ExportImage(os, fileName, "PNG"));
+    GTMenu::clickMainMenuItem(os, {"Actions", "Tree image", "Save visible area to file..."});
 
-    // 3. Set save path to _common_data/scenarios/sandbox/COI.nwk . Click  OK button
-    // Expected state: Phylogenetic tree appears
-
-    // 4. Use "Capture tree" button on toolbar to make screenshots
-    GTUtilsDialog::waitForDialog(os, new ExportImage(os, testDir + "_common_data/scenarios/sandbox/image.svg", "JPG", 50));
-    GTMenu::clickMainMenuItem(os, {"Actions", "Export Tree Image", "Screen Capture..."});
-
-    GTFile::getSize(os, testDir + "_common_data/scenarios/sandbox/image.jpg");
-    // Expected state: images on screenshots same as on your screen
+    qint64 fileSize = GTFile::getSize(os, fileName);
+    CHECK_SET_ERR(fileSize > 10000, "File is not found or is too small: " + QString::number(fileSize));
 }
 
 GUI_TEST_CLASS_DEFINITION(test_0002) {
@@ -388,7 +344,7 @@ GUI_TEST_CLASS_DEFINITION(test_0006) {
     // GTUtilsDialog::waitForDialog(os, new PopupChooser(os, QStringList()<<"Circular"));
     // GTWidget::click(os,GTWidget::findWidget(os,"Layout"));
     //    Expected state: tree view type changed to circular
-    QList<GraphicsButtonItem*> list = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> list = GTUtilsPhyTree::getNodes(os);
     // QList<QGraphicsSimpleTextItem*> labelsList = GTUtilsPhyTree::getLabels(os);
     QStringList labelList = GTUtilsPhyTree::getLabelsText(os);
     // QList<QGraphicsSimpleTextItem*> distancesList = GTUtilsPhyTree::getDistances(os);
@@ -649,7 +605,7 @@ GUI_TEST_CLASS_DEFINITION(test_0010) {
     // 2. Open context menu on branch and  select {change settings} menu item
     auto treeView = GTWidget::findGraphicsView(os, "treeView");
     QList<QGraphicsItem*> list = treeView->scene()->items();
-    QList<GraphicsButtonItem*> nodeList = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> nodeList = GTUtilsPhyTree::getNodes(os);
     CHECK_SET_ERR(!nodeList.isEmpty(), "nodeList is empty");
 
     QGraphicsItem* node = nodeList.last();
@@ -682,7 +638,7 @@ GUI_TEST_CLASS_DEFINITION(test_0011) {
 
     //    Expected state: Phylogenetic tree appears
     auto treeView = GTWidget::findGraphicsView(os, "treeView");
-    QList<GraphicsButtonItem*> nodeList = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> nodeList = GTUtilsPhyTree::getNodes(os);
 
     CHECK_SET_ERR(!nodeList.isEmpty(), "nodeList is empty");
     QPoint globalCoord = GTUtilsPhyTree::getGlobalCenterCoord(os, nodeList.last());
@@ -728,7 +684,7 @@ GUI_TEST_CLASS_DEFINITION(test_0011_1) {
 
     //    Expected state: Phylogenetic tree appears
     auto treeView = GTWidget::findGraphicsView(os, "treeView");
-    QList<GraphicsButtonItem*> nodeList = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> nodeList = GTUtilsPhyTree::getNodes(os);
 
     CHECK_SET_ERR(!nodeList.isEmpty(), "nodeList is empty");
     QPoint globalCoord = GTUtilsPhyTree::getGlobalCenterCoord(os, nodeList.last());
@@ -771,11 +727,11 @@ GUI_TEST_CLASS_DEFINITION(test_0011_2) {
 
     //    Expected state: phylogenetic tree appears
     auto treeView = GTWidget::findGraphicsView(os, "treeView");
-    QList<GraphicsButtonItem*> nodeList = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> nodeList = GTUtilsPhyTree::getNodes(os);
     CHECK_SET_ERR(!nodeList.isEmpty(), "nodeList is empty");
 
     //    2. Do context menu {Collapse} for any node
-    GraphicsButtonItem* node = nodeList.at(1);
+    TvNodeItem* node = nodeList.at(1);
     GTUtilsPhyTree::doubleClickNode(os, node);
 
     QList<QGraphicsSimpleTextItem*> branchList;
@@ -842,7 +798,7 @@ GUI_TEST_CLASS_DEFINITION(test_0012) {
 
     CHECK_SET_ERR(w > 100, "tree seems to be too narrow");
     // 3. Choose any node and do the context menu command "Swap siblings"
-    QList<GraphicsButtonItem*> nodeList = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> nodeList = GTUtilsPhyTree::getNodes(os);
     CHECK_SET_ERR(!nodeList.isEmpty(), "nodeList is empty");
     QGraphicsItem* node = nodeList.at(1);
     QPointF sceneCoord = node->mapToScene(node->boundingRect().center() - QPoint(-2, 0));  // Hack for tree button items: they are not hoverable on the right side.
@@ -971,9 +927,9 @@ GUI_TEST_CLASS_DEFINITION(test_0024) {
 GUI_TEST_CLASS_DEFINITION(test_0025) {
     //     for UGENE-4089
     //     1. Open or build the tree
-    //     Expected state: nothing is selected, collapse, swap and reroot actino are disabled
+    //     Expected state: nothing is selected, collapse, swap and re-root actions are disabled
     //     2. Select the root item
-    //     Expected state: only swap action is available
+    //     Expected state: all actions are still disabled.
     //     3. Select the other node in the middle of the tree
     //     Expected state: all three actions are enabled
     //     4. Click "Collapse"
@@ -994,13 +950,13 @@ GUI_TEST_CLASS_DEFINITION(test_0025) {
     CHECK_SET_ERR(!swapButton->isEnabled(), "Swap action is unexpectedly enabled");
     CHECK_SET_ERR(!rerootButton->isEnabled(), "Reroot action is unexpectedly enabled");
 
-    GraphicsButtonItem* rootNode = GTUtilsPhyTree::getRootNode(os);
+    TvNodeItem* rootNode = GTUtilsPhyTree::getRootNode(os);
     GTUtilsPhyTree::clickNode(os, rootNode);
     CHECK_SET_ERR(!collapseButton->isEnabled(), "Collapse action is unexpectedly enabled for root node");
-    CHECK_SET_ERR(swapButton->isEnabled(), "Swap action is unexpectedly disabled for root node");
+    CHECK_SET_ERR(!swapButton->isEnabled(), "Swap action is unexpectedly enabled for root node");
     CHECK_SET_ERR(!rerootButton->isEnabled(), "Re-root action is unexpectedly enabled for root node");
 
-    GraphicsButtonItem* middleNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.023", "0.078");
+    TvNodeItem* middleNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.023", "0.078");
     GTUtilsPhyTree::clickNode(os, middleNode);
     CHECK_SET_ERR(collapseButton->isEnabled(), "Collapse action is unexpectedly disabled for middle node");
     CHECK_SET_ERR(swapButton->isEnabled(), "Swap action is unexpectedly disabled for middle node");
@@ -1009,12 +965,12 @@ GUI_TEST_CLASS_DEFINITION(test_0025) {
     GTWidget::click(os, collapseButton);
     CHECK_SET_ERR(collapseButton->text() == "Expand", "No Expand action found after collapsing middle node");
 
-    GraphicsButtonItem* leafNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.067", "0.078");
+    TvNodeItem* leafNode = GTUtilsPhyTree::getNodeByBranchText(os, "0.067", "0.078");
     GTUtilsPhyTree::clickNode(os, leafNode);
     CHECK_SET_ERR(collapseButton->text() == "Collapse", "No Collapse action for leaf node");
 
     GTUtilsPhyTree::clickNode(os, middleNode);
-    CHECK_SET_ERR(collapseButton->text() == "Expand", "No Expand actionf for middle node");
+    CHECK_SET_ERR(collapseButton->text() == "Expand", "No Expand action for middle node");
     GTWidget::click(os, collapseButton);
     CHECK_SET_ERR(collapseButton->text() == "Collapse", "No Collapse action after expanding middle node");
 }
@@ -1028,7 +984,7 @@ GUI_TEST_CLASS_DEFINITION(test_0026) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     //    2. Select the parent node of "Bicolorana_bicolor_EF540830" and "Roeseliana_roeseli".
-    QList<GraphicsButtonItem*> nodes = GTUtilsPhyTree::getOrderedRectangularNodes(os);
+    QList<TvNodeItem*> nodes = GTUtilsPhyTree::getOrderedRectangularNodes(os);
     CHECK_SET_ERR(!nodes.isEmpty(), "Tree nodes are not found");
     double firstNodeDistance = GTUtilsPhyTree::getNodeDistance(os, nodes.first());
     GTUtilsPhyTree::clickNode(os, nodes[0]);
@@ -1057,12 +1013,12 @@ GUI_TEST_CLASS_DEFINITION(test_0027) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     // Select the parent node of "Bicolorana_bicolor_EF540830" and "Roeseliana_roeseli".
-    GraphicsButtonItem* node1Before = GTUtilsPhyTree::getNodeByBranchText(os, "0.052", "0.045");
+    TvNodeItem* node1Before = GTUtilsPhyTree::getNodeByBranchText(os, "0.052", "0.045");
     GTUtilsPhyTree::clickNode(os, node1Before);
-    CHECK_SET_ERR(GTUtilsPhyTree::getSelectedNodes(os) == QList<GraphicsButtonItem*>({node1Before}), "A clicked node wasn't selected");
+    CHECK_SET_ERR(GTUtilsPhyTree::getSelectedNodes(os) == QList<TvNodeItem*>({node1Before}), "A clicked node wasn't selected");
 
     // Other node: must not change during swap-siblings action.
-    GraphicsButtonItem* node2Before = GTUtilsPhyTree::getNodeByBranchText(os, "0.067", "0.078");
+    TvNodeItem* node2Before = GTUtilsPhyTree::getNodeByBranchText(os, "0.067", "0.078");
 
     // Do the context menu command "Swap siblings".
     GTUtilsDialog::add(os, new PopupChooserByText(os, {"Swap Siblings"}));
@@ -1070,11 +1026,11 @@ GUI_TEST_CLASS_DEFINITION(test_0027) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     // Expected state: left & right branches swapped.
-    GraphicsButtonItem* node1After = GTUtilsPhyTree::getNodeByBranchText(os, "0.045", "0.052");
+    TvNodeItem* node1After = GTUtilsPhyTree::getNodeByBranchText(os, "0.045", "0.052");
     CHECK_SET_ERR(node1Before == node1After, "Swap action failed.");
 
     // This node must not change.
-    GraphicsButtonItem* node2After = GTUtilsPhyTree::getNodeByBranchText(os, "0.067", "0.078");
+    TvNodeItem* node2After = GTUtilsPhyTree::getNodeByBranchText(os, "0.067", "0.078");
     CHECK_SET_ERR(node2Before == node2After, "Swap action failed.");
 }
 
@@ -1092,9 +1048,9 @@ GUI_TEST_CLASS_DEFINITION(test_0028) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     // Select the parent node of "Bicolorana_bicolor_EF540830" and "Roeseliana_roeseli".
-    GraphicsButtonItem* node1Before = GTUtilsPhyTree::getNodeByBranchText(os, "0.052", "0.045");
+    TvNodeItem* node1Before = GTUtilsPhyTree::getNodeByBranchText(os, "0.052", "0.045");
     GTUtilsPhyTree::clickNode(os, node1Before);
-    CHECK_SET_ERR(GTUtilsPhyTree::getSelectedNodes(os) == QList<GraphicsButtonItem*>({node1Before}), "A clicked node wasn't selected");
+    CHECK_SET_ERR(GTUtilsPhyTree::getSelectedNodes(os) == QList<TvNodeItem*>({node1Before}), "A clicked node wasn't selected");
 
     // Do the context menu command "Swap siblings".
     GTUtilsDialog::add(os, new PopupChooserByText(os, {"Swap Siblings"}));
@@ -1102,7 +1058,7 @@ GUI_TEST_CLASS_DEFINITION(test_0028) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     // Expected state: left & right branches swapped.
-    GraphicsButtonItem* node1After = GTUtilsPhyTree::getNodeByBranchText(os, "0.045", "0.052");
+    TvNodeItem* node1After = GTUtilsPhyTree::getNodeByBranchText(os, "0.045", "0.052");
     CHECK_SET_ERR(node1Before == node1After, "Swap action failed.");
 }
 
@@ -1121,7 +1077,7 @@ GUI_TEST_CLASS_DEFINITION(test_0029) {
 
     //    2. Select the parent node of "Bicolorana_bicolor_EF540830" and "Roeseliana_roeseli".
     GTWidget::click(os, GTUtilsPhyTree::getTreeViewerUi(os));
-    QList<GraphicsButtonItem*> nodes = GTUtilsPhyTree::getOrderedRectangularNodes(os);
+    QList<TvNodeItem*> nodes = GTUtilsPhyTree::getOrderedRectangularNodes(os);
     CHECK_SET_ERR(!nodes.isEmpty(), "Tree nodes are not found");
 
     qreal firstNodeDistance = GTUtilsPhyTree::getNodeDistance(os, nodes.first());
@@ -1140,6 +1096,99 @@ GUI_TEST_CLASS_DEFINITION(test_0029) {
 
     qreal firstNodeDistanceNew = GTUtilsPhyTree::getNodeDistance(os, nodes.first());
     CHECK_SET_ERR(firstNodeDistance != firstNodeDistanceNew, "Distances are not changed. The tree was not rerooted?")
+}
+
+GUI_TEST_CLASS_DEFINITION(test_0030) {
+    // Check zoom-in/zoom-out/reset-zoom buttons.
+
+    GTFileDialog::openFile(os, testDir + "_common_data/newick/COXII CDS tree.newick");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    int originalWidth = GTUtilsPhyTree::getSceneWidth(os);
+    int prevStepWidth = originalWidth;
+    for (int i = 0; i < 3; i++) {
+        GTUtilsPhyTree::clickZoomInButton(os);
+        int sceneWidth = GTUtilsPhyTree::getSceneWidth(os);
+        CHECK_SET_ERR(sceneWidth > prevStepWidth, "Unexpected scene width on zoom in");
+        prevStepWidth = sceneWidth;
+    }
+
+    for (int i = 0; i < 5; i++) {
+        GTUtilsPhyTree::clickZoomOutButton(os);
+        int sceneWidth = GTUtilsPhyTree::getSceneWidth(os);
+        CHECK_SET_ERR(sceneWidth < prevStepWidth, "Unexpected scene width on zoom out");
+        prevStepWidth = sceneWidth;
+    }
+
+    GTUtilsPhyTree::clickResetZoomButton(os);
+    int sceneWidth = GTUtilsPhyTree::getSceneWidth(os);
+    CHECK_SET_ERR(sceneWidth == originalWidth, "Unexpected scene width on reset zoom");
+}
+
+GUI_TEST_CLASS_DEFINITION(test_0031) {
+    // Check that show/hide node shape option works.
+
+    GTFileDialog::openFile(os, testDir + "_common_data/newick/COXII CDS tree.newick");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    GTUtilsOptionPanelPhyTree::openTab(os);
+
+    GTCheckBox::checkState(os, "showNodeShapeCheck", false);
+    QImage originalImage = GTUtilsPhyTree::captureTreeImage(os);
+
+    GTCheckBox::setChecked(os, "showNodeShapeCheck", true);
+    QImage imageWithNodes = GTUtilsPhyTree::captureTreeImage(os);
+    CHECK_SET_ERR(imageWithNodes != originalImage, "imageWithNodes != originalImage failed");
+
+    GTCheckBox::setChecked(os, "showNodeShapeCheck", false);
+    QImage imageWithNoNodes = GTUtilsPhyTree::captureTreeImage(os);
+    CHECK_SET_ERR(imageWithNoNodes == originalImage, "imageWithNoNodes == originalImage failed");
+
+    // Now check the same but with selected nodes.
+    GTUtilsPhyTree::clickNode(os, GTUtilsPhyTree::getNodeByBranchText(os, "0.003", "0.038"));
+    GTMouseDriver::moveTo(GTMouseDriver::getMousePosition() + QPoint(20, 0));  // Remove hover effect from node.
+    QImage originalImageWithSelection = GTUtilsPhyTree::captureTreeImage(os);
+    CHECK_SET_ERR(originalImageWithSelection != originalImage, "imageWithSelection != originalImage failed");
+
+    GTCheckBox::setChecked(os, "showNodeShapeCheck", true);
+    QImage imageWithSelectionWithNodes = GTUtilsPhyTree::captureTreeImage(os);
+    CHECK_SET_ERR(imageWithSelectionWithNodes != originalImageWithSelection, "imageWithSelectionWithNodes != originalImageWithSelection failed");
+
+    GTCheckBox::setChecked(os, "showNodeShapeCheck", false);
+    QImage imageWithSelectionWithNoNodes = GTUtilsPhyTree::captureTreeImage(os);
+    CHECK_SET_ERR(imageWithSelectionWithNoNodes == originalImageWithSelection, "imageWithSelectionWithNoNodes == originalImageWithSelection failed");
+}
+
+GUI_TEST_CLASS_DEFINITION(test_0032) {
+    // Check that 'Show node labels' option works as expected.
+
+    // Check that if there are no node labels in the model the option is not shown.
+    GTFileDialog::openFile(os, testDir + "_common_data/newick/sample1.newick");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    auto optionPanel = GTUtilsOptionPanelPhyTree::openTab(os);
+    auto showNodeLabelsCheckbox = GTWidget::findCheckBox(os, "showNodeLabelsCheck", optionPanel);
+    CHECK_SET_ERR(!showNodeLabelsCheckbox->isVisible(), "showNodeLabelsCheck is visible for a tree with no labels");
+
+    // Now check the tree with labels.
+    GTFileDialog::openFile(os, testDir + "_common_data/newick/node-labels.nwk");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    optionPanel = GTUtilsOptionPanelPhyTree::openTab(os);
+    showNodeLabelsCheckbox = GTWidget::findCheckBox(os, "showNodeLabelsCheck", optionPanel);
+    CHECK_SET_ERR(showNodeLabelsCheckbox->isVisible(), "showNodeLabelsCheck is not visible for a tree with no labels");
+    CHECK_SET_ERR(showNodeLabelsCheckbox->isEnabled(), "showNodeLabelsCheck is not enabled for a tree with no labels");
+
+    GTCheckBox::checkState(os, showNodeLabelsCheckbox, false);
+    QImage imageWithoutLabels = GTUtilsPhyTree::captureTreeImage(os);
+
+    GTCheckBox::setChecked(os, showNodeLabelsCheckbox, true);
+    QImage imageWithLabels = GTUtilsPhyTree::captureTreeImage(os);
+    CHECK_SET_ERR(imageWithLabels != imageWithoutLabels, "Image with no node labels is the same with the image with node labels");
+
+    GTCheckBox::setChecked(os, showNodeLabelsCheckbox, false);
+    QImage image = GTUtilsPhyTree::captureTreeImage(os);
+    CHECK_SET_ERR(image == imageWithoutLabels, "Image with no node labels does not match the original image");
 }
 
 }  // namespace GUITest_common_scenarios_tree_viewer

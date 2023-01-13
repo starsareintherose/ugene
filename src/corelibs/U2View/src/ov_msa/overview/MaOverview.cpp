@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -29,24 +29,38 @@
 
 #include "ov_msa/BaseWidthController.h"
 #include "ov_msa/MaEditorSelection.h"
+#include "ov_msa/MultilineScrollController.h"
 #include "ov_msa/RowHeightController.h"
 #include "ov_msa/ScrollController.h"
 
 namespace U2 {
 
-MaOverview::MaOverview(MaEditorWgt* ui)
-    : QWidget(ui),
-      editor(ui->getEditor()),
-      ui(ui),
+MaOverview::MaOverview(MaEditor* _editor, QWidget* _ui)
+    : QWidget(_ui),
+      editor(_editor),
+      ui(_ui),
       stepX(0),
       stepY(0) {
-    MaEditorSequenceArea* sequenceArea = ui->getSequenceArea();
-    connect(sequenceArea, SIGNAL(si_visibleRangeChanged()), this, SLOT(sl_visibleRangeChanged()));
     connect(editor->getSelectionController(),
             SIGNAL(si_selectionChanged(const MaEditorSelection&, const MaEditorSelection&)),
             SLOT(sl_selectionChanged()));
-    connect(editor->getMaObject(), SIGNAL(si_alignmentChanged(MultipleAlignment, MaModificationInfo)), SLOT(sl_redraw()));
-    connect(ui->getScrollController(), SIGNAL(si_visibleAreaChanged()), SLOT(sl_redraw()));
+    connect(editor->getMaObject(),
+            SIGNAL(si_alignmentChanged(MultipleAlignment, MaModificationInfo)),
+            SLOT(sl_redraw()));
+
+    // The hack
+    // for MSA we have MaEditorMultilineWgt
+    // for MCA we have MaEditorWgt
+    MaEditorMultilineWgt* mwgt = qobject_cast<MaEditorMultilineWgt*>(_ui);
+    if (mwgt != nullptr) {
+        connect(mwgt->getScrollController(), SIGNAL(si_visibleAreaChanged()), SLOT(sl_redraw()));
+    } else {
+        MaEditorWgt* swgt = qobject_cast<MaEditorWgt*>(_ui);
+        if (swgt != nullptr) {
+            connect(swgt->getSequenceArea(), SIGNAL(si_visibleRangeChanged()), this, SLOT(sl_visibleRangeChanged()));
+            connect(swgt->getScrollController(), SIGNAL(si_visibleAreaChanged()), SLOT(sl_redraw()));
+        }
+    }
     connect(editor->getCollapseModel(), SIGNAL(si_toggled()), SLOT(sl_redraw()));
 }
 
@@ -106,8 +120,9 @@ void MaOverview::setVisibleRangeForEmptyAlignment() {
 }
 
 void MaOverview::recalculateScale() {
-    stepX = static_cast<double>(ui->getBaseWidthController()->getTotalAlignmentWidth()) / getContentWidgetWidth();
-    stepY = static_cast<double>(ui->getRowHeightController()->getTotalAlignmentHeight()) / getContentWidgetHeight();
+    MaEditorWgt* maEditorWgt = editor->getMaEditorWgt(0);
+    stepX = static_cast<double>(maEditorWgt->getBaseWidthController()->getTotalAlignmentWidth()) / getContentWidgetWidth();
+    stepY = static_cast<double>(maEditorWgt->getRowHeightController()->getTotalAlignmentHeight()) / getContentWidgetHeight();
 }
 
 int MaOverview::getContentWidgetWidth() const {

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -376,7 +376,7 @@ void DocumentUpdater::reloadDocuments(QList<Document*> docs2Reload) {
     QList<GObjectViewState*> states;
     QList<GObjectViewWindow*> viewWindows;
 
-    foreach (Document* doc, docs2Reload) {
+    for (Document* doc : qAsConst(docs2Reload)) {
         QList<GObjectViewWindow*> viewWnds = GObjectViewUtils::findViewsWithAnyOfObjects(doc->getObjects());
         foreach (GObjectViewWindow* vw, viewWnds) {
             viewWindows.append(vw);
@@ -579,6 +579,7 @@ void ProjectViewImpl::initView() {
 
     connect(w->nameFilterEdit, SIGNAL(textChanged(const QString&)), SLOT(sl_filterTextChanged(const QString&)));
     w->nameFilterEdit->installEventFilter(this);
+    w->nameFilterEdit->setMaxLength(MAX_SEARCH_PATTERN_LENGTH + 1);
 
     assert(objectViewController == nullptr);
     objectViewController = new ObjectViewTreeController(w->viewTreeWidget);
@@ -733,8 +734,6 @@ public:
 void ProjectViewImpl::sl_onActivated(GObject* o) {
     SAFE_POINT(o != nullptr, "No double-clicked object found", );
 
-    CHECK(!projectTreeController->isObjectInRecycleBin(o), );
-
     GObjectSelection os;
     os.addToSelection(o);
     MultiGSelection ms;
@@ -812,12 +811,6 @@ QList<QAction*> ProjectViewImpl::selectOpenViewActions(GObjectViewFactory* f, co
     const GObjectSelection* objectsSelection = static_cast<const GObjectSelection*>(ms.findSelectionByType(GSelectionTypes::GOBJECTS));
     if (objectsSelection != nullptr) {
         QSet<GObject*> objectsInSelection = objectsSelection->getSelectedObjects().toSet();
-        foreach (GObject* obj, objectsInSelection) {
-            if (projectTreeController->isObjectInRecycleBin(obj)) {
-                return res;
-            }
-        }
-
         foreach (MWMDIWindow* w, windows) {
             GObjectViewWindow* ov = qobject_cast<GObjectViewWindow*>(w);
             if (ov == nullptr) {
@@ -826,10 +819,10 @@ QList<QAction*> ProjectViewImpl::selectOpenViewActions(GObjectViewFactory* f, co
             if (ov->getViewFactoryId() != f->getId()) {
                 continue;
             }
-            const QList<GObject*>& viewObjects = ov->getObjects();
+            QList<GObject*> viewObjects = ov->getObjects();
             bool contains = false;
-            foreach (GObject* o, viewObjects) {
-                if (objectsInSelection.contains(o) && !projectTreeController->isObjectInRecycleBin(o)) {
+            for (GObject* o : qAsConst(viewObjects)) {
+                if (objectsInSelection.contains(o)) {
                     contains = true;
                     break;
                 }
@@ -878,7 +871,7 @@ QList<QAction*> ProjectViewImpl::selectOpenViewActions(GObjectViewFactory* f, co
 
 void ProjectViewImpl::buildOpenViewMenu(const MultiGSelection& ms, QMenu* m) {
     QList<GObjectViewFactory*> fs = AppContext::getObjectViewFactoryRegistry()->getAllFactories();
-    foreach (GObjectViewFactory* f, fs) {
+    for (GObjectViewFactory* f : qAsConst(fs)) {
         QList<QAction*> openActions = selectOpenViewActions(f, ms, m);
         if (openActions.isEmpty()) {
             continue;
@@ -889,7 +882,7 @@ void ProjectViewImpl::buildOpenViewMenu(const MultiGSelection& ms, QMenu* m) {
             m->addAction(openAction);
             continue;
         }
-        foreach (QAction* a, openActions) {
+        for (QAction* a : qAsConst(openActions)) {
             m->addAction(a);
         }
     }
@@ -909,7 +902,7 @@ void ProjectViewImpl::buildAddToViewMenu(const MultiGSelection& ms, QMenu* m) {
         return;
     }
     foreach (GObject* obj, objects) {
-        bool canBeAdded = ow->getObjectView()->canAddObject(obj) && !projectTreeController->isObjectInRecycleBin(obj);
+        bool canBeAdded = ow->getObjectView()->canAddObject(obj);
         if (!canBeAdded) {
             return;
         }
@@ -939,7 +932,7 @@ void ProjectViewImpl::buildRelocateMenu(QMenu* m) {
                 allWritableFormats.append(format);
             }
         }
-        foreach (DocumentFormat* f, allWritableFormats) {
+        for (DocumentFormat* f : qAsConst(allWritableFormats)) {
             const QSet<GObjectType>& supportedObjectTypes = f->getSupportedObjectTypes();
             bool allObjectsWitable = true;
             foreach (GObject* gobj, doc->getObjects()) {
@@ -1018,7 +1011,7 @@ void ProjectViewImpl::buildViewMenu(QMenu& m) {
         bool allCirc = true;
         bool allNucl = true;
         foreach (GObject* obj, objsSelection->getSelectedObjects()) {
-            const bool objectIsModifiable = (!obj->isStateLocked() && !projectTreeController->isObjectInRecycleBin(obj));
+            const bool objectIsModifiable = (!obj->isStateLocked());
             if (obj->getGObjectType() == GObjectTypes::SEQUENCE && objectIsModifiable) {
                 seqobjFound = true;
                 U2SequenceObject* casted = qobject_cast<U2SequenceObject*>(obj);
@@ -1103,9 +1096,15 @@ void ProjectViewImpl::sl_openStateView() {
 
 void ProjectViewImpl::sl_filterTextChanged(const QString& str) {
     SAFE_POINT(nullptr != projectTreeController, "NULL controller", );
-
+    QString changedText = str;
     ProjectTreeControllerModeSettings settings = projectTreeController->getModeSettings();
-    settings.tokensToShow = str.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+    if (str.length() > MAX_SEARCH_PATTERN_LENGTH) {
+        changedText = str.mid(0, MAX_SEARCH_PATTERN_LENGTH);
+        QString warning = ProjectViewImpl::tr("The search pattern is too long. Pattern was truncated to 1000 symbols.");
+        coreLog.info(warning);
+        QMessageBox::warning(AppContext::getMainWindow()->getQMainWindow(), L10N::warningTitle(), warning);
+    }
+    settings.tokensToShow = changedText.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     projectTreeController->updateSettings(settings);
 }
 
@@ -1147,7 +1146,7 @@ void ProjectViewImpl::highlightItem(Document* doc) {
 void ProjectViewImpl::sl_onToggleCircular() {
     const GObjectSelection* objSelection = getGObjectSelection();
     foreach (GObject* obj, objSelection->getSelectedObjects()) {
-        const bool objectIsModifiable = (!obj->isStateLocked() && !projectTreeController->isObjectInRecycleBin(obj));
+        const bool objectIsModifiable = (!obj->isStateLocked());
         if (objectIsModifiable && obj->getGObjectType() == GObjectTypes::SEQUENCE) {
             U2SequenceObject* casted = qobject_cast<U2SequenceObject*>(obj);
             SAFE_POINT(obj != nullptr, "casting to 'U2SequenceObject' failed", );

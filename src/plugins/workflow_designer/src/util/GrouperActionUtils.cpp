@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -409,7 +409,7 @@ bool MergeAnnotationPerformer::applyAction(const QVariant& newData) {
     }
 
     if (unique) {
-        foreach (SharedAnnotationData newD, newAnns) {
+        for (SharedAnnotationData newD : qAsConst(newAnns)) {
             bool found = false;
             foreach (const SharedAnnotationData& d, result) {
                 if (*newD == *d) {

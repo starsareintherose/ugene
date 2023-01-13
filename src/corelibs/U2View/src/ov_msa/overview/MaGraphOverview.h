@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -79,9 +79,8 @@ class U2VIEW_EXPORT MaGraphOverview : public MaOverview {
     Q_OBJECT
 
 public:
-    MaGraphOverview(MaEditorWgt* ui);
-
-    bool isValid() const override {
+    MaGraphOverview(MaEditor* editor, QWidget* ui);
+    bool isValid() const {
         return graphCalculationTaskRunner.getError().isEmpty();
     }
 

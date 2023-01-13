@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -42,14 +42,13 @@ public slots:
 class StatisticalReportController : public QDialog, public Ui_StatisticalReport {
     Q_OBJECT
 public:
-    StatisticalReportController(const QString& htmlContent, QWidget* parent);
+    StatisticalReportController(const QString& htmlContent);
     bool isInfoSharingAccepted() const;
-    void resizeEvent(QResizeEvent* event);
-public slots:
-    void accept();
+    bool isExperimentalFeaturesEnabled() const;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
-    ContentSizeHtmlViewer* htmlView;
+    ContentSizeHtmlViewer* htmlView = nullptr;
 };
 
 }  // namespace U2

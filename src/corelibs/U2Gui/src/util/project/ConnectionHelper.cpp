@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -31,10 +31,10 @@ ConnectionHelper::ConnectionHelper(const U2DbiRef& dbiRef, U2OpStatus& os)
     CHECK_OP(os, );
 
     dbi = con->dbi;
-    SAFE_POINT_EXT(nullptr != dbi, os.setError(QObject::tr("Error! No DBI")), );
+    SAFE_POINT_EXT(nullptr != dbi, os.setError(QString("Error! No DBI")), );
 
     oDbi = dbi->getObjectDbi();
-    SAFE_POINT_EXT(nullptr != oDbi, os.setError(QObject::tr("Error! No object DBI")), );
+    SAFE_POINT_EXT(nullptr != oDbi, os.setError(QString("Error! No object DBI")), );
 }
 
 ConnectionHelper::~ConnectionHelper() {

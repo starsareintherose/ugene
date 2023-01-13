@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -122,7 +122,7 @@ void UnitTestSuite::runTest(const QString& testName) {
 void UnitTestSuite::runAllTests() {
     foreach (const QString& suite, tests.keys()) {
         QStringList testList = tests.value(suite);
-        foreach (const QString& testName, testList) {
+        for (const QString& testName : qAsConst(testList)) {
             runTest(suite + "_" + testName);
         }
     }

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -278,7 +278,7 @@ AutoAnnotationsUpdateTask::~AutoAnnotationsUpdateTask() {
 }
 
 void AutoAnnotationsUpdateTask::prepare() {
-    SAFE_POINT(autoAnnotationObject != nullptr, tr("Empty auto-annotation object"), );
+    SAFE_POINT(autoAnnotationObject != nullptr, "Empty auto-annotation object", );
 
     lock = new StateLock("Auto-annotations update", StateLockFlag_LiveLock);
     sequenceObject = autoAnnotationObject->getSequenceObject();

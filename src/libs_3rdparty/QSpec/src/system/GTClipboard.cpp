@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2017 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -63,6 +63,32 @@ QString GTClipboard::text(GUITestOpStatus& os) {
     GTThread::runInMainThread(os, new Scenario(clipboardText));
     GTThread::waitForMainThread();
     return clipboardText;
+}
+#undef GT_METHOD_NAME
+
+#define GT_METHOD_NAME "checkHasNonEmptyImage"
+void GTClipboard::checkHasNonEmptyImage(GUITestOpStatus& os) {
+    class Scenario : public CustomScenario {
+    public:
+        Scenario(QImage& _image)
+            : image(_image) {
+        }
+        void run(GUITestOpStatus& os) {
+            QClipboard* clipboard = QApplication::clipboard();
+            const QMimeData* mimeData = clipboard->mimeData();
+            GT_CHECK(mimeData->hasImage(), "Clipboard doesn't contain image data");
+            QPixmap pixmap = qvariant_cast<QPixmap>(mimeData->imageData());
+            image = pixmap.toImage();
+        }
+
+    private:
+        QImage& image;
+    };
+
+    QImage image;
+    GTThread::runInMainThread(os, new Scenario(image));
+    GTThread::waitForMainThread();
+    GT_CHECK(!image.isNull(), "Clipboard image is empty");
 }
 #undef GT_METHOD_NAME
 

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -20,8 +20,6 @@
  */
 
 #include "GenomeAlignerSettingsWidget.h"
-
-#include <U2Algorithm/OpenCLGpuRegistry.h>
 
 #include <U2Core/AppContext.h>
 #include <U2Core/AppResources.h>
@@ -53,13 +51,6 @@ GenomeAlignerSettingsWidget::GenomeAlignerSettingsWidget(QWidget* parent)
     connect(readSlider, SIGNAL(valueChanged(int)), SLOT(sl_onReadSliderChanged(int)));
 
     buildIndexFileButton->toggle();
-#ifdef OPENCL_SUPPORT
-    if (AppContext::getOpenCLGpuRegistry()->getEnabledGpu() == nullptr) {
-#endif
-        gpuBox->setEnabled(false);
-#ifdef OPENCL_SUPPORT
-    }
-#endif
 
     systemSize = AppContext::getAppSettings()->getAppResourcePool()->getMaxMemorySizeInMB();
     partSlider->setEnabled(false);
@@ -83,7 +74,6 @@ QMap<QString, QVariant> GenomeAlignerSettingsWidget::getDnaAssemblyCustomSetting
     QMap<QString, QVariant> settings;
 
     settings.insert(GenomeAlignerTask::OPTION_ALIGN_REVERSED, reverseBox->isChecked());
-    settings.insert(GenomeAlignerTask::OPTION_OPENCL, gpuBox->isChecked());
     settings.insert(GenomeAlignerTask::OPTION_BEST, firstMatchBox->isChecked());
     settings.insert(GenomeAlignerTask::OPTION_READS_MEMORY_SIZE, readSlider->value());
     settings.insert(GenomeAlignerTask::OPTION_SEQ_PART_SIZE, partSlider->value());
@@ -136,8 +126,7 @@ bool GenomeAlignerSettingsWidget::buildIndexUrl(const GUrl& url, bool prebuiltIn
 }
 
 bool GenomeAlignerSettingsWidget::isParametersOk(QString& error) const {
-    bool gpuOk = (gpuBox->isChecked() == false) || ((gpuBox->isChecked() == true) && (partSlider->value() <= 10));  // 128MB is the minimum size for a buffer, according to CL_DEVICE_MAX_MEM_ALLOC_SIZE OpenCL documentation
-    if ((systemSize < readSlider->value() + 13 * partSlider->value()) || !gpuOk) {
+    if ((systemSize < readSlider->value() + 13 * partSlider->value())) {
         error = "There is no enough memory for the aligning on your computer. Try to reduce a memory size for short reads or for the reference fragment.";
         return false;
     }

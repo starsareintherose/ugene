@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -93,7 +93,8 @@ WorkflowInvestigationData WorkflowDebugMessageParserImpl::getAllMessageValues() 
         }
         initParsedInfo();
         foreach (const QVariantMap& messageContent, sourceMessages) {
-            foreach (const QString& key, messageContent.keys()) {
+            QList<QString> keys = messageContent.keys();
+            for (const QString& key : qAsConst(keys)) {
                 SAFE_POINT(messageTypes.contains(key), "Unexpected message type encountered!", parsedInfo);
                 parsedInfo[key].enqueue(convertToString(key, messageContent[key]));
             }

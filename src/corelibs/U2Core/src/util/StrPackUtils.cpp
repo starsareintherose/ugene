@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,7 @@ QString StrPackUtils::packMap(const QVariantMap& map, Options options) {
     StrStrMap newMap;
     foreach (const QString& key, map.keys()) {
         QVariant mapValue = map.value(key);
-        SAFE_POINT(mapValue.canConvert<QString>(), tr("QVariant value can't be converted to string"), QString());
+        SAFE_POINT(mapValue.canConvert<QString>(), "QVariant value can't be converted to string", QString());
 
         newMap.insert(key, map.value(key).toString());
     }

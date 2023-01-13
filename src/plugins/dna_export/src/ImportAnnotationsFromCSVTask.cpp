@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -77,7 +77,8 @@ static void adjustRelations(AnnotationTableObject* ao) {
     foreach (U2SequenceObject* seqObj, seqView->getSequenceObjectsWithContexts()) {
         U2Region seqRegion(0, seqObj->getSequenceLength());
         bool outOfRange = false;
-        foreach (Annotation* ann, ao->getAnnotations()) {
+        QList<Annotation*> annotations = ao->getAnnotations();
+        for (Annotation* ann : qAsConst(annotations)) {
             const QVector<U2Region>& locations = ann->getRegions();
             if (!seqRegion.contains(locations.last())) {
                 outOfRange = true;
@@ -153,7 +154,8 @@ QMap<QString, QList<SharedAnnotationData>> ImportAnnotationsFromCSVTask::prepare
     SAFE_POINT(readTask != nullptr && readTask->isFinished(), "Invalid read annotations task!", result);
     QMap<QString, QList<SharedAnnotationData>> datas = readTask->getResult();
     foreach (const QString& groupName, datas.keys()) {
-        foreach (const SharedAnnotationData& d, datas[groupName]) {
+        QList<SharedAnnotationData> annotations = datas[groupName];
+        for (const SharedAnnotationData& d : qAsConst(annotations)) {
             result[groupName] << d;
         }
     }

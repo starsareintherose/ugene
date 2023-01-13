@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -882,7 +882,7 @@ void WorkflowView::sl_appendExternalToolWorker() {
 }
 
 void WorkflowView::sl_editScript() {
-    QList<Actor*> selectedActors = scene->getSelectedActors();
+    QList<Actor*> selectedActors = scene->getActors(WorkflowScene::Selected);
     if (selectedActors.size() == 1) {
         Actor* scriptActor = selectedActors.first();
         AttributeScript* script = scriptActor->getScript();
@@ -900,7 +900,7 @@ void WorkflowView::sl_editScript() {
 }
 
 void WorkflowView::sl_editExternalTool() {
-    QList<Actor*> selectedActors = scene->getSelectedActors();
+    QList<Actor*> selectedActors = scene->getActors(WorkflowScene::Selected);
     if (selectedActors.size() == 1) {
         ActorPrototype* proto = selectedActors.first()->getProto();
         const bool edited = palette->editPrototype(proto);
@@ -1593,7 +1593,8 @@ void WorkflowView::sl_configureParameterAliases() {
             }
             SchemaAliasesCfgDlgModel model = dlg->getModel();
             foreach (const ActorId& id, model.aliases.keys()) {
-                foreach (const Descriptor& d, model.aliases.value(id).keys()) {
+                QList<Descriptor> descriptors = model.aliases.value(id).keys();
+                for (const Descriptor& d : qAsConst(descriptors)) {
                     Actor* actor = schema->actorById(id);
                     assert(actor != nullptr);
                     QString alias = model.aliases.value(id).value(d);
@@ -1669,7 +1670,7 @@ void WorkflowView::sl_copyItems() {
         return;
     }
 
-    QList<Actor*> actors = scene->getSelectedActors();
+    QList<Actor*> actors = scene->getActors(WorkflowScene::Selected);
     Metadata actorMeta = getMeta(procs);
     lastPaste = HRSchemaSerializer::items2String(actors, &actorMeta);
     pasteAction->setEnabled(true);
@@ -1813,7 +1814,7 @@ void WorkflowView::sl_editItem() {
         QGraphicsItem* it = list.at(0);
         if (it->type() == WorkflowProcessItemType) {
             Actor* a = qgraphicsitem_cast<WorkflowProcessItem*>(it)->getProcess();
-            propertyEditor->editActor(a);
+            propertyEditor->editActor(a, scene->getActors(WorkflowScene::All));
             return;
         }
         Port* p = nullptr;
@@ -1842,7 +1843,7 @@ void WorkflowView::sl_editItem() {
 }
 
 void WorkflowView::sl_onSelectionChanged() {
-    QList<Actor*> actorsSelected = scene->getSelectedActors();
+    QList<Actor*> actorsSelected = scene->getActors(WorkflowScene::Selected);
     const int actorsCount = actorsSelected.size();
     editScriptAction->setEnabled(actorsCount == 1 && actorsSelected.first()->getScript() != nullptr);
     editExternalToolAction->setEnabled(actorsCount == 1 && actorsSelected.first()->getProto()->isExternalTool());
@@ -2253,7 +2254,8 @@ const Workflow::Metadata& WorkflowView::getMeta() {
 const Workflow::Metadata& WorkflowView::updateMeta() {
     meta.setSampleMark(false);
     meta.resetVisual();
-    foreach (QGraphicsItem* it, scene->items()) {
+    QList<QGraphicsItem*> sceneItems = scene->items();
+    for (QGraphicsItem* it : qAsConst(sceneItems)) {
         switch (it->type()) {
             case WorkflowProcessItemType: {
                 WorkflowProcessItem* proc = qgraphicsitem_cast<WorkflowProcessItem*>(it);
@@ -2299,12 +2301,13 @@ Workflow::Metadata WorkflowView::getMeta(const QList<WorkflowProcessItem*>& item
     result.url = meta.url;
     result.comment = meta.comment;
 
-    foreach (WorkflowProcessItem* proc, items) {
+    for (WorkflowProcessItem* proc : qAsConst(items)) {
         bool contains = false;
         ActorVisualData visual = meta.getActorVisualData(proc->getProcess()->getId(), contains);
         assert(contains);
         result.setActorVisualData(visual);
-        foreach (WorkflowPortItem* port1, proc->getPortItems()) {
+        QList<WorkflowPortItem*> portItems = proc->getPortItems();
+        for (WorkflowPortItem* port1 : qAsConst(portItems)) {
             foreach (WorkflowBusItem* bus, port1->getDataFlows()) {
                 WorkflowPortItem* port2 = (bus->getInPort() == port1) ? bus->getOutPort() : bus->getInPort();
                 WorkflowProcessItem* proc2 = port2->getOwner();
@@ -2364,7 +2367,7 @@ static bool canDrop(const QMimeData* m, QList<ActorPrototype*>& lst) {
         }
     } else {
         foreach (QList<ActorPrototype*> l, WorkflowEnv::getProtoRegistry()->getProtos().values()) {
-            foreach (ActorPrototype* proto, l) {
+            for (ActorPrototype* proto : qAsConst(l)) {
                 if (proto->isAcceptableDrop(m)) {
                     lst << proto;
                 }
@@ -2413,9 +2416,10 @@ void WorkflowScene::sl_deleteItem() {
     update();
 }
 
-QList<Actor*> WorkflowScene::getSelectedActors() const {
+const QList<Actor*> WorkflowScene::getActors(ActorsSelector sel) const {
     QList<Actor*> list;
-    foreach (QGraphicsItem* item, selectedItems()) {
+    const QList<QGraphicsItem*>  itms = sel == Selected ? selectedItems() : items();
+    for (QGraphicsItem* item : qAsConst(itms)) {
         if (item->type() == WorkflowProcessItemType) {
             list << static_cast<WorkflowProcessItem*>(item)->getProcess();
         }
@@ -2716,7 +2720,8 @@ WorkflowScene* SceneCreator::createScene() {
     foreach (Actor* actor, schema->getProcesses()) {
         WorkflowProcessItem* procItem = createProcess(actor);
         scene->addItem(procItem);
-        foreach (WorkflowPortItem* portItem, procItem->getPortItems()) {
+        QList<WorkflowPortItem*> portItems = procItem->getPortItems();
+        for (WorkflowPortItem* portItem : qAsConst(portItems)) {
             ports[portItem->getPort()] = portItem;
         }
     }

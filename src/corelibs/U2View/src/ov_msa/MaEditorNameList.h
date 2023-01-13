@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -112,7 +112,7 @@ public:
     QFont getFont(bool selected) const;
 
 signals:
-    void si_sequenceNameChanged(QString prevName, QString newName);
+    void si_sequenceNameChanged(const QString& prevName, const QString& newName);
     void si_startMaChanging();
     void si_stopMaChanging(bool modified);
 

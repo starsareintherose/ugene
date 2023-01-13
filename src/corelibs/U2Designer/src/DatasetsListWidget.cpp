@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -117,8 +117,8 @@ void DatasetsListWidget::sl_newDataset() {
 
 void DatasetsListWidget::sl_renameDataset() {
     GCOUNTER(cvar, "WD::Dataset::Rename Dataset");
-    QAction* a = dynamic_cast<QAction*>(sender());
-    CHECK(nullptr != a, );
+    auto a = dynamic_cast<QAction*>(sender());
+    CHECK(a != nullptr, );
 
     int idx = a->property("idx").toInt();
     CHECK(idx < tabs->count(), );
@@ -150,6 +150,7 @@ void DatasetsListWidget::sl_renameDataset() {
 void DatasetsListWidget::sl_contextMenu(const QPoint& p, int idx) {
     QMenu menu;
     QAction* renameAction = new QAction(tr("Rename dataset"), &menu);
+    renameAction->setObjectName("rename_dataset_action");
     renameAction->setProperty("idx", idx);
     connect(renameAction, SIGNAL(triggered()), SLOT(sl_renameDataset()));
     menu.addAction(renameAction);

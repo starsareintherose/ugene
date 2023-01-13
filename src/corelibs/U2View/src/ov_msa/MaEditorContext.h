@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -41,11 +41,11 @@ class MaCollapseModel;
  */
 class U2VIEW_EXPORT MaEditorContext {
 public:
-    MaEditorContext(MaEditor* editor);
+    MaEditorContext(MaEditor* editor, QWidget* wgt);
 
     MaEditor* const editor;
     MultipleAlignmentObject* const maObject;
-    MaEditorWgt* const ui;
+    QWidget* const ui;
     MaEditorSelectionController* const selectionController;
     MaCollapseModel* const collapseModel;
 

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@ namespace U2 {
 class TreeSettingsDialog : public BaseSettingsDialog, public Ui_TreeSettingsDialog {
     Q_OBJECT
 public:
-    TreeSettingsDialog(QWidget* parent, const OptionsMap& settings, bool isRectLayout);
+    TreeSettingsDialog(QWidget* parent, const OptionsMap& settings);
 
     void accept() override;
 

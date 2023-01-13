@@ -205,24 +205,17 @@ this merge sequence slot:</source>
         <translation>Интервал:</translation>
     </message>
     <message>
-        <location filename="../src/EditIntegerMarkerWidget.ui" line="26"/>
-        <location filename="../src/EditIntegerMarkerWidget.ui" line="67"/>
-        <location filename="../src/EditIntegerMarkerWidget.ui" line="97"/>
-        <source>radioButtonsGroup</source>
-        <translation>radioButtonsGroup</translation>
-    </message>
-    <message>
-        <location filename="../src/EditIntegerMarkerWidget.ui" line="45"/>
+        <location filename="../src/EditIntegerMarkerWidget.ui" line="42"/>
         <source>..</source>
         <translation>..</translation>
     </message>
     <message>
-        <location filename="../src/EditIntegerMarkerWidget.ui" line="64"/>
+        <location filename="../src/EditIntegerMarkerWidget.ui" line="61"/>
         <source>Less than:</source>
         <translation>Меньше чем:</translation>
     </message>
     <message>
-        <location filename="../src/EditIntegerMarkerWidget.ui" line="94"/>
+        <location filename="../src/EditIntegerMarkerWidget.ui" line="88"/>
         <source>Greater than:</source>
         <translation>Больше чем:</translation>
     </message>
@@ -242,7 +235,7 @@ this merge sequence slot:</source>
     <message>
         <location filename="../src/EditMarkerDialog.ui" line="35"/>
         <source>NewMarker</source>
-        <translation>NewMarker</translation>
+        <translation>Новый маркер</translation>
     </message>
 </context>
 <context>
@@ -260,7 +253,7 @@ this merge sequence slot:</source>
     <message>
         <location filename="../src/EditMarkerGroupDialog.ui" line="29"/>
         <source>NewMarkerGroup</source>
-        <translation>NewMarkerGroup</translation>
+        <translation>Новая группа маркеров</translation>
     </message>
     <message>
         <location filename="../src/EditMarkerGroupDialog.ui" line="36"/>
@@ -280,7 +273,7 @@ this merge sequence slot:</source>
     <message>
         <location filename="../src/EditMarkerGroupDialog.ui" line="80"/>
         <source>Edit</source>
-        <translation>Свойства</translation>
+        <translation>Редактивароть</translation>
     </message>
     <message>
         <location filename="../src/EditMarkerGroupDialog.ui" line="87"/>
@@ -301,25 +294,17 @@ this merge sequence slot:</source>
         <translation>Начиная с</translation>
     </message>
     <message>
-        <location filename="../src/EditStringMarkerWidget.ui" line="26"/>
-        <location filename="../src/EditStringMarkerWidget.ui" line="39"/>
-        <location filename="../src/EditStringMarkerWidget.ui" line="52"/>
-        <location filename="../src/EditStringMarkerWidget.ui" line="65"/>
-        <source>buttonGroup</source>
-        <translation>buttonGroup</translation>
-    </message>
-    <message>
-        <location filename="../src/EditStringMarkerWidget.ui" line="36"/>
+        <location filename="../src/EditStringMarkerWidget.ui" line="33"/>
         <source>Ends with</source>
         <translation>Заканчивая</translation>
     </message>
     <message>
-        <location filename="../src/EditStringMarkerWidget.ui" line="49"/>
+        <location filename="../src/EditStringMarkerWidget.ui" line="43"/>
         <source>Contains</source>
         <translation>Содержит</translation>
     </message>
     <message>
-        <location filename="../src/EditStringMarkerWidget.ui" line="62"/>
+        <location filename="../src/EditStringMarkerWidget.ui" line="53"/>
         <source>Regular expression</source>
         <translation>Регулярное выражение</translation>
     </message>
@@ -544,17 +529,17 @@ this merge sequence slot:</source>
     <message>
         <location filename="../src/wizard/WizardController.cpp" line="423"/>
         <source>Actors selector is already defined: %1</source>
-        <translation>Actors selector is already defined: %1</translation>
+        <translation>Селектор уже определен: %1</translation>
     </message>
     <message>
         <location filename="../src/wizard/WizardController.cpp" line="433"/>
         <source>Unknown actors selector: %1</source>
-        <translation>Unknown actors selector: %1</translation>
+        <translation>Неизвестный селектор: %1</translation>
     </message>
     <message>
         <location filename="../src/wizard/WizardController.cpp" line="438"/>
         <source>Unknown actors selector value id: %1</source>
-        <translation>Unknown actors selector value id: %1</translation>
+        <translation>Неизвестный идентификатор значения селектора: %1</translation>
     </message>
     <message>
         <location filename="../src/wizard/WizardPageController.cpp" line="83"/>
@@ -575,33 +560,27 @@ this merge sequence slot:</source>
         <translation>Соединить в одну последовательность</translation>
     </message>
     <message>
-        <location filename="../src/SequenceActionDialog.ui" line="46"/>
-        <location filename="../src/SequenceActionDialog.ui" line="102"/>
-        <source>buttonGroup</source>
-        <translation>buttonGroup</translation>
-    </message>
-    <message>
-        <location filename="../src/SequenceActionDialog.ui" line="62"/>
+        <location filename="../src/SequenceActionDialog.ui" line="59"/>
         <source>Merged sequence name</source>
         <translation>Имя общей последовательности</translation>
     </message>
     <message>
-        <location filename="../src/SequenceActionDialog.ui" line="72"/>
+        <location filename="../src/SequenceActionDialog.ui" line="69"/>
         <source>Gap size</source>
         <translation>Размер пробела</translation>
     </message>
     <message>
-        <location filename="../src/SequenceActionDialog.ui" line="99"/>
+        <location filename="../src/SequenceActionDialog.ui" line="96"/>
         <source>Merge into alignment</source>
         <translation>Соединить в выравнивание</translation>
     </message>
     <message>
-        <location filename="../src/SequenceActionDialog.ui" line="118"/>
+        <location filename="../src/SequenceActionDialog.ui" line="112"/>
         <source>Alignment name</source>
         <translation>Имя выравнивания</translation>
     </message>
     <message>
-        <location filename="../src/SequenceActionDialog.ui" line="128"/>
+        <location filename="../src/SequenceActionDialog.ui" line="122"/>
         <source>Filter duplicated sequences</source>
         <translation>Отфильтровать повторяющиеся последовательности</translation>
     </message>
@@ -697,13 +676,6 @@ bowtie index file</source>
     </message>
 </context>
 <context>
-    <name>U2::ComboBoxWithDbUrlWidget</name>
-    <message>
-        <source>Add New Connection</source>
-        <translation type="vanished">Добавить новое соединение</translation>
-    </message>
-</context>
-<context>
     <name>U2::ComboBoxWithUrlWidget</name>
     <message>
         <location filename="../src/PropertyWidget.cpp" line="366"/>
@@ -790,12 +762,12 @@ bowtie index file</source>
     <message>
         <location filename="../src/dashboard/Dashboard.cpp" line="483"/>
         <source>Error reading dashboard file: %1</source>
-        <translation>Error reading dashboard file: %1</translation>
+        <translation>Ошибка чтения файла: %1</translation>
     </message>
     <message>
         <location filename="../src/dashboard/Dashboard.cpp" line="495"/>
         <source>Error parsing dashboard file: &apos;%1&apos;, file: %2</source>
-        <translation>Error parsing dashboard file: &apos;%1&apos;, file: %2</translation>
+        <translation>Ошибка парсинга файла: &apos;%1&apos;, файл: %2</translation>
     </message>
 </context>
 <context>
@@ -826,7 +798,7 @@ bowtie index file</source>
     <message>
         <location filename="../src/dashboard/DashboardInfoRegistry.cpp" line="139"/>
         <source>Can&apos;t register a dashboard info: &apos;%1&apos;</source>
-        <translation>Can&apos;t register a dashboard info: &apos;%1&apos;</translation>
+        <translation>Не удается зарегистрировать информацию: &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -1018,22 +990,22 @@ bowtie index file</source>
 <context>
     <name>U2::GroupBox</name>
     <message>
-        <location filename="../src/wizard/WizardController.cpp" line="909"/>
+        <location filename="../src/wizard/WizardController.cpp" line="910"/>
         <source>Show</source>
         <translation>Показать</translation>
     </message>
     <message>
-        <location filename="../src/wizard/WizardController.cpp" line="914"/>
+        <location filename="../src/wizard/WizardController.cpp" line="915"/>
         <source>Hide</source>
         <translation>Скрыть</translation>
     </message>
     <message>
-        <location filename="../src/wizard/WizardController.cpp" line="934"/>
+        <location filename="../src/wizard/WizardController.cpp" line="935"/>
         <source>additional</source>
         <translation>дополнительно</translation>
     </message>
     <message>
-        <location filename="../src/wizard/WizardController.cpp" line="938"/>
+        <location filename="../src/wizard/WizardController.cpp" line="939"/>
         <source> settings</source>
         <translation> настройки</translation>
     </message>
@@ -1264,7 +1236,7 @@ Set up the folder:</source>
     <message>
         <location filename="../src/QDScheduler.h" line="138"/>
         <source>Find resultLocation</source>
-        <translation>Поиск resultLocation</translation>
+        <translation>Поиск расположения результата</translation>
     </message>
 </context>
 <context>
@@ -1293,22 +1265,12 @@ Set up the folder:</source>
         <translation>Объект аннотация недоступен</translation>
     </message>
     <message>
-        <location filename="../src/QDScheduler.cpp" line="158"/>
-        <source>Invalid applications settings detected</source>
-        <translation>Invalid applications settings detected</translation>
-    </message>
-    <message>
-        <location filename="../src/QDScheduler.cpp" line="161"/>
-        <source>Invalid users applications settings detected</source>
-        <translation>Invalid users applications settings detected</translation>
-    </message>
-    <message>
-        <location filename="../src/QDScheduler.cpp" line="367"/>
+        <location filename="../src/QDScheduler.cpp" line="368"/>
         <source>No results have been found for this scheme</source>
         <translation>Для этой схемы результатов не найдено</translation>
     </message>
     <message>
-        <location filename="../src/QDScheduler.cpp" line="484"/>
+        <location filename="../src/QDScheduler.cpp" line="485"/>
         <source>Too many results have been found for this scheme. Try to set stricter search conditions.</source>
         <translation>Было найдено очень много результатов для этой схемы. Попробуйте изменить условия поиска.</translation>
     </message>
@@ -1316,7 +1278,7 @@ Set up the folder:</source>
 <context>
     <name>U2::QDTask</name>
     <message>
-        <location filename="../src/QDScheduler.cpp" line="755"/>
+        <location filename="../src/QDScheduler.cpp" line="758"/>
         <source>Query task: %1</source>
         <translation>Запрос: %1</translation>
     </message>

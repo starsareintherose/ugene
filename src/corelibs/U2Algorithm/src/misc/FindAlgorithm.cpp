@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -156,6 +156,10 @@ static void findInAmino(FindAlgorithmResultsListener* rl,
     QByteArray revPattern(pattern);
     TextUtils::reverse(revPattern.data(), patternLen);
 
+    if (!DynTable::isAcceptableMatrixDimensions(width, height)) {
+        coreLog.error(QObject::tr("The search pattern is too long."));
+        return;
+    }
     StrandContext context[] = {
         StrandContext(width, height, insDel, pattern),
         StrandContext(width, height, insDel, pattern),
@@ -816,6 +820,10 @@ void FindAlgorithm::find(
     }
 
     try {
+        if (!DynTable::isAcceptableMatrixDimensions(width, height)) {
+            coreLog.error(QObject::tr("The search pattern is too long."));
+            return;
+        }
         StrandContext context[] = {
             StrandContext(width, height, insDel, pattern),
             StrandContext(width, height, insDel, complPattern)};

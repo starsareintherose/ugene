@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,9 @@ class SelectModelsDialog : public QDialog, public Ui_SelectModelsDialog {
     Q_OBJECT
 
 public:
-    SelectModelsDialog(const QList<int>& modelIds, const QList<int>& selectedModelIds, QWidget* parent = 0);
-    ~SelectModelsDialog();
+    SelectModelsDialog(const QList<int>& modelIds, const QList<int>& initiallySelectedModelIds, QWidget* parent);
 
+    /** Returns list of selected models. Available after the dialog is accepted. */
     const QList<int>& getSelectedModelsIds() const;
 
 public slots:
@@ -42,7 +42,7 @@ public slots:
 
     void sl_onItemDoubleClicked(QListWidgetItem* item);
 
-    void sl_onSlectAll();
+    void sl_onSelectAll();
     void sl_onInvertSelection();
 
 private:

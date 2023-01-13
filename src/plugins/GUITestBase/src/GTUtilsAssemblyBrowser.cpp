@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -296,13 +296,12 @@ void GTUtilsAssemblyBrowser::callExportCoverageDialog(HI::GUITestOpStatus& os, A
 QScrollBar* GTUtilsAssemblyBrowser::getScrollBar(GUITestOpStatus& os, Qt::Orientation orientation) {
     AssemblyBrowserUi* ui = getView(os);
     QList<QScrollBar*> scrollBars = ui->findChildren<QScrollBar*>();
-    foreach (QScrollBar* bar, scrollBars) {
+    for (QScrollBar* bar : qAsConst(scrollBars)) {
         if (bar->orientation() == orientation) {
             return bar;
         }
     }
-
-    GT_CHECK_RESULT(false, QString("Scrollbar with orientation %1 not found").arg(orientation), nullptr);
+    GT_FAIL(QString("Scrollbar with orientation %1 not found").arg(orientation), nullptr);
 }
 #undef GT_METHOD_NAME
 

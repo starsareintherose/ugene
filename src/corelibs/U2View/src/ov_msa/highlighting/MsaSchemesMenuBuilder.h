@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
 
 #include <QAction>
 #include <QList>
+#include <QSignalMapper>
 
 #include <U2Core/global.h>
 
@@ -58,6 +59,8 @@ private:
 
     static void fillColorMenuSectionForCurrentAlphabet(QList<MsaColorSchemeFactory*>& colorSchemesFactories, QList<QAction*>& actions, const QString& alphName, MaEditorSequenceArea* actionsParent);
     static void fillHighlightingMenuSectionForCurrentAlphabet(QList<MsaHighlightingSchemeFactory*>& highlightSchemesFactories, QList<QAction*>& actions, const QString&, MaEditorSequenceArea* actionsParent);
+
+    static QSignalMapper* signalMapper;
 };
 
 }  // namespace U2

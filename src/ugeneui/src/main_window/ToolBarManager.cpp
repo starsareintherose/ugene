@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ MWToolBarManagerImpl::MWToolBarManagerImpl(QMainWindow* _mw)
     : QObject(_mw), mw(_mw) {
     QToolBar* tb = createToolBar(MWTOOLBAR_MAIN);
     tb->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    createToolBar(MWTOOLBAR_ACTIVEMDI);
+    createToolBar(MWTOOLBAR_ACTIVEMDI)->setIconSize({20, 20});
 }
 
 MWToolBarManagerImpl::~MWToolBarManagerImpl() {

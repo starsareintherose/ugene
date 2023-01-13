@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -189,7 +189,7 @@ bool StringtieGeneAbundanceReportTask::mergeFpkmToReportUrl(QMap<QString, QStrin
     foreach (const QString& key, map.keys()) {
         QVector<QString> values = map[key];
         out << key;
-        foreach (const QString val, values) {
+        for (const QString& val : qAsConst(values)) {
             out << outputDelimiter << val;
         }
         out << "\n";

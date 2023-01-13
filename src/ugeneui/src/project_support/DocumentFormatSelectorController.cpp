@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -26,10 +26,12 @@
 
 #include <U2Core/DocumentImport.h>
 #include <U2Core/QObjectScopedPointer.h>
+#include <U2Core/Settings.h>
 #include <U2Core/TextUtils.h>
 #include <U2Core/U2SafePoints.h>
 
 #include <U2Gui/HelpButton.h>
+#include <U2Gui/OpenViewTask.h>
 
 namespace U2 {
 
@@ -57,10 +59,15 @@ DocumentFormatSelectorController::DocumentFormatSelectorController(QList<FormatD
     : QDialog(p), formatDetectionResults(results) {
     setupUi(this);
     new HelpButton(this, buttonBox, "65929285");
+    AppContext::getSettings()->setValue(OpenViewTask::IGNORE_MODAL_WIDGET, true);
     buttonBox->button(QDialogButtonBox::Ok)->setText(tr("OK"));
     buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
 
     setObjectName("DocumentFormatSelectorDialog");
+}
+
+DocumentFormatSelectorController::~DocumentFormatSelectorController() {
+    AppContext::getSettings()->setValue(OpenViewTask::IGNORE_MODAL_WIDGET, false);
 }
 
 int DocumentFormatSelectorController::selectResult(const GUrl& url, const QString& rawDataPreview, QList<FormatDetectionResult>& results) {

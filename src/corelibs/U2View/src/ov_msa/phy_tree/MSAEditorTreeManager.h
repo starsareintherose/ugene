@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -79,9 +79,9 @@ private:
     MSAEditor* editor;
     QPointer<MultipleSequenceAlignmentObject> msaObject;
     CreatePhyTreeSettings settings;
-    bool addExistingTree;
+    bool addExistingTree = false;
     PhyTree phyTree;
-    Document* treeDocument;
+    Document* treeDocument = nullptr;
     QMap<MSAEditorTreeViewer*, Task*> activeRefreshTasks;
 };
 

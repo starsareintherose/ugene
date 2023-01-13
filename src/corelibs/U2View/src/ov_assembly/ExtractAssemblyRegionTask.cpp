@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -83,7 +83,7 @@ void ExtractAssemblyRegionTask::run() {
     if (settings.fileFormat == BaseDocumentFormats::BAM || settings.fileFormat == BaseDocumentFormats::SAM) {
         QList<GObject*> objects;
         objects.append(settings.obj);
-        BAMUtils::writeObjects(objects, GUrl(settings.fileUrl), settings.fileFormat, stateInfo, settings.regionToExtract);
+        BAMUtils::writeObjects(objects, settings.fileUrl, settings.fileFormat, stateInfo, settings.regionToExtract);
     } else if (settings.fileFormat == BaseDocumentFormats::UGENEDB) {
         const U2DbiRef dbiRef = U2DbiRef(SQLITE_DBI_ID, settings.fileUrl);
         SAFE_POINT_OP(stateInfo, );

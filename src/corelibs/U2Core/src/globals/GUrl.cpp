@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -58,6 +58,11 @@ static QString makeFilePathCanonical(const QString& originalUrl) {
         prefix = ":";
         result = result.mid(1);
     } else {
+        // https://learn.microsoft.com/en-us/dotnet/standard/io/file-path-formats#:~:text=%5C%5C.%5CC%3A%5CTest%5CFoo.txt%20%5C%5C%3F%5CC%3A%5CTest%5CFoo.txt
+        // Paths starting with "\\.\" and "\\?\" appear to be the same, but Qt treats them differently.
+        if (result.startsWith("\\\\?\\")) {
+            result[2] = '.';
+        }
         result = QFileInfo(result).absoluteFilePath();
     }
 

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -31,17 +31,18 @@ public:
     enum style { minimal,
                  extended,
                  none };
-    enum Tabs { General,
-                Resourses,
-                Network,
-                FileFormat,
-                Directories,
-                Logging,
-                AlignmentColorScheme,
-                GenomeAligner,
-                WorkflowDesigner,
-                ExternalTools,
-                OpenCL };
+    enum Tabs {
+        General,
+        Resources,
+        Network,
+        FileFormat,
+        Directories,
+        Logging,
+        AlignmentColorScheme,
+        GenomeAligner,
+        WorkflowDesigner,
+        ExternalTools
+    };
     AppSettingsDialogFiller(HI::GUITestOpStatus& _os, style _itemStyle = extended)
         : Filler(_os, "AppSettingsDialog"),
           itemStyle(_itemStyle), r(-1), g(-1), b(-1) {

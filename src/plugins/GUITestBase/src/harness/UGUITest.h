@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -112,7 +112,7 @@ public:
 #define GUI_TEST_CLASS_DECLARATION(className) \
     class className : public UGUITest { \
     public: \
-        className(int timeout = DEFAULT_GUI_TEST_TIMEOUT, const QStringList& labelList = QStringList()) \
+        className(int timeout = DEFAULT_GUI_TEST_TIMEOUT, const QStringList &labelList = QStringList()) \
             : UGUITest(TESTNAME(className), SUITENAME(className), timeout, labelList.toSet()) { \
         } \
 \

@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -67,8 +67,6 @@ public:
     static void closeActiveWindow(HI::GUITestOpStatus& os);
     static void closeWindow(HI::GUITestOpStatus& os, const QString& windowName, const GTGlobals::FindOptions& = GTGlobals::FindOptions());
     static void closeAllWindows(HI::GUITestOpStatus& os);
-
-    static bool isTabbedLayout(HI::GUITestOpStatus& os);
 
     static QTabBar* getTabBar(HI::GUITestOpStatus& os);
     static int getCurrentTab(HI::GUITestOpStatus& os);

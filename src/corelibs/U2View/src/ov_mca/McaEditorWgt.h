@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@ namespace U2 {
 class McaEditor;
 class McaEditorConsensusArea;
 class McaEditorNameList;
+class MaEditorOverviewArea;
 class McaEditorReferenceArea;
 class McaEditorSequenceArea;
 class McaReferenceCharController;
@@ -52,10 +53,10 @@ public:
 protected:
     void initActions() override;
     void initSeqArea(GScrollBar* shBar, GScrollBar* cvBar) override;
-    void initOverviewArea() override;
+    void initOverviewArea(MaEditorOverviewArea* overviewArea = nullptr) override;
     void initNameList(QScrollBar* nhBar) override;
     void initConsensusArea() override;
-    void initStatusBar() override;
+    void initStatusBar(MaEditorStatusBar* statusBar = nullptr) override;
 
 private:
     McaEditorReferenceArea* refArea;

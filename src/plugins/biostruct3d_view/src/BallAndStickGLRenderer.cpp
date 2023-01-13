@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -18,8 +18,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
-
-#include <time.h>
 
 #include <U2Core/BioStruct3D.h>
 #include <U2Core/Log.h>
@@ -165,15 +163,12 @@ void BallAndStickGLRenderer::createDisplayList() {
 
     glNewList(dl, GL_COMPILE);
 
-    foreach (const SharedMolecule mol, bioStruct.moleculeMap) {
+    for (const SharedMolecule& mol : qAsConst(bioStruct.moleculeMap)) {
         foreach (int index, shownModelsIds) {
             const Molecule3DModel& model = mol->models.value(index);
-
             colors.clear();
-
-            foreach (const SharedAtom atom, model.atoms) {
+            for (const SharedAtom& atom : qAsConst(model.atoms)) {
                 Color4f atomColor = colorScheme->getAtomColor(atom);
-
                 if (colors.contains(atomColor)) {
                     continue;  // Atom and bonds with this color has been already viewed
                 } else {

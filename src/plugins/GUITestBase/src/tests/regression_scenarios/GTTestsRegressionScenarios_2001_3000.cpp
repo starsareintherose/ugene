@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -2567,20 +2567,15 @@ GUI_TEST_CLASS_DEFINITION(test_2432) {
 }
 
 GUI_TEST_CLASS_DEFINITION(test_2449) {
-    //    1. Open "COI.aln".
     GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/", "COI.aln");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    //    2. Create a phylogenetic tree for the alignment.
+    // Create a phylogenetic tree for the alignment.
     GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, sandBoxDir + "test_2449.nwk", 0, 0, true));
     GTMenu::clickMainMenuItem(os, {"Actions", "Tree", "Build Tree"});
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    //    3. Open tree options panel widget (it can be opened automatically after tree building).
-    //    4. Open font settings on the OP widget.
-    GTWidget::click(os, GTWidget::findWidget(os, "lblFontSettings"));
-
-    //    There is a font size spinbox. You can set zero value to it: in this case font has its standard size (on mac), but this value is incorrect.
+    // There is a font size spinbox. You can set zero value to it: in this case font has its standard size (on Mac), but this value is incorrect.
     auto sizeSpinBox = GTWidget::findSpinBox(os, "fontSizeSpinBox");
 
     GTWidget::setFocus(os, sizeSpinBox);
@@ -2754,7 +2749,7 @@ GUI_TEST_CLASS_DEFINITION(test_2482) {
     GTWidget::click(os, GTWidget::findWidget(os, "Layout"));
 
     // 3. Select any node in the tree that is not a leaf.
-    QList<GraphicsButtonItem*> items = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> items = GTUtilsPhyTree::getNodes(os);
     CHECK_SET_ERR(items.size() >= 4, "Incorrect tree size");
 
     QPoint nodeCoords = GTUtilsPhyTree::getGlobalCenterCoord(os, items.at(3));
@@ -2780,7 +2775,7 @@ GUI_TEST_CLASS_DEFINITION(test_2487) {
     GTFileDialog::openFile(os, dataDir + "samples/Newick/", "COI.nwk");
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    QList<GraphicsButtonItem*> items = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> items = GTUtilsPhyTree::getNodes(os);
     CHECK_SET_ERR(!items.empty(), "Tree is empty");
 
     QPoint rootCoords = GTUtilsPhyTree::getGlobalCenterCoord(os, items.first());
@@ -2856,7 +2851,7 @@ GUI_TEST_CLASS_DEFINITION(test_2513) {
 
     //    Select the last node, then call a context menu for it. It contains two menu items: "swap siblings" and "reroot".
     // The first one should be always disabled (for the tree leafs), the second one should be always enabled.
-    QList<GraphicsButtonItem*> nodes = GTUtilsPhyTree::getNodes(os);
+    QList<TvNodeItem*> nodes = GTUtilsPhyTree::getNodes(os);
     CHECK_SET_ERR(!nodes.isEmpty(), "Nodes list is empty");
 
     GTUtilsPhyTree::clickNode(os, nodes[25]);
@@ -3436,7 +3431,7 @@ GUI_TEST_CLASS_DEFINITION(test_2605) {
     // 2. Export subalignment from this msa to any MSA format
     GTUtilsDialog::add(os, new PopupChooser(os, {MSAE_MENU_EXPORT, "Save subalignment"}));
     GTUtilsDialog::add(os, new ExtractSelectedAsMSADialogFiller(os, testDir + "_common_data/scenarios/sandbox/2605.aln", {"SEQUENCE_1"}, 6, 237));
-    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "msa_editor_sequence_area"));
+    GTMenu::showContextMenu(os, GTUtilsMSAEditorSequenceArea::getSequenceArea(os, 0));
 
     // Expected state: export successfull, no any messages in log like "There is no sequence objects in given file, unable to convert it in multiple alignment"
     CHECK_SET_ERR(!logTracer.hasErrors(), "Errors in log: " + logTracer.getJoinedErrorString());
@@ -3599,7 +3594,7 @@ GUI_TEST_CLASS_DEFINITION(test_2640) {
     public:
         void run(HI::GUITestOpStatus& os) {
             QWidget* dialog = GTWidget::getActiveModalWidget(os);
-            AppSettingsDialogFiller::openTab(os, AppSettingsDialogFiller::Resourses);
+            AppSettingsDialogFiller::openTab(os, AppSettingsDialogFiller::Resources);
             auto cpuBox = GTWidget::findSpinBox(os, "cpuBox", dialog);
             GTSpinBox::setValue(os, cpuBox, 94, GTGlobals::UseKeyBoard);
             GTUtilsDialog::clickButtonBox(os, dialog, QDialogButtonBox::Ok);
@@ -4142,7 +4137,7 @@ GUI_TEST_CLASS_DEFINITION(test_2761_2) {
     GTUtilsDialog::add(os, new PopupChooser(os, {MSAE_MENU_EXPORT, "Save subalignment"}));
     GTUtilsDialog::add(os, new customFiller(os));
     GTMouseDriver::click(Qt::RightButton);
-    //    4. Set the destination path to the dir that does not exists
+    //    4. Set the destination path to the dir that does not exist.
     //    5. Click "Extract".
     //    Expected: the message about write permissions to the dir appears. The extraction task is not run.
 }
@@ -4152,7 +4147,7 @@ GUI_TEST_CLASS_DEFINITION(test_2762) {
     2. Close the project.
         Expected state: a dialog will appear that offer you to save the project.
     3. Press escape key.
-        Expected state: the dialog will closed as canceled.
+        Expected state: the dialog will be closed as canceled.
 */
     class EscClicker : public Filler {
     public:
@@ -4289,7 +4284,7 @@ GUI_TEST_CLASS_DEFINITION(test_2784) {
     QAbstractButton* undoButton = GTAction::button(os, "msa_action_undo");
     CHECK_SET_ERR(!undoButton->isEnabled(), "'Undo' button is unexpectedly enabled");
 
-    // 2. Choose in the context menu{ Align->Align with MUSCLE… }
+    // 2. Choose in the context menu: Align->Align with MUSCLE….
     // Expected state : The "Align with MUSCLE" dialog has appeared
     // 3. Check the "Translation to amino when aligning" checkbox and press "Align"
     GTUtilsMSAEditorSequenceArea::selectArea(os, QPoint(41, 0), QPoint(43, 17));
@@ -4372,7 +4367,7 @@ GUI_TEST_CLASS_DEFINITION(test_2801) {
     GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {MSAE_MENU_ALIGN, "Align with MAFFT"}));
     GTWidget::click(os, GTUtilsMdi::activeWindow(os), Qt::RightButton);
 
-    // 3. Cancel the align task.
+    // 3. Cancel "align" task.
     GTUtilsTaskTreeView::openView(os);
     GTUtilsTaskTreeView::checkTaskIsPresent(os, "Run MAFFT alignment task");
     GTUtilsTaskTreeView::cancelTask(os, "Run MAFFT alignment task");
@@ -4402,7 +4397,7 @@ GUI_TEST_CLASS_DEFINITION(test_2801_1) {
 GUI_TEST_CLASS_DEFINITION(test_2808) {
     //    1. Open WD.
     //    2. Add "Sequence Marker" element to the scene, select it.
-    //    Expected state: there are buttons on the parameters widget: "add", "edit" and "remove". The "add" button is enabled, other buttons are disabled.
+    //    Expected state: there are buttons on the "parameters" widget: "add", "edit" and "remove". The "add" button is enabled, other buttons are disabled.
     //    3. Add a new marker group (click the "add" button and fill the dialog).
     //    Expected state: a new group was added, there is no selection in the marker group list, the "add" button is enabled, other buttons are disabled.
     //    4. Select the added group.

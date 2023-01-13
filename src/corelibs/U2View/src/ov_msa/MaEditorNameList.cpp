@@ -1,6 +1,6 @@
 /**
  * UGENE - Integrated Bioinformatics Tools.
- * Copyright (C) 2008-2022 UniPro <ugene@unipro.ru>
+ * Copyright (C) 2008-2023 UniPro <ugene@unipro.ru>
  * http://ugene.net
  *
  * This program is free software; you can redistribute it and/or
@@ -845,7 +845,7 @@ void MaEditorNameList::sl_editSequenceName() {
     bool isMca = maObj->getGObjectType() == GObjectTypes::MULTIPLE_CHROMATOGRAM_ALIGNMENT;
     QString title = isMca ? tr("Rename Read") : tr("Rename Sequence");
     bool ok = false;
-    QString newName = QInputDialog::getText(ui, title, tr("New name:"), QLineEdit::Normal, curName, &ok);
+    QString newName = QInputDialog::getText(editor->getUI(), title, tr("New name:"), QLineEdit::Normal, curName, &ok);
 
     if (ok && !newName.isEmpty() && curName != newName) {
         emit si_sequenceNameChanged(curName, newName);
