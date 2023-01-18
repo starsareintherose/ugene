@@ -32,6 +32,7 @@
 #include <U2Core/DNASequenceObject.h>
 #include <U2Core/DbiDocumentFormat.h>
 #include <U2Core/DocumentImport.h>
+#include <U2Core/FileFilters.h>
 #include <U2Core/GObject.h>
 #include <U2Core/GObjectUtils.h>
 #include <U2Core/GUrl.h>
@@ -48,6 +49,7 @@
 #include <U2Core/SelectionUtils.h>
 #include <U2Core/Settings.h>
 #include <U2Core/U2SafePoints.h>
+#include <U2Core/U2OpStatusUtils.h>
 #include <U2Core/UserApplicationsSettings.h>
 
 #include <U2Gui/ExportDocumentDialogController.h>
@@ -439,15 +441,8 @@ static void saveGroupMode(ProjectTreeGroupMode m) {
 //////////////////////////////////////////////////////////////////////////
 // ProjectViewImpl
 ProjectViewImpl::ProjectViewImpl()
-    : ProjectView(tr("ProjectView"), tr("ProjectView service provides basic project visualization and manipulation functionality")) {
-    w = nullptr;
-    projectTreeController = nullptr;
-    objectViewController = nullptr;
-    saveSelectedDocsAction = nullptr;
-    relocateDocumentAction = nullptr;
-    toggleCircularAction = nullptr;
-    openContainingFolder = nullptr;
-    saveProjectOnClose = false;
+    : ProjectView(tr("ProjectView"),
+      tr("ProjectView service provides basic project visualization and manipulation functionality")) {
 
     // todo: move it somewhere else -> object views could be openend without project view service active
     registerBuiltInObjectViews();
@@ -487,6 +482,9 @@ void ProjectViewImpl::enable() {
     toggleCircularAction = new QAction(tr("Mark as circular"), w);
     toggleCircularAction->setCheckable(true);
     connect(toggleCircularAction, SIGNAL(triggered()), SLOT(sl_onToggleCircular()));
+
+    setAssemblyReferencesFromFile = new QAction(tr("Set reference(s)"), w);
+    connect(setAssemblyReferencesFromFile, &QAction::triggered, this, &ProjectViewImpl::sl_onSetAssemblyReferencesFromFileTriggered);
 
     relocateDocumentAction = new QAction(tr("Relocate..."), w);
     relocateDocumentAction->setIcon(QIcon(":ugene/images/relocate.png"));
@@ -1010,6 +1008,7 @@ void ProjectViewImpl::buildViewMenu(QMenu& m) {
         bool seqobjFound = false;
         bool allCirc = true;
         bool allNucl = true;
+        bool allAssemblies = true;
         foreach (GObject* obj, objsSelection->getSelectedObjects()) {
             const bool objectIsModifiable = (!obj->isStateLocked());
             if (obj->getGObjectType() == GObjectTypes::SEQUENCE && objectIsModifiable) {
@@ -1022,10 +1021,16 @@ void ProjectViewImpl::buildViewMenu(QMenu& m) {
                     allCirc = false;
                 }
             }
+            if (obj->getGObjectType() != GObjectTypes::ASSEMBLY) {
+                allAssemblies = false;
+            }
         }
         if (seqobjFound && allNucl) {
             toggleCircularAction->setChecked(allCirc);
             m.addAction(toggleCircularAction);
+        }
+        if (allAssemblies) {
+            m.addAction(setAssemblyReferencesFromFile);
         }
     }
 
@@ -1149,10 +1154,73 @@ void ProjectViewImpl::sl_onToggleCircular() {
         const bool objectIsModifiable = (!obj->isStateLocked());
         if (objectIsModifiable && obj->getGObjectType() == GObjectTypes::SEQUENCE) {
             U2SequenceObject* casted = qobject_cast<U2SequenceObject*>(obj);
-            SAFE_POINT(obj != nullptr, "casting to 'U2SequenceObject' failed", );
+            SAFE_POINT(casted != nullptr, "casting to 'U2SequenceObject' failed", );
             casted->setCircular(toggleCircularAction->isChecked());
             projectTreeController->refreshObject(casted);
         }
+    }
+}
+
+void ProjectViewImpl::sl_onSetAssemblyReferencesFromFileTriggered() {
+    LastUsedDirHelper h;
+    auto fileFilter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE });
+    auto defaultFilter = FileFilters::createFileFilterByDocumentFormatId(BaseDocumentFormats::FASTA);
+    auto selectedFiles = U2FileDialog::getOpenFileNames(dynamic_cast<QWidget*>(AppContext::getMainWindow()), tr("Open file with reference(s)"), h.dir, fileFilter, defaultFilter);
+    CHECK(!selectedFiles.isEmpty(), );
+
+    QStringList assemblyNames;
+    const GObjectSelection* objSelection = getGObjectSelection();
+    const auto& selectedObjects = objSelection->getSelectedObjects();
+    for (auto obj : qAsConst(selectedObjects)) {
+        SAFE_POINT(obj->getGObjectType() == GObjectTypes::ASSEMBLY, "Incorrect object type", );
+
+        assemblyNames << obj->getGObjectName();
+    }
+
+    QList<U2SequenceObject*> alreadyLoadedSequences;
+    auto findReferenceSequencesInDocument = [&alreadyLoadedSequences, &assemblyNames](Document* doc) {
+        auto docObjects = doc->getObjects();
+        for (auto obj : qAsConst(docObjects)) {
+            CHECK_CONTINUE(obj->getGObjectType() == GObjectTypes::SEQUENCE);
+
+            auto casted = qobject_cast<U2SequenceObject*>(obj);
+            SAFE_POINT(casted != nullptr, L10N::nullPointerError("U2SequenceObject"), );
+            CHECK_CONTINUE(assemblyNames.contains(casted->getSequenceName()));
+
+            alreadyLoadedSequences << casted;
+        }
+    };
+    QList<LoadDocumentTask*> loadTasks;
+    for (const auto& filePath : qAsConst(selectedFiles)) {
+        if (ProjectUtils::hasLoadedDocument(filePath)) {
+            auto document = ProjectUtils::findDocument(filePath);
+            SAFE_POINT(document != nullptr, L10N::nullPointerError("Document"));
+
+            findReferenceSequencesInDocument(document);
+        } else {
+            U2OpStatus2Log os;
+            auto loadDocTask = LoadDocumentTask::getDefaultLoadDocTask(os, filePath);
+            CHECK_OP_CONTINUE(os);
+
+            AppContext::getTaskScheduler()->registerTopLevelTask(loadDocTask);
+            loadTasks << loadDocTask;
+            connect(loadDocTask, &LoadDocumentTask::si_stateChanged, this, [&]() {
+                auto loadTask = qobject_cast<LoadDocumentTask*>(sender());
+                SAFE_POINT(loadTask != nullptr, L10N::nullPointerError("LoadDocumentTask"), );
+                CHECK(loadTask->getState() == Task::State_Finished, );
+
+                auto loadedDocument = loadTask->getDocument();
+                SAFE_POINT(loadedDocument != nullptr, L10N::nullPointerError("Document"));
+
+                findReferenceSequencesInDocument(loadedDocument);
+                loadTasks.removeOne(loadTask);
+                CHECK(loadTasks.isEmpty(), );
+
+                int i = 0;
+
+            });
+        }
+
     }
 }
 

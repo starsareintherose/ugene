@@ -144,6 +144,9 @@ public:
 /** Checks if 'os' has error or is cancelled and calls 'break' if it does. */
 #define CHECK_OP_BREAK(os) CHECK_BREAK(!os.isCoR())
 
+/** Checks if 'os' has error or is cancelled and calls 'continue' if it does. */
+#define CHECK_OP_CONTINUE(os) CHECK_CONTINUE(!os.isCoR())
+
 /** Checks if 'os' has error or is cancelled and executes 'extraOp' and returns 'result' if it does. */
 #define CHECK_OP_EXT(os, extraOp, result) CHECK_EXT(!(os.isCoR()), extraOp, result)
 
