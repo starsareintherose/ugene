@@ -283,16 +283,30 @@ void MWDockManagerImpl::openDock(DockData* d) {
 }
 
 void MWDockManagerImpl::closeDock(DockData* d) {
+    QString t;
+    coreLog.info(QString("dock: %1").arg(t.sprintf("%08p", d)));
+    coreLog.info(QString("d->area: %1").arg(t.sprintf("%08p", d->area)));
+    coreLog.info(QString("d->area: %1").arg(t.sprintf("%08p", d->wrapWidget)));
+    coreLog.info("1 check");
     activeDocks[d->area] = nullptr;
+    coreLog.info("2 check");
     if (d->wrapWidget != nullptr) {  // widget is closed manually by user ->detach it from its parent to avoid deletion on d->dock->close();
+        coreLog.info("3 check");
         DockWidgetPainter::updateLabel(d, false);
+        coreLog.info("4 check");
         saveDockGeometry(d);
+        coreLog.info("5 check");
         lastActiveDocksState[d->area].clear();
+        coreLog.info("6 check");
         d->wrapWidget->setParent(nullptr);
+        coreLog.info("7 check");
         d->wrapWidget->setVisible(false);
+        coreLog.info("8 check");
     }
     d->dock->close();  // will delete dock widget because of Qt::WA_DeleteOnClose
+    coreLog.info("9 check");
     d->dock = nullptr;
+    coreLog.info("10 check");
 }
 
 void MWDockManagerImpl::destroyDockData(DockData* d) {
