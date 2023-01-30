@@ -285,7 +285,7 @@ void MWDockManagerImpl::openDock(DockData* d) {
 void MWDockManagerImpl::closeDock(DockData* d) {
     QString t;
     coreLog.info(QString("dock: %1").arg(t.sprintf("%08p", d)));
-    coreLog.info(QString("d->area: %1").arg(t.sprintf("%08p", d->area)));
+    coreLog.info(QString("d->area: %1").arg(d->area));
     coreLog.info(QString("d->area: %1").arg(t.sprintf("%08p", d->wrapWidget)));
     coreLog.info("1 check");
     activeDocks[d->area] = nullptr;
