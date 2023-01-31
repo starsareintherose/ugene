@@ -1059,5 +1059,29 @@ GUI_TEST_CLASS_DEFINITION(test_0038) {
     CHECK_SET_ERR(readsCount > 1000000, QString("Unexpected reads count, expected: >1000000, current: %1").arg(readsCount));
 }
 
+GUI_TEST_CLASS_DEFINITION(test_0039) {
+    // Backup _common_data/ugenedb/two_assemblies.ugenedb
+    // Open two_assemblies.ugenedb
+    // Select "first" and "second" objects in project view
+    // Click the right mouse button
+    // Choose "Set reference(s)"
+    // Choose _common_data/fasta/two_assembly_references.fa
+    GTFile::copy(os, testDir + "_common_data/ugenedb/two_assemblies.ugenedb", sandBoxDir + "two_assemblies.ugenedb");
+    GTFileDialog::openFile(os, sandBoxDir, "two_assemblies.ugenedb");
+    GTUtilsProjectTreeView::click(os, "first", "two_assemblies.ugenedb");
+    GTKeyboardDriver::keyPress(Qt::Key_Control);
+    GTUtilsProjectTreeView::click(os, "second", "two_assemblies.ugenedb");
+    GTKeyboardDriver::keyRelease(Qt::Key_Control);
+    GTUtilsDialog::waitForDialog(os, new GTFileDialogUtils(os, testDir + "_common_data/fasta/", "two_assembly_references.fa"));
+    GTUtilsProjectTreeView::clickSetReferences(os, "first");
+
+
+
+
+
+
+}
+
+
 }  // namespace GUITest_Assembly_browser
 }  // namespace U2

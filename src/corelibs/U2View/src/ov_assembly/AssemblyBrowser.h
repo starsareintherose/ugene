@@ -196,6 +196,7 @@ private slots:
     void sl_referenceChanged();
     void sl_trackRemoved(VariantTrackObject* obj);
     void sl_setReference();
+    void sl_setReference(GObject* reference);
     void sl_onReferenceLoaded();
 
 private:

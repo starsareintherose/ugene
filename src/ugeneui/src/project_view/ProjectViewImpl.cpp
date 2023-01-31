@@ -61,6 +61,7 @@
 #include <U2Gui/ProjectUtils.h>
 #include <U2Gui/ReloadDocumentsTask.h>
 
+#include <U2View/AddReferencesToAssembliesByNameTask.h>
 #include <U2View/ADVSingleSequenceWidget.h>
 #include <U2View/AnnotatedDNAView.h>
 
@@ -1164,64 +1165,11 @@ void ProjectViewImpl::sl_onToggleCircular() {
 void ProjectViewImpl::sl_onSetAssemblyReferencesFromFileTriggered() {
     LastUsedDirHelper h;
     auto fileFilter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE });
-    auto defaultFilter = FileFilters::createFileFilterByDocumentFormatId(BaseDocumentFormats::FASTA);
+    auto defaultFilter = FileFilters::createSingleFileFilterByDocumentFormatId(BaseDocumentFormats::FASTA);
     auto selectedFiles = U2FileDialog::getOpenFileNames(dynamic_cast<QWidget*>(AppContext::getMainWindow()), tr("Open file with reference(s)"), h.dir, fileFilter, defaultFilter);
     CHECK(!selectedFiles.isEmpty(), );
 
-    QStringList assemblyNames;
-    const GObjectSelection* objSelection = getGObjectSelection();
-    const auto& selectedObjects = objSelection->getSelectedObjects();
-    for (auto obj : qAsConst(selectedObjects)) {
-        SAFE_POINT(obj->getGObjectType() == GObjectTypes::ASSEMBLY, "Incorrect object type", );
-
-        assemblyNames << obj->getGObjectName();
-    }
-
-    QList<U2SequenceObject*> alreadyLoadedSequences;
-    auto findReferenceSequencesInDocument = [&alreadyLoadedSequences, &assemblyNames](Document* doc) {
-        auto docObjects = doc->getObjects();
-        for (auto obj : qAsConst(docObjects)) {
-            CHECK_CONTINUE(obj->getGObjectType() == GObjectTypes::SEQUENCE);
-
-            auto casted = qobject_cast<U2SequenceObject*>(obj);
-            SAFE_POINT(casted != nullptr, L10N::nullPointerError("U2SequenceObject"), );
-            CHECK_CONTINUE(assemblyNames.contains(casted->getSequenceName()));
-
-            alreadyLoadedSequences << casted;
-        }
-    };
-    QList<LoadDocumentTask*> loadTasks;
-    for (const auto& filePath : qAsConst(selectedFiles)) {
-        if (ProjectUtils::hasLoadedDocument(filePath)) {
-            auto document = ProjectUtils::findDocument(filePath);
-            SAFE_POINT(document != nullptr, L10N::nullPointerError("Document"));
-
-            findReferenceSequencesInDocument(document);
-        } else {
-            U2OpStatus2Log os;
-            auto loadDocTask = LoadDocumentTask::getDefaultLoadDocTask(os, filePath);
-            CHECK_OP_CONTINUE(os);
-
-            AppContext::getTaskScheduler()->registerTopLevelTask(loadDocTask);
-            loadTasks << loadDocTask;
-            connect(loadDocTask, &LoadDocumentTask::si_stateChanged, this, [&]() {
-                auto loadTask = qobject_cast<LoadDocumentTask*>(sender());
-                SAFE_POINT(loadTask != nullptr, L10N::nullPointerError("LoadDocumentTask"), );
-                CHECK(loadTask->getState() == Task::State_Finished, );
-
-                auto loadedDocument = loadTask->getDocument();
-                SAFE_POINT(loadedDocument != nullptr, L10N::nullPointerError("Document"));
-
-                findReferenceSequencesInDocument(loadedDocument);
-                loadTasks.removeOne(loadTask);
-                CHECK(loadTasks.isEmpty(), );
-
-                int i = 0;
-
-            });
-        }
-
-    }
+    AppContext::getTaskScheduler()->registerTopLevelTask(new AddReferencesToAssembliesByNameTask(getGObjectSelection(), selectedFiles));
 }
 
 void ProjectViewImpl::sl_onOpenContainingFolder() {

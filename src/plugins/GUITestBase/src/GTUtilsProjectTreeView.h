@@ -128,6 +128,9 @@ public:
 
     static void markSequenceAsCircular(HI::GUITestOpStatus& os, const QString& sequenceObjectName);
 
+    /* CLick the "Set reference(s)" menu (avaliable if assemblies selected only) */
+    static void clickSetReferences(HI::GUITestOpStatus& os, const QString& sequenceObjectName);
+
     // Get all documents names with their object names (database connections are processed incorrectly)
     static QMap<QString, QStringList> getDocuments(HI::GUITestOpStatus& os);
     

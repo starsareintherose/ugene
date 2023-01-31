@@ -186,6 +186,10 @@ U2EntityRef AssemblyObject::dbi2dbiExtractRegion(const AssemblyObject* const src
     return dstEntityRef;
 }
 
+void AssemblyObject::emitSetReference(GObject* reference) {
+    emit si_setReference(reference);
+}
+
 U2EntityRef AssemblyObject::dbi2dbiClone(const AssemblyObject* const srcObj, const U2DbiRef& dstDbiRef, U2OpStatus& os, const QVariantMap& hints) {
     return dbi2dbiExtractRegion(srcObj, dstDbiRef, os, U2_REGION_MAX, hints);
 }

@@ -109,6 +109,7 @@ AssemblyBrowser::AssemblyBrowser(QString viewName, AssemblyObject* o)
         const U2EntityRef& ref = gobject->getEntityRef();
         model = QSharedPointer<AssemblyModel>(new AssemblyModel(DbiConnection(ref.dbiRef, dbiOpStatus)));
         connect(model.data(), SIGNAL(si_referenceChanged()), SLOT(sl_referenceChanged()));
+        connect(gobject, &AssemblyObject::si_setReference, this, qOverload<GObject*>(&AssemblyBrowser::sl_setReference));
         assemblyLoaded();
         CHECK_OP(dbiOpStatus, );
     }
@@ -1064,6 +1065,13 @@ void AssemblyBrowser::sl_setReference() {
         tryAddObject(objects.first());
     } else {
         QMessageBox::information(ui, tr("Choose Reference Sequence"), tr("An error occurred while setting reference to \"%1\". You have more than one sequence object selected in the Project View. Please select only one object and try again.").arg(gobject->getGObjectName()), QMessageBox::Ok);
+    }
+}
+
+void AssemblyBrowser::sl_setReference(GObject* reference) {
+    auto error = tryAddObject(reference);
+    if (!error.isEmpty()) {
+        coreLog.error(tr("Can't add %1 as reference: %2").arg(reference->getGObjectName()).arg(error));
     }
 }
 

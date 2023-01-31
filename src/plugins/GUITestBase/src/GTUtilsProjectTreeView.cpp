@@ -713,6 +713,14 @@ void GTUtilsProjectTreeView::markSequenceAsCircular(HI::GUITestOpStatus& os, con
 }
 #undef GT_METHOD_NAME
 
+#define GT_METHOD_NAME "clickSetReferences"
+void GTUtilsProjectTreeView::clickSetReferences(HI::GUITestOpStatus& os, const QString& sequenceObjectName) {
+    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, { "Set reference(s)" }));
+    click(os, sequenceObjectName, Qt::RightButton);
+
+}
+#undef GT_METHOD_NAME
+
 #define GT_METHOD_NAME "getDocuments"
 QMap<QString, QStringList> GTUtilsProjectTreeView::getDocuments(GUITestOpStatus& os) {
     ensureFilteringIsDisabled(os);
