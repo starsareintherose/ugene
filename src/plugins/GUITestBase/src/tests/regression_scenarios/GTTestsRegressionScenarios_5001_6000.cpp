@@ -1845,6 +1845,24 @@ GUI_TEST_CLASS_DEFINITION(test_5469) {
     CHECK_SET_ERR(GTUtilsAnnotationsTreeView::getAllSelectedItems(os).size() == 2, QString("Wrong number of selected annotations expect %1, got %2").arg("2").arg(GTUtilsAnnotationsTreeView::getAllSelectedItems(os).size()));
 }
 
+GUI_TEST_CLASS_DEFINITION(test_5485) {
+    // WD Sample: Extract coverage from assembly
+    GTUtilsWorkflowDesigner::openWorkflowDesigner(os);
+
+    GTUtilsWorkflowDesigner::addSample(os, "Extract coverage from assembly");
+    GTKeyboardDriver::keyClick(Qt::Key_Escape);
+
+    GTUtilsWorkflowDesigner::click(os, "Read Assembly");
+
+    GTUtilsWorkflowDesigner::setDatasetInputFile(os, dataDir + "samples/Assembly/chrM.sam");
+
+    // Run workflow
+    GTUtilsWorkflowDesigner::runWorkflow(os);
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    //Expected: The execution of that workflow ends without assert.
+}
+
 GUI_TEST_CLASS_DEFINITION(test_5492) {
     QString filePath = testDir + "_common_data/sanger/alignment_short.ugenedb";
     QString fileName = "sanger_alignment_short.ugenedb";
