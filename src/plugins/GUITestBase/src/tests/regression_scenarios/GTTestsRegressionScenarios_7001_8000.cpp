@@ -241,6 +241,22 @@ GUI_TEST_CLASS_DEFINITION(test_7022) {
 }
 
 GUI_TEST_CLASS_DEFINITION(test_7037) {
+    // Select "Tools->NGS data analysis->Extract coverage from assemblies..."
+    GTUtilsWorkflowDesigner::openWorkflowDesigner(os);
+
+    GTMenu::clickMainMenuItem(os, {"Tools", "NGS data analysis", "Extract coverage from assemblies..."});
+
+    GTKeyboardDriver::keyClick(Qt::Key_Escape);
+
+    GTUtilsWorkflowDesigner::click(os, "Read Assembly");
+
+    GTUtilsWorkflowDesigner::setDatasetInputFile(os, dataDir + "samples/Assembly/chrM.sam");
+
+    // Run workflow
+    GTUtilsWorkflowDesigner::runWorkflow(os);
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    //Expected: The execution of that workflow ends without assert.
 }
 
 GUI_TEST_CLASS_DEFINITION(test_7043) {
