@@ -240,6 +240,9 @@ GUI_TEST_CLASS_DEFINITION(test_7022) {
     CHECK_SET_ERR(text == expected, QString("Unexpected annotation, expected: %1, current: %2").arg(expected).arg(text));
 }
 
+GUI_TEST_CLASS_DEFINITION(test_7037) {
+}
+
 GUI_TEST_CLASS_DEFINITION(test_7043) {
     // Check that you see 3D struct is rendered correctly.
     GTFileDialog::openFile(os, dataDir + "samples/PDB/1CF7.PDB");
