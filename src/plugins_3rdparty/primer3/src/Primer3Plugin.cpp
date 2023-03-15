@@ -25,7 +25,7 @@
 #include <QMap>
 #include <QMessageBox>
 
-#include <U2Algorithm/TempCalcRegistry.h>
+#include <U2Algorithm/TmCalculatorRegistry.h>
 
 #include <U2Core/AppContext.h>
 #include <U2Core/AppSettings.h>
@@ -45,7 +45,7 @@
 
 #include "Primer3Dialog.h"
 #include "Primer3Query.h"
-#include "temperature/Primer3TempCalcFactory.h"
+#include "temperature/Primer3TmCalculatorFactory.h"
 
 namespace U2 {
 
@@ -64,12 +64,12 @@ Primer3Plugin::Primer3Plugin()
     QDActorPrototypeRegistry* qdpr = AppContext::getQDActorProtoRegistry();
     qdpr->registerProto(new QDPrimerActorPrototype());
 
-    AppContext::getTempCalcRegistry()->registerEntry(new Primer3TempCalcFactory);
+    AppContext::getTmCalculatorRegistry()->registerEntry(new Primer3TmCalculatorFactory);
 
     //////////////////////////////////////////////////////////////////////////
     // tests
     GTestFormatRegistry* tfr = AppContext::getTestFramework()->getTestFormatRegistry();
-    XMLTestFormat* xmlTestFormat = qobject_cast<XMLTestFormat*>(tfr->findFormat("XML"));
+    auto xmlTestFormat = qobject_cast<XMLTestFormat*>(tfr->findFormat("XML"));
     SAFE_POINT(xmlTestFormat != nullptr, L10N::nullPointerError("XMLTestFormat"), );
 
     GAutoDeleteList<XMLTestFactory>* l = new GAutoDeleteList<XMLTestFactory>(this);
@@ -85,8 +85,8 @@ Primer3ADVContext::Primer3ADVContext(QObject* p)
     : GObjectViewWindowContext(p, ANNOTATED_DNA_VIEW_FACTORY_ID) {
 }
 
-void Primer3ADVContext::initViewContext(GObjectView* v) {
-    AnnotatedDNAView* av = qobject_cast<AnnotatedDNAView*>(v);
+void Primer3ADVContext::initViewContext(GObjectViewController* v) {
+    auto av = qobject_cast<AnnotatedDNAView*>(v);
     ADVGlobalAction* a = new ADVGlobalAction(av, QIcon(":/primer3/images/primer3.png"), tr("Primer3..."), 95);
     a->setObjectName("primer3_action");
     a->addAlphabetFilter(DNAAlphabet_NUCL);
@@ -95,8 +95,8 @@ void Primer3ADVContext::initViewContext(GObjectView* v) {
 
 void Primer3ADVContext::sl_showDialog() {
     QAction* a = (QAction*)sender();
-    GObjectViewAction* viewAction = qobject_cast<GObjectViewAction*>(a);
-    AnnotatedDNAView* av = qobject_cast<AnnotatedDNAView*>(viewAction->getObjectView());
+    auto viewAction = qobject_cast<GObjectViewAction*>(a);
+    auto av = qobject_cast<AnnotatedDNAView*>(viewAction->getObjectView());
     SAFE_POINT(av != nullptr, L10N::nullPointerError("AnnotatedDNAView"), );
 
     ADVSequenceObjectContext* seqCtx = av->getActiveSequenceContext();

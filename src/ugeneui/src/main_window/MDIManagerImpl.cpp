@@ -142,7 +142,7 @@ void MWMDIManagerImpl::prepareGUI() {
 bool MWMDIManagerImpl::eventFilter(QObject* obj, QEvent* event) {
     QEvent::Type t = event->type();
     if (t == QEvent::Close) {
-        QMdiSubWindow* qw = qobject_cast<QMdiSubWindow*>(obj);
+        auto qw = qobject_cast<QMdiSubWindow*>(obj);
         MDIItem* item = getMDIItem(qw);
         if (item != nullptr) {
             uiLog.trace(QString("Processing close window request for '%1'").arg(getWindowName(item)));
@@ -165,7 +165,7 @@ bool MWMDIManagerImpl::eventFilter(QObject* obj, QEvent* event) {
             updateState();
         }
     } else if (t == QEvent::WindowStateChange) {
-        QMdiSubWindow* qw = qobject_cast<QMdiSubWindow*>(obj);
+        auto qw = qobject_cast<QMdiSubWindow*>(obj);
         defaultIsMaximized = qw->isMaximized();
     }
     return QObject::eventFilter(obj, event);
@@ -243,6 +243,7 @@ void MWMDIManagerImpl::addMDIWindow(MWMDIWindow* w) {
         return;
     }
     w->setParent(mdiArea);
+    w->setVisible(true);
     QMdiSubWindow* qw = mdiArea->addSubWindow(w);
     qw->setWindowTitle(w->windowTitle());
     QIcon icon = w->windowIcon();
