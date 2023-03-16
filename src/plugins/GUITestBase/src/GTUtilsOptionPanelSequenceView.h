@@ -34,6 +34,7 @@ public:
         Search,
         AnnotationsHighlighting,
         Statistics,
+        PcrPrimerDesign,
         InSilicoPcr,
         CircularView,
         GeneCut

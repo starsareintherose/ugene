@@ -52,6 +52,7 @@ QMap<GTUtilsOptionPanelSequenceView::Tabs, QString> GTUtilsOptionPanelSequenceVi
     result.insert(Search, "OP_FIND_PATTERN");
     result.insert(AnnotationsHighlighting, "OP_ANNOT_HIGHLIGHT");
     result.insert(Statistics, "OP_SEQ_INFO");
+    result.insert(PcrPrimerDesign, "OP_PCR_PRIMER_DESIGN_FOR_DNA_ASSEMBLY");
     result.insert(InSilicoPcr, "OP_IN_SILICO_PCR");
     result.insert(CircularView, "OP_CV_SETTINGS");
     result.insert(GeneCut, "OP_GENECUT");
@@ -63,6 +64,7 @@ QMap<GTUtilsOptionPanelSequenceView::Tabs, QString> GTUtilsOptionPanelSequenceVi
     result.insert(Search, "FindPatternWidget");
     result.insert(AnnotationsHighlighting, "AnnotHighlightWidget");
     result.insert(Statistics, "SequenceInfo");
+    result.insert(PcrPrimerDesign, "PcrPrimerDesignOpInnerWidget");
     result.insert(InSilicoPcr, "InSilicoPcrOptionPanelWidget");
     result.insert(CircularView, "CircularViewSettingsWidget");
     result.insert(GeneCut, "GenecutOPWidget");

@@ -35,7 +35,7 @@ namespace U2 {
 class U2GUI_EXPORT PrimerLineEdit : public QLineEdit {
     Q_OBJECT
 public:
-    PrimerLineEdit(QWidget* parent);
+    PrimerLineEdit(QWidget *parent, bool allowExtendedDna = true);
 
     /**
      * Set text if it's valid. If not set empty string.
@@ -43,7 +43,7 @@ public:
     void setInvalidatedText(const QString& text);
 
 protected:
-    void paintEvent(QPaintEvent* event);
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     QRect getPlaceHolderRect() const;
