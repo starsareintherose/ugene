@@ -22,6 +22,9 @@
 #ifndef _U2_PCR_PRIMER_DESIGN_FOR_DNA_ASSEMBLY_OP_WIDGET_H_
 #define _U2_PCR_PRIMER_DESIGN_FOR_DNA_ASSEMBLY_OP_WIDGET_H_
 
+#include <U2Algorithm/TmCalculator.h>
+
+#include <QSharedPointer>
 #include <QWidget>
 
 #include "PCRPrimerDesignForDNAAssemblyOPSavableTab.h"
@@ -37,6 +40,7 @@ class PCRPrimerDesignForDNAAssemblyOPWidget : public QWidget, private Ui_PCRPrim
     Q_OBJECT
 public:
     PCRPrimerDesignForDNAAssemblyOPWidget(AnnotatedDNAView* annDnaView);
+    ~PCRPrimerDesignForDNAAssemblyOPWidget();
 
 private slots:
     /**
@@ -164,13 +168,11 @@ private:
     PCRPrimerDesignForDNAAssemblyTaskSettings lastRunSettings;
     QByteArray backboneSequence;
 
+    QString tmCalculatorId;
+
     static const QString USER_PRIMERS_SHOW_HIDE_ID;
-    static const QString PARAMETERS_OF_PRIMING_SEQUENCES_SHOW_HIDE_ID;
-    static const QString PARAMETERS_2_EXCLUDE_IN_WHOLE_PRIMERS_SHOW_HIDE_ID;
-    static const QString SELECT_AREAS_FOR_PRIMING_SHOW_HIDE_ID;
-    static const QString OPEN_BACKBONE_SEQUENCE_SHOW_HIDE_ID;
-    static const QString GENERATE_SEQUENCE_SHOW_HIDE_ID;
-    static const QString OTHER_SEQUENCES_IN_PCR_REACTION_SHOW_HIDE_ID;
+    static const QString PICK_PRIMERS_SETTINGS_HIDE_ID;
+    static const QString TM_SETTINGS_SHOW_HIDE_ID;
     static const QString PCR_TABLE_OBJECT_NAME;
 };
 

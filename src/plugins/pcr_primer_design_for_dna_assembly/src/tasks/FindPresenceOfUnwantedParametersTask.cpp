@@ -48,8 +48,8 @@ void FindPresenceOfUnwantedParametersTask::run() {
 
     //TODO: hairpins
 
-    bool res = UnwantedConnectionsUtils::isUnwantedSelfDimer(forward, settings.gibbsFreeEnergyExclude,
-        settings.meltingPointExclude, settings.complementLengthExclude, report);
+    bool res = UnwantedConnectionsUtils::isUnwantedSelfDimer(forward, settings.minGibbs,
+        settings.maxTm, settings.maxLength, settings.tmCalculator, report);
     if (res) {
         unwantedStructures = tr("<u>5' backbone</u><br><br>");
         unwantedStructures += report;
@@ -57,8 +57,8 @@ void FindPresenceOfUnwantedParametersTask::run() {
         report.clear();
     }
 
-    res = UnwantedConnectionsUtils::isUnwantedSelfDimer(reverse, settings.gibbsFreeEnergyExclude,
-        settings.meltingPointExclude, settings.complementLengthExclude, report);
+    res = UnwantedConnectionsUtils::isUnwantedSelfDimer(reverse, settings.minGibbs,
+        settings.maxTm, settings.maxLength, settings.tmCalculator, report);
     if (res) {
         unwantedStructures += tr("<u>3' backbone</u><br><br>");
         unwantedStructures += report;
@@ -66,8 +66,8 @@ void FindPresenceOfUnwantedParametersTask::run() {
         report.clear();
     }
 
-    res = UnwantedConnectionsUtils::isUnwantedHeteroDimer(forward, reverse, settings.gibbsFreeEnergyExclude,
-        settings.meltingPointExclude, settings.complementLengthExclude, report);
+    res = UnwantedConnectionsUtils::isUnwantedHeteroDimer(forward, reverse, settings.minGibbs,
+        settings.maxTm, settings.maxLength, settings.tmCalculator, report);
     if (res) {
         unwantedStructures += tr("<u>Connections between 5' and 3' backbones</u><br><br>");
         unwantedStructures += report;

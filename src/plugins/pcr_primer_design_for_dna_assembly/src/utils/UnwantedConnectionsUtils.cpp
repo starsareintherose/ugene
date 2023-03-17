@@ -30,62 +30,67 @@
 namespace U2 {
 
 bool UnwantedConnectionsUtils::isUnwantedSelfDimer(const QByteArray& forwardSequence,
-                                                   double unwantedDeltaG,
-                                                   double unwantedMeltingTemperature,
-                                                   int unwantedDimerLength) {
+                                                   double minGibbs,
+                                                   double maxTemp,
+                                                   int maxLenth,
+                                                   const QSharedPointer<TmCalculator>& tmCalculator) {
     QString unused;
-    return isUnwantedSelfDimer(forwardSequence, unwantedDeltaG, unwantedMeltingTemperature, unwantedDimerLength,
+    return isUnwantedSelfDimer(forwardSequence, minGibbs, maxTemp, maxLenth, tmCalculator,
                                unused);
 }
 
 bool UnwantedConnectionsUtils::isUnwantedSelfDimer(const QByteArray &forwardSequence,
-                                                   double unwantedDeltaG,
-                                                   double unwantedMeltingTemperature,
-                                                   int unwantedDimerLength,
+                                                   double minGibbs,
+                                                   double maxTemp,
+                                                   int maxLenth,
+                                                   const QSharedPointer<TmCalculator>& tmCalculator,
                                                    QString &report) {
-    PrimerStatisticsCalculator calc(forwardSequence, PrimerStatisticsCalculator::Direction::DoesntMatter);
+    PrimerStatisticsCalculator calc(forwardSequence, tmCalculator, PrimerStatisticsCalculator::Direction::DoesntMatter);
     report = PCRPrimerDesignForDNAAssemblyPlugin::tr("<b>Self-dimer:</b><br>");
-    return areUnwantedParametersPresentedInDimersInfo(calc.getDimersInfo(), unwantedDeltaG, unwantedMeltingTemperature,
-                                                      unwantedDimerLength, report);
+    return areUnwantedParametersPresentedInDimersInfo(calc.getDimersInfo(), minGibbs, maxTemp,
+                                                      maxLenth, tmCalculator, report);
 }
 
 bool UnwantedConnectionsUtils::isUnwantedHeteroDimer(const QByteArray &forwardSequence,
                                                      const QByteArray &reverseSequence,
-                                                     double unwantedDeltaG,
-                                                     double unwantedMeltingTemperature,
-                                                     int unwantedDimerLength) {
+                                                     double minGibbs,
+                                                     double maxTemp,
+                                                     int maxLenth,
+                                                     const QSharedPointer<TmCalculator>& tmCalculator) {
     QString unused;
-    return isUnwantedHeteroDimer(forwardSequence, reverseSequence, unwantedDeltaG, unwantedMeltingTemperature,
-                                 unwantedDimerLength, unused);
+    return isUnwantedHeteroDimer(forwardSequence, reverseSequence, minGibbs, maxTemp,
+                                 maxLenth, tmCalculator, unused);
 }
 
 bool UnwantedConnectionsUtils::isUnwantedHeteroDimer(const QByteArray& forwardSequence,
                                                      const QByteArray& reverseSequence,
-                                                     double unwantedDeltaG,
-                                                     double unwantedMeltingTemperature,
-                                                     int unwantedDimerLength,
+                                                     double minGibbs,
+                                                     double maxTemp,
+                                                     int maxLenth,
+                                                     const QSharedPointer<TmCalculator>& tmCalculator,
                                                      QString &report) {
-    PrimersPairStatistics calc(forwardSequence, reverseSequence);
+    PrimersPairStatistics calc(forwardSequence, reverseSequence, tmCalculator);
     report = PCRPrimerDesignForDNAAssemblyPlugin::tr("<b>Hetero-dimer:</b><br>");
-    return areUnwantedParametersPresentedInDimersInfo(calc.getDimersInfo(), unwantedDeltaG, unwantedMeltingTemperature,
-                                                      unwantedDimerLength, report);
+    return areUnwantedParametersPresentedInDimersInfo(calc.getDimersInfo(), minGibbs, maxTemp,
+                                                      maxLenth, tmCalculator, report);
 }
 
 bool UnwantedConnectionsUtils::areUnwantedParametersPresentedInDimersInfo(const DimerFinderResult& dimersInfo,
-                                                                          double unwantedDeltaG,
-                                                                          double unwantedMeltingTemperature,
-                                                                          int unwantedDimerLength,
+                                                                          double minGibbs,
+                                                                          double maxTemp,
+                                                                          int maxLenth,
+                                                                          const QSharedPointer<TmCalculator>& tmCalculator,
                                                                           QString &report) {
     if (dimersInfo.dimersOverlap.isEmpty()) {
         return false;
     }
-    double dimerMeltingTemp = PrimerStatistics::getMeltingTemperature(dimersInfo.dimer.toLocal8Bit());
+    double dimerMeltingTemp = tmCalculator->getMeltingTemperature(dimersInfo.dimer.toLocal8Bit());
     int dimerLength = dimersInfo.dimer.length();
-    bool isDeltaGUnwanted = dimersInfo.deltaG <= unwantedDeltaG;
-    bool isMeltingTemperatureUnwanted = unwantedMeltingTemperature <= dimerMeltingTemp;
-    bool isLengthUnwanted = unwantedDimerLength <= dimerLength;
+    bool isDeltaGUnwanted = dimersInfo.deltaG <= minGibbs;
+    bool isMeltingTemperatureUnwanted = maxTemp <= dimerMeltingTemp;
+    bool isLengthUnwanted = maxLenth <= dimerLength;
     bool isUnwantedParameter = isDeltaGUnwanted && isMeltingTemperatureUnwanted && isLengthUnwanted;
-    report += PCRPrimerDesignForDNAAssemblyPlugin::tr(dimersInfo.getReportWithMeltingTemp().toLocal8Bit());
+    report += PCRPrimerDesignForDNAAssemblyPlugin::tr(dimersInfo.getFullReport().toLocal8Bit());
     if (isUnwantedParameter) {
         algoLog.details(report);
     }

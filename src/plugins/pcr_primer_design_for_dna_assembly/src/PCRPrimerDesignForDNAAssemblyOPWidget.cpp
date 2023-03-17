@@ -23,6 +23,8 @@
 #include "tasks/ExtractPrimerTask.h"
 #include "tasks/PCRPrimerDesignForDNAAssemblyTask.h"
 
+#include <U2Algorithm/TmCalculatorRegistry.h>
+
 #include <U2Core/AppContext.h>
 #include <U2Core/AppSettings.h>
 #include <U2Core/BaseDocumentFormats.h>
@@ -57,60 +59,41 @@
 namespace {
 // When a non-nucleotide sequence is selected, the widget should be disabled. But the groupbox titles continue to be
 // black as if they enabled. This code makes them gray.
-void makeGroupboxTittleGrayIfDisable(QGroupBox *gb) {
-    QPalette palette;
-    palette.setColor(QPalette::Disabled, QPalette::WindowText, QApplication::palette().color(QPalette::Disabled,
-                                                                                             QPalette::WindowText));
-    gb->setPalette(palette);
-}
+//void makeGroupboxTittleGrayIfDisable(QGroupBox *gb) {
+//    QPalette palette;
+//    palette.setColor(QPalette::Disabled, QPalette::WindowText, QApplication::palette().color(QPalette::Disabled,
+//                                                                                             QPalette::WindowText));
+//    gb->setPalette(palette);
+//}
 }  // namespace
 
 namespace U2 {
 
 const QString PCRPrimerDesignForDNAAssemblyOPWidget::USER_PRIMERS_SHOW_HIDE_ID = "user-primers-show-hide-id";
-const QString PCRPrimerDesignForDNAAssemblyOPWidget::PARAMETERS_OF_PRIMING_SEQUENCES_SHOW_HIDE_ID = "parameters-of-priming-sequences-show-hide-id";
-const QString PCRPrimerDesignForDNAAssemblyOPWidget::PARAMETERS_2_EXCLUDE_IN_WHOLE_PRIMERS_SHOW_HIDE_ID = "parameters-2-exclude-in-whole-primers-show-hide-id";
-const QString PCRPrimerDesignForDNAAssemblyOPWidget::SELECT_AREAS_FOR_PRIMING_SHOW_HIDE_ID = "select-areas-for-priming-show-hide-id";
-const QString PCRPrimerDesignForDNAAssemblyOPWidget::OPEN_BACKBONE_SEQUENCE_SHOW_HIDE_ID = "open-backbone-sequence-show-hide-id";
-const QString PCRPrimerDesignForDNAAssemblyOPWidget::GENERATE_SEQUENCE_SHOW_HIDE_ID = "generate-sequence-show-hide-id";
-const QString PCRPrimerDesignForDNAAssemblyOPWidget::OTHER_SEQUENCES_IN_PCR_REACTION_SHOW_HIDE_ID = "other-sequences-in-pcr-reaction-show-hide-id";
+const QString PCRPrimerDesignForDNAAssemblyOPWidget::PICK_PRIMERS_SETTINGS_HIDE_ID = "pick-primers-settings-show-hide-id";
+const QString PCRPrimerDesignForDNAAssemblyOPWidget::TM_SETTINGS_SHOW_HIDE_ID = "tm-settings-show-hide-id";
 const QString PCRPrimerDesignForDNAAssemblyOPWidget::PCR_TABLE_OBJECT_NAME =
     QApplication::translate("PCRPrimerDesignForDNAAssemblyOPWidget", "PCR Primer Design for DNA assembly");
+
+static constexpr char* ID_POSTFIX = "_pcr_primer_design";
 
 PCRPrimerDesignForDNAAssemblyOPWidget::PCRPrimerDesignForDNAAssemblyOPWidget(AnnotatedDNAView* _annDnaView)
     : QWidget(nullptr),
       annDnaView(_annDnaView),
-      savableWidget(this, GObjectViewUtils::findViewByName(annDnaView->getName())) {
+      savableWidget(this, GObjectViewUtils::findViewByName(annDnaView->getName())),
+      tmCalculatorId(annDnaView->getName() + ID_POSTFIX) {
     setupUi(this);
     parametersMinMaxSpinBoxes = { { sbMinRequireGibbs, sbMaxRequireGibbs },
                                   { spMinRequireMeltingTeml, spMaxRequireMeltingTeml },
-                                  { spMinRequireOverlapLength, spMaxRequireOverlapLength } };
+                                  { spMinRequirePrimerLength, spMaxRequirePrimerLength } };
 
-    userPrimersShowHideGroup->init(USER_PRIMERS_SHOW_HIDE_ID, tr("User primers"), wgtUserPrimers, true);
-    generateSequenceShowHideGroup->init(GENERATE_SEQUENCE_SHOW_HIDE_ID,
-                                        tr("Choose generated sequences as user primer's end"),
-                                        wgtGenerateSequence,
-                                        true);
-    parametersOfPrimingSequencesShowHideGroup->init(PARAMETERS_OF_PRIMING_SEQUENCES_SHOW_HIDE_ID,
-                                                    tr("Parameters of priming sequences"),
-                                                    wgtParametersOfPrimingSequences,
-                                                    true);
-    parameters2ExcludeInWholePrimersShowHideGroup->init(PARAMETERS_2_EXCLUDE_IN_WHOLE_PRIMERS_SHOW_HIDE_ID,
-                                                        tr("Parameters to exclude in whole primers"),
-                                                        wgtParameters2ExcludeInWholePrimers,
-                                                        true);
-    areasForPrimingShowHideGroup->init(SELECT_AREAS_FOR_PRIMING_SHOW_HIDE_ID,
-                                       tr("Select areas for priming search"),
-                                       wgtAreasForPriming,
-                                       true);
-    openBackboneSequenceShowHideGroup->init(OPEN_BACKBONE_SEQUENCE_SHOW_HIDE_ID,
-                                            tr("Open the backbone sequence"),
-                                            wgtOpenBackboneSequence,
-                                            true);
-    otherSequencesInPCRShowHideGroup->init(OTHER_SEQUENCES_IN_PCR_REACTION_SHOW_HIDE_ID,
-                                           tr("Other sequences in PCR reaction"),
-                                           wgtOtherSequencesInPcr,
-                                           true);
+    userPrimersShowHideGroup->init(USER_PRIMERS_SHOW_HIDE_ID, tr("Check primers"), wgtUserPrimers, false);
+    mainSettingsShowHide->init(PICK_PRIMERS_SETTINGS_HIDE_ID, tr("Pick primers"), wgtMainSettings, true);
+    {
+        auto tempCalculator = AppContext::getTmCalculatorRegistry()->createTmCalculator(tmCalculatorId);
+        wgtTmSettings->init(tempCalculator->getSettings());
+    }
+    wgtTmSettingsShowHide->init(TM_SETTINGS_SHOW_HIDE_ID, tr("Melting temperature"), wgtTmSettings, false);
 
     auto seqLength = annDnaView->getActiveSequenceContext()->getSequenceLength();
 
@@ -122,8 +105,8 @@ PCRPrimerDesignForDNAAssemblyOPWidget::PCRPrimerDesignForDNAAssemblyOPWidget(Ann
     sbRightAreaStart->setValue(seqLength / 10 * 5);
     sbRightAreaEnd->setValue(seqLength / 10 * 6);
 
-    makeGroupboxTittleGrayIfDisable(groupBox);
-    makeGroupboxTittleGrayIfDisable(groupBox_2);
+    //makeGroupboxTittleGrayIfDisable(groupBox);
+    //makeGroupboxTittleGrayIfDisable(groupBox_2);
     makeWarningInvisibleIfDna();
 
     connect(pbStart, &QAbstractButton::clicked, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_start);
@@ -159,6 +142,11 @@ PCRPrimerDesignForDNAAssemblyOPWidget::PCRPrimerDesignForDNAAssemblyOPWidget(Ann
 
     leFilter->setValidator(new PrimerValidator(this, false));
     connect(leFilter, &QLineEdit::textEdited, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_updateSequenceList);
+    connect(pbAddToReverse3, &QAbstractButton::clicked, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_add3ReverseSequence);
+}
+
+PCRPrimerDesignForDNAAssemblyOPWidget::~PCRPrimerDesignForDNAAssemblyOPWidget() {
+    AppContext::getTmCalculatorRegistry()->saveSettings(tmCalculatorId, wgtTmSettings->getSettings());
 }
 
 void PCRPrimerDesignForDNAAssemblyOPWidget::sl_activeSequenceChanged() {
@@ -203,12 +191,12 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_start() {
     settings.gibbsFreeEnergy.maxValue = sbMaxRequireGibbs->value();
     settings.meltingPoint.minValue = spMinRequireMeltingTeml->value();
     settings.meltingPoint.maxValue = spMaxRequireMeltingTeml->value();
-    settings.overlapLength.minValue = spMinRequireOverlapLength->value();
-    settings.overlapLength.maxValue = spMaxRequireOverlapLength->value();
+    settings.primerLength.minValue = spMinRequirePrimerLength->value();
+    settings.primerLength.maxValue = spMaxRequirePrimerLength->value();
 
-    settings.gibbsFreeEnergyExclude = sbExcludeGibbs->value();
-    settings.meltingPointExclude = spExcludeMeltingTeml->value();
-    settings.complementLengthExclude = spExcludeComplementLength->value();
+    settings.minGibbs = sbMinGibbs->value();
+    settings.maxTm = spMaxTm->value();
+    settings.maxLength = spMaxLength->value();
 
     if (backbone5->isChecked()) {
         settings.insertTo = PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings::Backbone5;
@@ -226,6 +214,10 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_start() {
     settings.backboneSequenceUrl = leBackboneFilePath->text();
 
     settings.otherSequencesInPcrUrl = leOtherSequencesInPcrFilePath->text();
+
+    auto settingsMap = wgtTmSettings->getSettings();
+    auto id = settingsMap.value(TmCalculator::KEY_ID).toString();
+    settings.tmCalculator = AppContext::getTmCalculatorRegistry()->getById(id)->createCalculator(settingsMap);
 
     auto activeSequenceContext = annDnaView->getActiveSequenceContext();
     SAFE_POINT(activeSequenceContext != nullptr, L10N::nullPointerError("ADVSequenceObjectContext"), );
@@ -334,7 +326,7 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_loadBackbone() {
     QString filter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE }, true);
     QString selectedFilter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE });
     LastUsedDirHelper lod;
-    QString file = U2FileDialog::getOpenFileName(nullptr, tr("Select a backbone sequence file"), lod, filter, &selectedFilter);
+    QString file = U2FileDialog::getOpenFileName(nullptr, tr("Select a backbone sequence file"), lod, filter, selectedFilter);
     CHECK(!file.isEmpty(), );
 
     leBackboneFilePath->setText(file);
@@ -344,7 +336,7 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_loadOtherSequenceInPcr() {
     QString filter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE }, true);
     QString selectedFilter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE });
     LastUsedDirHelper lod;
-    QString file = U2FileDialog::getOpenFileName(nullptr, tr("Select an \"Other sequences in PCR reaction\" file"), lod, filter, &selectedFilter);
+    QString file = U2FileDialog::getOpenFileName(nullptr, tr("Select an \"Other sequences in PCR reaction\" file"), lod, filter, selectedFilter);
     CHECK(!file.isEmpty(), );
 
     leOtherSequencesInPcrFilePath->setText(file);

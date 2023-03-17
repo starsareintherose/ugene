@@ -24,8 +24,12 @@
 
 #include <QString>
 
+#include <U2Algorithm/TmCalculator.h>
+
 #include <U2Core/U2Range.h>
 #include <U2Core/U2Region.h>
+
+#include <QSharedPointer>
 
 namespace U2 {
 
@@ -34,15 +38,15 @@ struct PCRPrimerDesignForDNAAssemblyTaskSettings {
     QString forwardUserPrimer;
     QString reverseUserPrimer;
 
-    //Parameters of priming
+    //Primers requirements
     U2Range<int> gibbsFreeEnergy;
     U2Range<int> meltingPoint;
-    U2Range<int> overlapLength;
+    U2Range<int> primerLength;
 
-    //Parameters to exclude in whole primers
-    int gibbsFreeEnergyExclude = 0;
-    int meltingPointExclude = 0;
-    int complementLengthExclude = 0;
+    //Dimers complementary regions limits
+    int minGibbs = 0;
+    int maxTm = 0;
+    int maxLength = 0;
 
     //Areas fpr priming search
     //Insert to backbone bearings
@@ -63,6 +67,8 @@ struct PCRPrimerDesignForDNAAssemblyTaskSettings {
 
     //Other sequences in PCR
     QString otherSequencesInPcrUrl;
+
+    QSharedPointer<TmCalculator> tmCalculator;
 };
 
 }

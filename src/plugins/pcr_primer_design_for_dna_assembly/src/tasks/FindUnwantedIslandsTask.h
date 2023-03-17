@@ -22,16 +22,20 @@
 #ifndef _U2_FIND_UNWANTED_ISLANDS_TASK_H_
 #define _U2_FIND_UNWANTED_ISLANDS_TASK_H_
 
+#include <U2Algorithm/TmCalculator.h>
+
 #include <U2Core/Task.h>
 #include <U2Core/U2Type.h>
 #include <U2Core/U2Region.h>
+
+#include <QSharedPointer>
 
 namespace U2 {
 
 class FindUnwantedIslandsTask : public Task {
     Q_OBJECT
 public:
-    FindUnwantedIslandsTask(const U2Region& searchArea, int possibleOverlap, const QByteArray& sequence, bool isComplement);
+    FindUnwantedIslandsTask(const U2Region& searchArea, int possibleOverlap, const QByteArray& sequence, bool isComplement, const QSharedPointer<TmCalculator>& tmCalculator);
 
     void run() override;
 
@@ -45,6 +49,7 @@ private:
     int possibleOverlap = 0;
     QByteArray sequence;
     bool isComplement = false;
+    QSharedPointer<TmCalculator> tmCalculator;
 
     QList<U2Region> regionsBetweenIslands;
 

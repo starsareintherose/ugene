@@ -30,12 +30,13 @@
 
 namespace U2 {
 
-FindUnwantedIslandsTask::FindUnwantedIslandsTask(const U2Region& _searchArea, int _possibleOverlap, const QByteArray& _sequence, bool _isComplement)
+FindUnwantedIslandsTask::FindUnwantedIslandsTask(const U2Region& _searchArea, int _possibleOverlap, const QByteArray& _sequence, bool _isComplement, const QSharedPointer<TmCalculator>& _tmCalculator)
     : Task(tr("Find Unwanted Islands Task"), TaskFlags_FOSCOE),
       searchArea(_searchArea),
       possibleOverlap(_possibleOverlap),
       sequence(_sequence),
-      isComplement(_isComplement) {}
+      isComplement(_isComplement),
+      tmCalculator(_tmCalculator) {}
 
 void FindUnwantedIslandsTask::run() {
     taskLog.details(tr("Searching of unwanted islands and areas between them "
@@ -120,7 +121,8 @@ bool FindUnwantedIslandsTask::hasUnwantedConnections(const U2Region& region) con
     bool isUnwantedSelfDimer = UnwantedConnectionsUtils::isUnwantedSelfDimer(regionSequence,
                                                                              UNWANTED_DELTA_G,
                                                                              UNWANTED_MELTING_TEMPERATURE,
-                                                                             UNWANTED_MAX_LENGTH);
+                                                                             UNWANTED_MAX_LENGTH,
+                                                                             tmCalculator);
 
     //TODO: hairpins
 

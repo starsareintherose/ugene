@@ -31,7 +31,7 @@ class PCRPrimerDesignForDNAAssemblyOPWidgetFactory : public OPWidgetFactory {
 public:
     PCRPrimerDesignForDNAAssemblyOPWidgetFactory();
 
-    QWidget* createWidget(GObjectView* objView, const QVariantMap& options) override;
+    QWidget* createWidget(GObjectViewController* objView, const QVariantMap& options) override;
 
     OPGroupParameters getOPGroupParameters() override;
 

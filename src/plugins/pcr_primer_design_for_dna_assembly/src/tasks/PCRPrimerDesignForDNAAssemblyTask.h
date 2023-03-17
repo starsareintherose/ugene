@@ -22,7 +22,11 @@
 #ifndef _U2_PCR_PRIMER_DESIGN_FOR_DNA_ASSEMBLY_TASK_H_
 #define _U2_PCR_PRIMER_DESIGN_FOR_DNA_ASSEMBLY_TASK_H_
 
+#include <U2Algorithm/TmCalculator.h>
+
 #include <U2Core/Task.h>
+
+#include <QSharedPointer>
 
 #include "PCRPrimerDesignForDNAAssemblyTaskSettings.h"
 #include "utils/PCRPrimerDesignTaskReportUtils.h"

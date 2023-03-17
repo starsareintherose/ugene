@@ -49,10 +49,10 @@ void GTest_PCRPrimerDesignForDNAAssemblyTaskTest::init(XMLTestFormat *, const QD
     seqName = el.attribute(SEQ_NAME_ATTR);
     settings.gibbsFreeEnergy = getU2RangeInt(el, ENERGY_ATTR, ";");
     settings.meltingPoint = getU2RangeInt(el, MELTING_POINT_ATTR, ";");
-    settings.overlapLength = getU2RangeInt(el, OVERLAP_ATTR, ";");
-    settings.gibbsFreeEnergyExclude = getInt(el, ENERGY_EXCLUDE_ATTR);
-    settings.meltingPointExclude = getInt(el, MELTING_POINT_EXCLUDE_ATTR);
-    settings.complementLengthExclude = getInt(el, COMPL_LENGTH_EXCLUDE_ATTR);
+    settings.primerLength = getU2RangeInt(el, OVERLAP_ATTR, ";");
+    settings.minGibbs = getInt(el, ENERGY_EXCLUDE_ATTR);
+    settings.maxTm = getInt(el, MELTING_POINT_EXCLUDE_ATTR);
+    settings.maxLength = getInt(el, COMPL_LENGTH_EXCLUDE_ATTR);
     QString buf = el.attribute(INSERT_TO_ATTR);
     if (buf == "5") {
         settings.insertTo = PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings::Backbone5;

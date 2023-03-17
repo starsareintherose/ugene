@@ -21,6 +21,8 @@
 
 #include "PCRPrimerDesignForDNAAssemblyTask.h"
 
+#include <U2Algorithm/TmCalculatorRegistry.h>
+
 #include <U2Core/AppContext.h>
 #include <U2Core/DNASequenceObject.h>
 #include <U2Core/DNASequenceUtils.h>
@@ -80,11 +82,11 @@ void PCRPrimerDesignForDNAAssemblyTask::prepare() {
         addSubTask(loadOtherSequencesInPcr);
     }
 
-    findUnwantedIslands = new FindUnwantedIslandsTask(settings.leftArea, settings.overlapLength.maxValue, sequence, false);
+    findUnwantedIslands = new FindUnwantedIslandsTask(settings.leftArea, settings.primerLength.maxValue, sequence, false, settings.tmCalculator);
     addSubTask(findUnwantedIslands);
 
     U2Region reverseComplementArea = DNASequenceUtils::reverseComplementRegion(settings.rightArea, reverseComplementSequence.size());
-    findUnwantedIslandsReverseComplement = new FindUnwantedIslandsTask(reverseComplementArea, settings.overlapLength.maxValue, reverseComplementSequence, true);
+    findUnwantedIslandsReverseComplement = new FindUnwantedIslandsTask(reverseComplementArea, settings.primerLength.maxValue, reverseComplementSequence, true, settings.tmCalculator);
     addSubTask(findUnwantedIslandsReverseComplement);
 
 
@@ -107,10 +109,10 @@ void PCRPrimerDesignForDNAAssemblyTask::run() {
         }
         const int amplifiedFragmentLeftEdge = settings.leftArea.endPos() - 1;
         int b1ForwardCandidatePrimerEnd = regionBetweenIslandsForward.endPos();
-        int b1ForwardPrimerLength = settings.overlapLength.minValue;
+        int b1ForwardPrimerLength = settings.primerLength.minValue;
 
         // For progress state
-        int iterationsNumber = (settings.overlapLength.maxValue - settings.overlapLength.minValue) * regionBetweenIslandsForward.length;
+        int iterationsNumber = (settings.primerLength.maxValue - settings.primerLength.minValue) * regionBetweenIslandsForward.length;
         int currentIteration = 0;
         int stateProgress = getProgress();
 
@@ -127,7 +129,7 @@ void PCRPrimerDesignForDNAAssemblyTask::run() {
             if (amplifiedFragmentLeftEdge < b1ForwardCandidatePrimerRegion.startPos) {
                 b1ForwardCandidatePrimerEnd--;
                 // For progress state
-                iterationsNumber -= (settings.overlapLength.maxValue - settings.overlapLength.minValue);
+                iterationsNumber -= (settings.primerLength.maxValue - settings.primerLength.minValue);
                 continue;
             }
 
@@ -311,7 +313,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findB1ReversePrimer(const QByteArray& b1
 
         int amplifiedFragmentEdgeReverse = reverseComplementSequence.size() - settings.rightArea.startPos;
         int b1ReverseCandidatePrimerEnd = regionBetweenIslandsReverse.endPos();
-        int b1ReversePrimerLength = settings.overlapLength.minValue;
+        int b1ReversePrimerLength = settings.primerLength.minValue;
 
         while (b1ReverseCandidatePrimerEnd - b1ReversePrimerLength > regionBetweenIslandsReverse.startPos) { //While we are in the region between islands
             //The task could be really time-consuming, so it's better to check sometimes it it's been canceled
@@ -340,7 +342,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findB1ReversePrimer(const QByteArray& b1
                     //If there are no unwanted connections - check hetero-dimers between B1 Forward and B1 Reverse
                     bool hasB1ForwardReverseHeteroDimer =
                         UnwantedConnectionsUtils::isUnwantedHeteroDimer(b1ForwardCandidatePrimerSequence, b1ReverseCandidatePrimerSequence,
-                            settings.gibbsFreeEnergyExclude, settings.meltingPointExclude, settings.complementLengthExclude);
+                            settings.minGibbs, settings.maxTm, settings.maxLength, settings.tmCalculator);
 
                     if (hasB1ForwardReverseHeteroDimer) {
                         taskLog.details(tr("\"B1 Forward\" and \"B1 Reverse\" have unwanted hetero-dimers, move on"));
@@ -381,7 +383,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findSecondaryForwardReversePrimers(Secon
     }
 
     int forwardCandidatePrimerEnd = defaultForwardCandidatePrimerEnd;
-    int forwardPrimerLength = settings.overlapLength.minValue;
+    int forwardPrimerLength = settings.primerLength.minValue;
     while (forwardCandidatePrimerEnd == defaultForwardCandidatePrimerEnd) { //While we are in the region between islands
         //The task could be really time-consuming, so it's better to check sometimes it it's been canceled
         CHECK_OP(stateInfo, );
@@ -460,7 +462,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findSecondaryReversePrimer(SecondaryPrim
     }
 
     int reverseCandidatePrimerEnd = defaultReverseCandidatePrimerEnd;
-    int reversePrimerLength = settings.overlapLength.minValue;
+    int reversePrimerLength = settings.primerLength.minValue;
     while (reverseCandidatePrimerEnd == defaultReverseCandidatePrimerEnd) { //While we are in the region between islands
         //The task could be really time-consuming, so it's better to check sometimes it it's been canceled
         CHECK_OP(stateInfo, );
@@ -483,7 +485,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findSecondaryReversePrimer(SecondaryPrim
                 //If there are no unwanted connections - check hetero-dimers between Forward and Reverse
                 bool hasForwardReverseHeteroDimer =
                     UnwantedConnectionsUtils::isUnwantedHeteroDimer(forwardCandidatePrimerSequence, reverseCandidatePrimerSequence,
-                        settings.gibbsFreeEnergyExclude, settings.meltingPointExclude, settings.complementLengthExclude);
+                        settings.minGibbs, settings.maxTm, settings.maxLength, settings.tmCalculator);
                 if (hasForwardReverseHeteroDimer) {
                     taskLog.details(tr("\"%1\" and \"%2\" have unwanted hetero-dimers, move on").arg(forwardPrimerName).arg(reversePrimerName));
                     updatePrimerRegion(reverseCandidatePrimerEnd, reversePrimerLength);
@@ -521,24 +523,24 @@ void PCRPrimerDesignForDNAAssemblyTask::generateUserPrimersReports() {
         return;
     }
 
-    int deltaG = settings.gibbsFreeEnergyExclude,
-        meltingT = settings.meltingPointExclude,
-        dimerLen = settings.complementLengthExclude;
+    int deltaG = settings.minGibbs,
+        meltingT = settings.maxTm,
+        dimerLen = settings.maxLength;
     const auto saveOnePrimerReports = [deltaG, meltingT, dimerLen, this](const QByteArray &primer,
             PCRPrimerDesignTaskReportUtils::UserPrimersReports::PrimerReports &saveTo) {
         QString report_;
-        if (UnwantedConnectionsUtils::isUnwantedSelfDimer(primer, deltaG, meltingT, dimerLen, report_)) {
+        if (UnwantedConnectionsUtils::isUnwantedSelfDimer(primer, deltaG, meltingT, dimerLen, settings.tmCalculator, report_)) {
             saveTo.selfdimer = report_;
         }
-        if (UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer, sequence, deltaG, meltingT, dimerLen, report_)) {
+        if (UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer, sequence, deltaG, meltingT, dimerLen, settings.tmCalculator, report_)) {
             saveTo.fileSeq = report_;
         }
         if (UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer, reverseComplementSequence, deltaG, meltingT,
-                                                            dimerLen, report_)) {
+                                                            dimerLen, settings.tmCalculator, report_)) {
             saveTo.fileRevComplSeq = report_;
         }
         for (const QByteArray &otherSeqInPcr : qAsConst(otherSequencesInPcr)) {
-            if (UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer, otherSeqInPcr, deltaG, meltingT, dimerLen,
+            if (UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer, otherSeqInPcr, deltaG, meltingT, dimerLen, settings.tmCalculator,
                                                                 report_)) {
                 saveTo.other << report_;
             }
@@ -551,14 +553,14 @@ void PCRPrimerDesignForDNAAssemblyTask::generateUserPrimersReports() {
     saveOnePrimerReports(reverse, userPrimersReports.reverse);
 
     QString report_;
-    if (UnwantedConnectionsUtils::isUnwantedHeteroDimer(forward, reverse, deltaG, meltingT, dimerLen, report_)) {
+    if (UnwantedConnectionsUtils::isUnwantedHeteroDimer(forward, reverse, deltaG, meltingT, dimerLen, settings.tmCalculator, report_)) {
         userPrimersReports.heterodimer = report_;
     }
 }
 
 bool PCRPrimerDesignForDNAAssemblyTask::areMetlingTempAndDeltaGood(const QByteArray& primer) const {
     auto candidatePrimerDeltaG = PrimerStatistics::getDeltaG(primer);
-    auto candidatePrimerMeltingTemp = PrimerStatistics::getMeltingTemperature(primer);
+    auto candidatePrimerMeltingTemp = settings.tmCalculator->getMeltingTemperature(primer);
     bool goodDeltaG = settings.gibbsFreeEnergy.minValue <= candidatePrimerDeltaG &&
                       candidatePrimerDeltaG <= settings.gibbsFreeEnergy.maxValue;
     bool goodMeltTemp = settings.meltingPoint.minValue <= candidatePrimerMeltingTemp &&
@@ -568,15 +570,15 @@ bool PCRPrimerDesignForDNAAssemblyTask::areMetlingTempAndDeltaGood(const QByteAr
 }
 
 bool PCRPrimerDesignForDNAAssemblyTask::hasUnwantedConnections(const QByteArray& primer) const {
-    bool isUnwantedSelfDimer = UnwantedConnectionsUtils::isUnwantedSelfDimer(primer, settings.gibbsFreeEnergyExclude, settings.meltingPointExclude, settings.complementLengthExclude);
+    bool isUnwantedSelfDimer = UnwantedConnectionsUtils::isUnwantedSelfDimer(primer, settings.minGibbs, settings.maxTm, settings.maxLength, settings.tmCalculator);
     bool hasUnwantedHeteroDimer = false;
     hasUnwantedHeteroDimer |= UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer, sequence,
-        settings.gibbsFreeEnergyExclude, settings.meltingPointExclude, settings.complementLengthExclude);
+        settings.minGibbs, settings.maxTm, settings.maxLength, settings.tmCalculator);
     hasUnwantedHeteroDimer |= UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer, reverseComplementSequence,
-        settings.gibbsFreeEnergyExclude, settings.meltingPointExclude, settings.complementLengthExclude);
+        settings.minGibbs, settings.maxTm, settings.maxLength, settings.tmCalculator);
     for (const QByteArray& otherSeqInPcr : qAsConst(otherSequencesInPcr)) {
         hasUnwantedHeteroDimer |= UnwantedConnectionsUtils::isUnwantedHeteroDimer(primer,
-            otherSeqInPcr, settings.gibbsFreeEnergyExclude, settings.meltingPointExclude, settings.complementLengthExclude);
+            otherSeqInPcr, settings.minGibbs, settings.maxTm, settings.maxLength, settings.tmCalculator);
     }
 
     //TODO: hairpins
@@ -587,8 +589,8 @@ void PCRPrimerDesignForDNAAssemblyTask::updatePrimerRegion(int& primerEnd, int& 
     //Increase candidate primer length
     //If primer length is too big, reset it and decrease primer end
     primerLength++;
-    if (primerLength > settings.overlapLength.maxValue) {
-        primerLength = settings.overlapLength.minValue;
+    if (primerLength > settings.primerLength.maxValue) {
+        primerLength = settings.primerLength.minValue;
         primerEnd--;
     }
 }

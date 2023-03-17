@@ -24,6 +24,8 @@
 
 #include <QByteArray>
 
+#include <U2Algorithm/TmCalculator.h>
+
 #include <U2Core/PrimerDimersFinder.h>
 
 namespace U2 {
@@ -34,85 +36,90 @@ public:
 
     /**
      * Return true if @forwardSequence has selfdimers with:
-     *  - Gibbs free energy <= than @unwantedDeltaG,
-     *  - the melting temperature >= than @unwantedMeltingTemperatur,
-     *  - the length of the dimer >= than @unwantedDimerLength.
+     *  - Gibbs free energy <= than @minGibbs,
+     *  - the melting temperature >= than @maxTemp,
+     *  - the length of the dimer >= than @maxLenth.
      * Othervise return false.
      * @forwardSequence sequence we are looking for selfdimers in.
-     * @unwantedDeltaG the Gibbs free energy threshold.
-     * @unwantedMeltingTemperatur the melting temperature threshold.
-     * @unwantedDimerLength the dimer length threshold.
+     * @minGibbs the Gibbs free energy threshold.
+     * @maxTemp the melting temperature threshold.
+     * @maxLenth the dimer length threshold.
      * @return true if unwanted connections exist, otherwise false.
      */
     static bool isUnwantedSelfDimer(const QByteArray& forwardSequence,
-                                    double unwantedDeltaG,
-                                    double unwantedMeltingTemperatur,
-                                    int unwantedDimerLength);
+                                    double minGibbs,
+                                    double maxTemp,
+                                    int maxLenth,
+                                    const QSharedPointer<TmCalculator>& tmCalculator);
 
     /**
      * Return true if @forwardSequence has selfdimers with:
-     *  - Gibbs free energy <= than @unwantedDeltaG,
-     *  - the melting temperature >= than @unwantedMeltingTemperatur,
-     *  - the length of the dimer >= than @unwantedDimerLength.
+     *  - Gibbs free energy <= than @minGibbs,
+     *  - the melting temperature >= than @maxTemp,
+     *  - the length of the dimer >= than @maxLenth.
      * Othervise return false.
      * Return the report in @report if unwanted connections exist.
      * @forwardSequence sequence we are looking for selfdimers in.
-     * @unwantedDeltaG the Gibbs free energy threshold.
-     * @unwantedMeltingTemperatur the melting temperature threshold.
-     * @unwantedDimerLength the dimer length threshold.
+     * @minGibbs the Gibbs free energy threshold.
+     * @maxTemp the melting temperature threshold.
+     * @maxLenth the dimer length threshold.
      * @report report for the existed unwanted connections.
      * @return true if unwanted connections exist, otherwise false.
      */
     static bool isUnwantedSelfDimer(const QByteArray &forwardSequence,
-                                    double unwantedDeltaG,
-                                    double unwantedMeltingTemperature,
-                                    int unwantedDimerLength,
+                                    double minGibbs,
+                                    double maxTemp,
+                                    int maxLenth,
+                                    const QSharedPointer<TmCalculator>& tmCalculator,
                                     QString &report);
 
     /**
      * Return true if @forwardSequence and @reverseSequence have heterodimers with:
-     *  - Gibbs free energy <= than @unwantedDeltaG,
-     *  - the melting temperature >= than @unwantedMeltingTemperatur,
-     *  - the length of the dimer >= than @unwantedDimerLength.
+     *  - Gibbs free energy <= than @minGibbs,
+     *  - the melting temperature >= than @maxTemp,
+     *  - the length of the dimer >= than @maxLenth.
      * Othervise return false.
      * @forwardSequence sequence we are looking for selfdimers in.
-     * @unwantedDeltaG the Gibbs free energy threshold.
-     * @unwantedMeltingTemperatur the melting temperature threshold.
-     * @unwantedDimerLength the dimer length threshold.
+     * @minGibbs the Gibbs free energy threshold.
+     * @maxTemp the melting temperature threshold.
+     * @maxLenth the dimer length threshold.
      * @return true if unwanted connections exist, otherwise false.
      */
     static bool isUnwantedHeteroDimer(const QByteArray &forwardSequence,
                                       const QByteArray &reverseSequence,
-                                      double unwantedDeltaG,
-                                      double unwantedMeltingTemperature,
-                                      int unwantedDimerLength);
+                                      double minGibbs,
+                                      double maxTemp,
+                                      int maxLenth,
+                                      const QSharedPointer<TmCalculator>& tmCalculator);
 
     /**
      * Return true if @forwardSequence and @reverseSequence have heterodimers with:
-     *  - Gibbs free energy <= than @unwantedDeltaG,
-     *  - the melting temperature >= than @unwantedMeltingTemperatur,
-     *  - the length of the dimer >= than @unwantedDimerLength.
+     *  - Gibbs free energy <= than @minGibbs,
+     *  - the melting temperature >= than @maxTemp,
+     *  - the length of the dimer >= than @maxLenth.
      * Othervise return false.
      * Return the report in @report if unwanted connections exist.
      * @forwardSequence sequence we are looking for selfdimers in.
-     * @unwantedDeltaG the Gibbs free energy threshold.
-     * @unwantedMeltingTemperatur the melting temperature threshold.
-     * @unwantedDimerLength the dimer length threshold.
+     * @minGibbs the Gibbs free energy threshold.
+     * @maxTemp the melting temperature threshold.
+     * @maxLenth the dimer length threshold.
      * @report report for the existed unwanted connections.
      * @return true if unwanted connections exist, otherwise false.
      */
     static bool isUnwantedHeteroDimer(const QByteArray& forwardSequence,
                                       const QByteArray& reverseSequence,
-                                      double unwantedDeltaG,
-                                      double unwantedMeltingTemperature,
-                                      int unwantedDimerLength,
+                                      double minGibbs,
+                                      double maxTemp,
+                                      int maxLenth,
+                                      const QSharedPointer<TmCalculator>& tmCalculator,
                                       QString &report);
 
 private:
     static bool areUnwantedParametersPresentedInDimersInfo(const DimerFinderResult& dimersInfo,
-                                                           double unwantedDeltaG,
-                                                           double unwantedMeltingTemperature,
-                                                           int unwantedDimerLength,
+                                                           double minGibbs,
+                                                           double maxTemp,
+                                                           int maxLenth,
+                                                           const QSharedPointer<TmCalculator>& tmCalculator,
                                                            QString &report);
 
 
