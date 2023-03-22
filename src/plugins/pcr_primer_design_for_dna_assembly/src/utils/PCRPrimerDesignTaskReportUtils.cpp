@@ -111,7 +111,9 @@ static QString primersInfo(const PCRPrimerDesignForDNAAssemblyTask &task,
     SAFE_POINT(!sequence.isEmpty(), "Empty sequence", errMsg())
 
     const QStringList &primersNames = PCRPrimerDesignForDNAAssemblyTask::FRAGMENT_INDEX_TO_NAME;
-    QList<U2Region> regions = task.getResults();
+    //TODO
+    QList<U2Region> regions /*= task.getResults()*/;
+    return QString();
     SAFE_POINT(regions.size() == primersNames.size(),
                QString("The number of resulting primers (%1) isn't equal to the number of primer names (%2)")
                    .arg(regions.size())

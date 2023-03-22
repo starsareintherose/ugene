@@ -55,7 +55,7 @@ void FindUnwantedIslandsTask::run() {
      * Index of the right nucleotide in the searching area.
      * @settings.overlapLength.maxValue is the area extending deep into the amplified fragment.
      */
-    const int rightNucleotide = searchArea.endPos() + possibleOverlap;
+    const int rightNucleotide = searchArea.endPos()/* + possibleOverlap*/;
     auto text2LogAboutFoundRegion = [this](const U2Region& reg) {
         taskLog.details(tr("The region between unwanted islands has been found: %1").arg(regionToString(reg)));
     };

@@ -34,6 +34,7 @@
 namespace U2 {
 
 class AnnotatedDNAView;
+class CreateAnnotationWidgetController;
 class PCRPrimerDesignForDNAAssemblyTask;
 
 class PCRPrimerDesignForDNAAssemblyOPWidget : public QWidget, private Ui_PCRPrimerDesignForDNAAssemblyOPWidget {
@@ -78,10 +79,7 @@ private slots:
      * Update range of maximum limit of parameter, which have minimum.
      */
     void sl_maxValueChanged();
-    /**
-     * Show the "Open file" dialog, choose a file with backbones and set path to the corresponding line edit.
-     */
-    void sl_loadBackbone();
+    void sl_addEndingOnOverhangLabels(int index);
     /**
      * Show the "Open file" dialog, choose a file with other PCR sequences and set path to the corresponding line edit.
      */
@@ -90,10 +88,6 @@ private slots:
     * Associate created result annotations with result table.
     */
     void sl_onFindTaskFinished();
-    /*
-    * Extract result product to file.
-    */
-    void sl_extractProduct();
     /*
      * Create genbank file with result annotations/
      */
@@ -153,6 +147,7 @@ private:
     QString getSelectedSequence() const;
 
     AnnotatedDNAView *annDnaView = nullptr;
+    CreateAnnotationWidgetController* annWgtController = nullptr;
 
     QToolButton* smButton = nullptr;
     QSpinBox* sbStartRegion = nullptr;
@@ -162,7 +157,7 @@ private:
     PCRPrimerDesignForDNAAssemblyTask *pcrTask = nullptr;
 
     PCRPrimerDesignForDNAAssemblyOPSavableTab savableWidget;
-    //"Parameters of priming sequences" and "Parameters to exclude in whole primers" has set of parameters.
+    //"Primers requirements" and "Parameters to exclude in whole primers" has set of parameters.
     //This map contains spinboxes with minimum values as keys and spinboxes with maximum values as values.
     QMap<QSpinBox*, QSpinBox*> parametersMinMaxSpinBoxes;
     PCRPrimerDesignForDNAAssemblyTaskSettings lastRunSettings;

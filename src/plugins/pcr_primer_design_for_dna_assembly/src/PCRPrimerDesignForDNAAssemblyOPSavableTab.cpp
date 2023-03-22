@@ -65,7 +65,7 @@ void PCRPrimerDesignForDNAAssemblyOPSavableTab::setChildValue(const QString &chi
         const ResultTableData data = value.value<ResultTableData>();
         productTable->setCurrentProducts(data.currentProducts, data.associatedView);
         productTable->setAnnotationGroup(data.associatedGroup);
-        if (data.currentProducts.count(U2Region()) < ResultTable::MAXIMUM_ROW_COUNT) {
+        if (data.currentProducts.count(QPair<U2Region, U2Region>()) < ResultTable::MAXIMUM_ROW_COUNT) {
             productTable->show();
         }
     } else if (userPrimerLineEdit != nullptr) {

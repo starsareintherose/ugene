@@ -26,6 +26,7 @@
 
 #include <U2Core/Task.h>
 
+#include <QPair>
 #include <QSharedPointer>
 
 #include "PCRPrimerDesignForDNAAssemblyTaskSettings.h"
@@ -50,7 +51,7 @@ public:
 
     QString generateReport() const override;
 
-    QList<U2Region> getResults() const;
+    QList<QPair<U2Region, U2Region>> getResults() const;
     QByteArray getBackboneSequence() const;
     const PCRPrimerDesignForDNAAssemblyTaskSettings& getSettings() const;
 
@@ -82,7 +83,6 @@ private:
     QByteArray sequence;
     QByteArray reverseComplementSequence;
 
-    LoadDocumentTask* loadBackboneSequence = nullptr;
     LoadDocumentTask* loadOtherSequencesInPcr = nullptr;
     FindPresenceOfUnwantedParametersTask* checkBackboneSequence = nullptr;
     FindUnwantedIslandsTask* findUnwantedIslands = nullptr;

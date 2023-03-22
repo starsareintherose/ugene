@@ -80,7 +80,7 @@ void ExtractPrimerTask::run() {
     bool isForward = resultIndex % 2 == 0;
 
     U2Region fragmentRegion(0, productSequence.length());
-    if (!settings.backboneSequence.isEmpty()) {
+    /*if (!settings.backboneSequence.isEmpty()) {
         SharedAnnotationData backboneAnnotationData(new AnnotationData());
         backboneAnnotationData->name = BACKBONE_ANNOTATION_NAME;
         U2Strand backboneStrand = U2Strand(U2Strand::Direct);
@@ -100,7 +100,7 @@ void ExtractPrimerTask::run() {
         }
         backboneAnnotationData->setStrand(backboneStrand);
         annotations.append(backboneAnnotationData);
-    }
+    }*/
     SharedAnnotationData fragmentAnnotationData(new AnnotationData());
     fragmentAnnotationData->setStrand(isForward ? U2Strand(U2Strand::Direct) : U2Strand(U2Strand::Complementary));
     fragmentAnnotationData->name = settings.fragmentName;

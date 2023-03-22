@@ -22,6 +22,7 @@
 #include <U2Core/AnnotationSelection.h>
 #include <U2Core/AnnotationTableObject.h>
 #include <U2Core/DNASequenceSelection.h>
+#include <U2Core/L10n.h>
 #include <U2Core/U2SafePoints.h>
 
 #include <U2View/ADVSequenceObjectContext.h>
@@ -35,80 +36,68 @@ namespace U2 {
 ResultTable::ResultTable(QWidget *parent)
     : QTableWidget(parent) {
     for (int i = 0; i < MAXIMUM_ROW_COUNT; i++) {
-        currentProducts.append(U2Region());
+        data.currentProducts.append(QPair<U2Region, U2Region>());
     }
-    setColumnCount(2);
-    setHorizontalHeaderLabels(QStringList() << tr("Fragment") << tr("Region"));
+    setColumnCount(3);
+    setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Region") << tr("Length"));
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
     connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)), SLOT(sl_selectionChanged()));
     connect(this, SIGNAL(clicked(const QModelIndex &)), SLOT(sl_selectionChanged()));
 }
 
-void ResultTable::setCurrentProducts(const QList<U2Region> &_currentProducts, AnnotatedDNAView *_associatedView) {
-    SAFE_POINT(_currentProducts.size() == MAXIMUM_ROW_COUNT, "Should be 8 results", );
-    currentProducts = _currentProducts;
-    int index = 0;
-    int row = 0;
+void ResultTable::setCurrentProducts(const QList<QPair<U2Region, U2Region>> &_currentProducts, AnnotatedDNAView *_associatedView) {
+    data.currentProducts = _currentProducts;
     setRowCount(MAXIMUM_ROW_COUNT);
-    for (const U2Region &region : qAsConst(_currentProducts)) {
-        if (!region.isEmpty()) {
-            setItem(row, 0, new QTableWidgetItem(PCRPrimerDesignForDNAAssemblyTask::FRAGMENT_INDEX_TO_NAME.at(index)));
-            setItem(row, 1, new QTableWidgetItem(QString("%1-%2")
-                                                     .arg(QString::number(region.startPos + 1))
-                                                     .arg(QString::number(region.endPos()))));
-            row++;
-        }
-        index++;
+    int rowCount = 0;
+    for (int i = 0; i < data.currentProducts.size(); i++) {
+        const auto& regions = data.currentProducts[i];
+        CHECK_CONTINUE(!regions.first.isEmpty() && !regions.second.isEmpty());
+
+        setItem(rowCount, 0, new QTableWidgetItem(PCRPrimerDesignForDNAAssemblyTask::FRAGMENT_INDEX_TO_NAME.at(i)));
+        setItem(rowCount, 1, new QTableWidgetItem(QString("%1-%2")
+                                                    .arg(QString::number(regions.first.startPos + 1))
+                                                    .arg(QString::number(regions.second.endPos())))),
+        setItem(rowCount, 2, new QTableWidgetItem(QString::number(regions.second.endPos() - regions.first.startPos + 1)));
+        rowCount++;
     }
-    setRowCount(row);
-    associatedView = _associatedView;
+    setRowCount(rowCount);
+    data.associatedView = _associatedView;
 }
 
 void ResultTable::setAnnotationGroup(AnnotationGroup *_associatedGroup) {
-    associatedGroup = _associatedGroup;
+    data.associatedGroup = _associatedGroup;
 }
 
-Annotation* ResultTable::getSelectedAnnotation() const {
+U2Region ResultTable::getSelectedResultProdictRegion() const {
     Annotation *selectedAnnotation = nullptr;
     QModelIndexList selectedIndexesList = selectedIndexes();
-    if (selectedIndexesList.isEmpty()) {
-        return selectedAnnotation;
-    }
-    //one row = 2 items
-    CHECK(selectedIndexesList.size() == 2, selectedAnnotation);
-    QTableWidgetItem *selectedItem = item(selectedIndexesList.first().row(), 0);
-    QString selectedFragmentName = selectedItem->text();
+    CHECK(!selectedIndexesList.isEmpty(), U2Region());
 
-    auto annotations = associatedGroup->getAnnotations();
-    for (auto a : qAsConst(annotations)) {
-        if (a->getName() == selectedFragmentName) {
-            selectedAnnotation = a;
-            break;
-        }
-    }
-    return selectedAnnotation;
+    QTableWidgetItem *selectedItem = item(selectedIndexesList.first().row(), 1);
+    QString selectedFragmentText = selectedItem->text();
+    auto region = selectedFragmentText.split("-");
+    SAFE_POINT(region.size() == 2, "Unexpected size", U2Region());
+
+    int start = region.first().toInt() - 1;
+    int length = region.last().toInt() - start;
+    return U2Region(start, length);
 }
 
-ResultTableData ResultTable::getPCRPrimerProductTableData() const {
-    ResultTableData data;
-    data.associatedGroup = associatedGroup;
-    data.associatedView = associatedView;
-    data.currentProducts = currentProducts;
+const ResultTableData& ResultTable::getPCRPrimerProductTableData() const {
     return data;
 }
 
 void ResultTable::sl_selectionChanged() {
-    Annotation *selectedAnnotation = getSelectedAnnotation();
-    if (selectedAnnotation != nullptr) {
-        for (ADVSequenceObjectContext *context : qAsConst(associatedView->getSequenceContexts())) {
-            if (selectedAnnotation->getGObject() != nullptr && context->getAnnotationObjects(true).contains(selectedAnnotation->getGObject())) {
-                context->getAnnotationsSelection()->clear();
-                context->getSequenceSelection()->clear();
-                context->emitClearSelectedAnnotationRegions();
-                context->emitAnnotationActivated(selectedAnnotation, 0);
-            }
-        }
+    for (ADVSequenceObjectContext* context : qAsConst(data.associatedView->getSequenceContexts())) {
+        auto dnaSel = context->getSequenceSelection();
+        SAFE_POINT(dnaSel != nullptr, L10N::nullPointerError("DNASelection"), );
+
+        auto newSelectedRegion = getSelectedResultProdictRegion();
+        CHECK(!newSelectedRegion.isEmpty(), );
+
+        dnaSel->clear();
+        dnaSel->setRegion(newSelectedRegion);
     }
 }
 

@@ -47,14 +47,9 @@
 namespace U2 {
 
 const QStringList PCRPrimerDesignForDNAAssemblyTask::FRAGMENT_INDEX_TO_NAME = {
-    "A Forward",
-    "A Reverse",
-    "B1 Forward",
-    "B1 Reverse",
-    "B2 Forward",
-    "B2 Reverse",
-    "B3 Forward",
-    "B3 Reverse"
+    "Main",
+    "Additional 1",
+    "Additional 2"
 };
 
 PCRPrimerDesignForDNAAssemblyTask::PCRPrimerDesignForDNAAssemblyTask(const PCRPrimerDesignForDNAAssemblyTaskSettings& _settings, const QByteArray& _sequence)
@@ -68,11 +63,9 @@ PCRPrimerDesignForDNAAssemblyTask::PCRPrimerDesignForDNAAssemblyTask(const PCRPr
 }
 
 void PCRPrimerDesignForDNAAssemblyTask::prepare() {
-    if (!settings.backboneSequenceUrl.isEmpty()) {
-        loadBackboneSequence = LoadDocumentTask::getDefaultLoadDocTask(stateInfo, GUrl(settings.backboneSequenceUrl));
-        CHECK_OP(stateInfo, );
-
-        addSubTask(loadBackboneSequence);
+    if (!settings.leftPrimerOverhang.isEmpty() || !settings.rightPrimerOverhang.isEmpty()) {
+        checkBackboneSequence = new FindPresenceOfUnwantedParametersTask(settings);
+        addSubTask(checkBackboneSequence);
     }
 
     if (!settings.otherSequencesInPcrUrl.isEmpty()) {
@@ -88,8 +81,6 @@ void PCRPrimerDesignForDNAAssemblyTask::prepare() {
     U2Region reverseComplementArea = DNASequenceUtils::reverseComplementRegion(settings.rightArea, reverseComplementSequence.size());
     findUnwantedIslandsReverseComplement = new FindUnwantedIslandsTask(reverseComplementArea, settings.primerLength.maxValue, reverseComplementSequence, true, settings.tmCalculator);
     addSubTask(findUnwantedIslandsReverseComplement);
-
-
 }
 
 void PCRPrimerDesignForDNAAssemblyTask::run() {
@@ -146,7 +137,7 @@ void PCRPrimerDesignForDNAAssemblyTask::run() {
             } else {
                 // Region string representation
                 QString b1ForwardCandidatePrimerRegionString = regionToString(b1ForwardCandidatePrimerRegion, false);
-                taskLog.details(tr("The \"B1 Forward\" candidate primer region \"%1\" fits to \"Parameters of priming sequences\" values, checking for unwanted connections").arg(QString(b1ForwardCandidatePrimerRegionString)));
+                taskLog.details(tr("The \"B1 Forward\" candidate primer region \"%1\" fits to \"Primers requirements\" values, checking for unwanted connections").arg(QString(b1ForwardCandidatePrimerRegionString)));
                 //If melting temperature and delta G are good - add backbone and check unwanted connections
                 b1ForwardCandidatePrimerSequence = backboneSequence + b1ForwardCandidatePrimerSequence;
                 bool hasUnwanted = hasUnwantedConnections(b1ForwardCandidatePrimerSequence);
@@ -172,20 +163,26 @@ void PCRPrimerDesignForDNAAssemblyTask::run() {
                         aForward = b1Forward;
                         aReverse = b1Reverse;
                         aWasNotFoundYet = false;
+                        if (!settings.searchForAdditionslPrimers) {
+                            b1Forward = U2Region();
+                            b1Reverse = U2Region();
+                        }
                     }
 
-                    //Now we need to find B2 and B3
-                    findSecondaryForwardReversePrimers(SecondaryPrimer::B2);
-                    findSecondaryForwardReversePrimers(SecondaryPrimer::B3);
+                    //Now we need to find B2 and B3 (if parameter is set)
+                    if (settings.searchForAdditionslPrimers) {
+                        findSecondaryForwardReversePrimers(SecondaryPrimer::B2);
+                        findSecondaryForwardReversePrimers(SecondaryPrimer::B3);
 
-                    // We need to find at leas one pair - B2 or B3 - for B1 to be valid
-                    // If we didn't - continue searching
-                    if (b2Forward.isEmpty() && b3Forward.isEmpty()) {
-                        taskLog.details(tr("B2 and B3 primer pairs haven't been found, search again"));
-                        b1Forward = U2Region();
-                        b1Reverse = U2Region();
-                        updatePrimerRegion(b1ForwardCandidatePrimerEnd, b1ForwardPrimerLength);
-                        continue;
+                        // We need to find at leas one pair - B2 or B3 - for B1 to be valid
+                        // If we didn't - continue searching
+                        if (b2Forward.isEmpty() && b3Forward.isEmpty()) {
+                            taskLog.details(tr("B2 and B3 primer pairs haven't been found, search again"));
+                            b1Forward = U2Region();
+                            b1Reverse = U2Region();
+                            updatePrimerRegion(b1ForwardCandidatePrimerEnd, b1ForwardPrimerLength);
+                            continue;
+                        }
                     }
 
                     break;
@@ -207,46 +204,7 @@ void PCRPrimerDesignForDNAAssemblyTask::run() {
 QList<Task*> PCRPrimerDesignForDNAAssemblyTask::onSubTaskFinished(Task* subTask) {
     CHECK_OP(stateInfo, {});
 
-    if (subTask == loadBackboneSequence || subTask == checkBackboneSequence) {
-        if (subTask == loadBackboneSequence) {
-            backboneSequencesCandidates = extractLoadedSequences(loadBackboneSequence);
-            CHECK_OP(stateInfo, {});
-        } else if (subTask == checkBackboneSequence) {
-            const QByteArray &consideredBackboneSequence = checkBackboneSequence->getSequence();
-            // No unwanted structures -> Set as backbone, finish search for backbone.
-            if (!checkBackboneSequence->hasUnwantedParameters()) {
-                backboneSequence = consideredBackboneSequence;
-                taskLog.details(tr("The backbone sequence without unwanted hairpins, self- and hetero-dimers has been "
-                                   "found: %1")
-                                    .arg(QString(backboneSequence)));
-                return {};
-            }
-            // There are unwanted structures -> Asking the user if this sequence with unwanted structures should be used
-            // as backbone?
-            taskLog.details(tr("The following backbone sequence candidate contains parameters: %1")
-                                .arg(QString(consideredBackboneSequence)));
-            int userResponse = UnwantedStructuresInBackboneDialog(consideredBackboneSequence,
-                                                                  checkBackboneSequence->getUnwantedStructures(),
-                                                                  backboneSequencesCandidates.length(),
-                                                                  AppContext::getMainWindow()->getQMainWindow())
-                                   .exec();
-            // User accepted -> Set as backbone, finish search for backbone.
-            if (userResponse == QDialog::Accepted) {
-                backboneSequence = consideredBackboneSequence;
-                return {};
-            }
-            // User rejected -> Proceed to next candidate sequence (next if).
-        }
-
-        if (!backboneSequencesCandidates.isEmpty()) {
-            checkBackboneSequence = new FindPresenceOfUnwantedParametersTask(backboneSequencesCandidates.takeFirst(), settings);
-            return { checkBackboneSequence };
-        } else {
-            backboneSequence = QByteArray();
-            taskLog.error(tr("The file \"%1\" doesn't contain the backbone sequence, which matches the parameters. "
-                "Skip the backbone sequence parameter.").arg(settings.backboneSequenceUrl));
-        }
-    } else if (subTask == loadOtherSequencesInPcr) {
+    if (subTask == loadOtherSequencesInPcr) {
         otherSequencesInPcr = extractLoadedSequences(loadOtherSequencesInPcr);
         CHECK_OP(stateInfo, {});
     } else if (subTask == findUnwantedIslands) {
@@ -265,10 +223,12 @@ QString PCRPrimerDesignForDNAAssemblyTask::generateReport() const {
                                                           userPrimersReports);
 }
 
-QList<U2Region> PCRPrimerDesignForDNAAssemblyTask::getResults() const {
-    QList<U2Region> results;
-    results << aForward << aReverse << b1Forward << b1Reverse << b2Forward << b2Reverse << b3Forward << b3Reverse;
-    return results;
+QList<QPair<U2Region, U2Region>> PCRPrimerDesignForDNAAssemblyTask::getResults() const {
+    QList<QPair<U2Region, U2Region>> result = { { aForward, aReverse }, { b1Forward, b1Reverse }, { b2Forward, b2Reverse }, { b3Forward, b3Reverse} };
+    if (result.at(0) == result.at(1)) {
+        result.pop_front();
+    }
+    return result;
 }
 
 QByteArray PCRPrimerDesignForDNAAssemblyTask::getBackboneSequence() const {
@@ -334,7 +294,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findB1ReversePrimer(const QByteArray& b1
                 continue;
             } else {
                 QString b1ReverseCandidatePrimerRegionString = regionToString(b1ReverseCandidatePrimerRegion, true);
-                taskLog.details(tr("The \"B1 Reverse\" candidate primer region \"%1\" fits to \"Parameters of priming sequences\" values, checking for unwanted connections").arg(b1ReverseCandidatePrimerRegionString));
+                taskLog.details(tr("The \"B1 Reverse\" candidate primer region \"%1\" fits to \"Primers requirements\" values, checking for unwanted connections").arg(b1ReverseCandidatePrimerRegionString));
                 //If melt temp and delta G are good - add backbone and check unwanted connections
                 b1ReverseCandidatePrimerSequence = backboneSequence + b1ReverseCandidatePrimerSequence;
                 bool hasUnwanted = hasUnwantedConnections(b1ReverseCandidatePrimerSequence);
@@ -399,7 +359,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findSecondaryForwardReversePrimers(Secon
         } else {
             //If melt temp and delta G are good - add backbone and check unwanted connections
             QString forwardCandidatePrimerRegionString = regionToString(forwardCandidatePrimerRegion, false);
-            taskLog.details(tr("The \"%1\" candidate primer region \"%2\" fits to \"Parameters of priming sequences\" values, checking for unwanted connections").arg(forwardPrimerName).arg(forwardCandidatePrimerRegionString));
+            taskLog.details(tr("The \"%1\" candidate primer region \"%2\" fits to \"Primers requirements\" values, checking for unwanted connections").arg(forwardPrimerName).arg(forwardCandidatePrimerRegionString));
             forwardCandidatePrimerSequence = backboneSequence + forwardCandidatePrimerSequence;
             bool hasUnwanted = hasUnwantedConnections(forwardCandidatePrimerSequence);
             if (!hasUnwanted) {
@@ -477,7 +437,7 @@ void PCRPrimerDesignForDNAAssemblyTask::findSecondaryReversePrimer(SecondaryPrim
             continue;
         } else {
             QString reverseCandidatePrimerRegionString = regionToString(reverseCandidatePrimerRegion, true);
-            taskLog.details(tr("The \"%1\" candidate primer region \"%2\" fits to \"Parameters of priming sequences\" values, checking for unwanted connections").arg(reversePrimerName).arg(reverseCandidatePrimerRegionString));
+            taskLog.details(tr("The \"%1\" candidate primer region \"%2\" fits to \"Primers requirements\" values, checking for unwanted connections").arg(reversePrimerName).arg(reverseCandidatePrimerRegionString));
             //If melt temp and delta G are good - add backbone and check unwanted connections
             reverseCandidatePrimerSequence = backboneSequence + reverseCandidatePrimerSequence;
             bool hasUnwanted = hasUnwantedConnections(reverseCandidatePrimerSequence);

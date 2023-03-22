@@ -213,7 +213,7 @@ HeteroDimersFinder::HeteroDimersFinder(const QByteArray& _forwardPattern, const 
                 break;
             }
             if (forwardPrimer.at(index) == reverseComplementSequence.at(i)) {
-                homologousRegion[i] = reverseComplementSequence.at(i);
+                homologousRegion.insert(i, reverseComplementSequence.at(i));
             }
         }
 

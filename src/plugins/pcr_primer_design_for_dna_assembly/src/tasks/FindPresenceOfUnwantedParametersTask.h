@@ -31,19 +31,16 @@ namespace U2 {
 class FindPresenceOfUnwantedParametersTask : public Task {
     Q_OBJECT
 public:
-    FindPresenceOfUnwantedParametersTask(const QByteArray& sequence, const PCRPrimerDesignForDNAAssemblyTaskSettings& settings);
+    FindPresenceOfUnwantedParametersTask(const PCRPrimerDesignForDNAAssemblyTaskSettings& settings);
 
     void run() override;
 
     bool hasUnwantedParameters() const;
 
-    const QByteArray& getSequence() const;
-
     // Return homodimers, heterodimers for 5' and 3' ends of given lengths.
     const QString &getUnwantedStructures() const;
 
 private:
-    QByteArray sequence;
     PCRPrimerDesignForDNAAssemblyTaskSettings settings;
     QString unwantedStructures;  // Homodimers, heterodimers.
 };

@@ -53,7 +53,7 @@ void GTest_PCRPrimerDesignForDNAAssemblyTaskTest::init(XMLTestFormat *, const QD
     settings.minGibbs = getInt(el, ENERGY_EXCLUDE_ATTR);
     settings.maxTm = getInt(el, MELTING_POINT_EXCLUDE_ATTR);
     settings.maxLength = getInt(el, COMPL_LENGTH_EXCLUDE_ATTR);
-    QString buf = el.attribute(INSERT_TO_ATTR);
+    /*QString buf = el.attribute(INSERT_TO_ATTR);
     if (buf == "5") {
         settings.insertTo = PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings::Backbone5;
     } else if (buf == "3") {
@@ -61,11 +61,11 @@ void GTest_PCRPrimerDesignForDNAAssemblyTaskTest::init(XMLTestFormat *, const QD
     } else {
         wrongValue(INSERT_TO_ATTR);
         return;
-    }
+    }*/
     settings.leftArea = getU2Region(el, LEFT_AREA_ATTR);
     settings.rightArea = getU2Region(el, RIGHT_AREA_ATTR);
     result = getU2RegionList(el, RESULT_ATTR, ";", 8);
-    buf = el.attribute(BACKBONE_URL_ATTR);
+    /*buf = el.attribute(BACKBONE_URL_ATTR);
     if (!buf.isEmpty()) {
         QFileInfo refFile(env->getVar("COMMON_DATA_DIR") + "/" + buf);
         if (!refFile.exists()) {
@@ -73,8 +73,8 @@ void GTest_PCRPrimerDesignForDNAAssemblyTaskTest::init(XMLTestFormat *, const QD
             return;
         }
         settings.backboneSequenceUrl = env->getVar("COMMON_DATA_DIR") + "/" + buf;
-    }
-    buf = el.attribute(OTHER_SEQ_PCR_URL_ATTR);
+    }*/
+    QString buf = el.attribute(OTHER_SEQ_PCR_URL_ATTR);
     if (!buf.isEmpty()) {
         QFileInfo refFile(env->getVar("COMMON_DATA_DIR") + "/" + buf);
         if (!refFile.exists()) {
@@ -101,7 +101,8 @@ void GTest_PCRPrimerDesignForDNAAssemblyTaskTest::prepare() {
 }
 
 Task::ReportResult GTest_PCRPrimerDesignForDNAAssemblyTaskTest::report() {
-    const QList<U2Region> actualResults = task->getResults();
+    //TODO
+    const QList<U2Region> actualResults /*= task->getResults()*/;
     if (actualResults != result) {
         CHECK_EXT(actualResults.size() == 8, setError(QString("Actual results size %1, expected 8.")
             .arg(QString::number(actualResults.size()))), ReportResult_Finished);

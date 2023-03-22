@@ -46,6 +46,7 @@
 #include <U2Core/U2SafePoints.h>
 #include <U2Core/UserApplicationsSettings.h>
 
+#include <U2Gui/CreateAnnotationWidgetController.h>
 #include <U2Gui/LastUsedDirHelper.h>
 #include <U2Gui/PrimerLineEdit.h>
 #include <U2Gui/U2FileDialog.h>
@@ -95,6 +96,18 @@ PCRPrimerDesignForDNAAssemblyOPWidget::PCRPrimerDesignForDNAAssemblyOPWidget(Ann
     }
     wgtTmSettingsShowHide->init(TM_SETTINGS_SHOW_HIDE_ID, tr("Melting temperature"), wgtTmSettings, false);
 
+    {
+        CreateAnnotationModel createAnnotationModel;
+        createAnnotationModel.data->name = "top_primers";
+        createAnnotationModel.sequenceObjectRef = annDnaView->getActiveSequenceContext()->getSequenceObject()->getReference();
+        createAnnotationModel.hideAnnotationType = true;
+        createAnnotationModel.hideAnnotationName = false;
+        createAnnotationModel.hideLocation = true;
+        annWgtController = new CreateAnnotationWidgetController(createAnnotationModel, this, CreateAnnotationWidgetController::OptionsPanel);
+        wgtShowHideMain->layout()->addWidget(annWgtController->getWidget());
+    }
+
+
     auto seqLength = annDnaView->getActiveSequenceContext()->getSequenceLength();
 
     // Default values, have been provided by the customer
@@ -124,7 +137,9 @@ PCRPrimerDesignForDNAAssemblyOPWidget::PCRPrimerDesignForDNAAssemblyOPWidget(Ann
 
         connect(maxSb, &QSpinBox::editingFinished, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_maxValueChanged);
     }
-    connect(tbLoadBackbone, &QAbstractButton::clicked, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_loadBackbone);
+    sl_addEndingOnOverhangLabels(cbOverhangConnection->currentIndex());
+    connect(cbOverhangConnection, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_addEndingOnOverhangLabels);
     connect(tbLoadOtherSequencesInPcr, &QAbstractButton::clicked, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_loadOtherSequenceInPcr);
     connect(annDnaView, SIGNAL(si_activeSequenceWidgetChanged(ADVSequenceWidget *, ADVSequenceWidget *)),
             SLOT(sl_activeSequenceChanged()));
@@ -132,7 +147,6 @@ PCRPrimerDesignForDNAAssemblyOPWidget::PCRPrimerDesignForDNAAssemblyOPWidget(Ann
             &PCRPrimerDesignForDNAAssemblyOPWidget::sl_sequenceModified);
     connect(annDnaView->getActiveSequenceContext()->getSequenceObject(), &U2SequenceObject::si_sequenceChanged, this,
             &PCRPrimerDesignForDNAAssemblyOPWidget::sl_sequenceModified);
-    connect(productsTable, SIGNAL(doubleClicked(const QModelIndex &)), SLOT(sl_extractProduct()));
 
     connect(pbFindReverseComplement, &QAbstractButton::clicked, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_selectReverseComplementInTable);
     connect(pbAddToForward5, &QAbstractButton::clicked, this, &PCRPrimerDesignForDNAAssemblyOPWidget::sl_add5ForwardSequence);
@@ -198,22 +212,18 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_start() {
     settings.maxTm = spMaxTm->value();
     settings.maxLength = spMaxLength->value();
 
-    if (backbone5->isChecked()) {
-        settings.insertTo = PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings::Backbone5;
-    } else {
-        settings.insertTo = PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings::Backbone3;
-    }
-    settings.bachbone5Length = sbBackbone5Length->value();
-    settings.bachbone3Length = sbBackbone3Length->value();
+    settings.insertTo = static_cast<PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection>(cbOverhangConnection->currentIndex());
+    settings.leftPrimerOverhang = leLeftOverhang->text();
+    settings.rightPrimerOverhang = leRightOverhang->text();
 
     settings.leftArea.startPos = sbLeftAreaStart->value() - 1;
     settings.leftArea.length = sbLeftAreaEnd->value() - sbLeftAreaStart->value();
     settings.rightArea.startPos = sbRightAreaStart->value() - 1;
     settings.rightArea.length = sbRightAreaEnd->value() - sbRightAreaStart->value();
 
-    settings.backboneSequenceUrl = leBackboneFilePath->text();
-
     settings.otherSequencesInPcrUrl = leOtherSequencesInPcrFilePath->text();
+
+    settings.searchForAdditionslPrimers = cbAdditionslPrimers->isChecked();
 
     auto settingsMap = wgtTmSettings->getSettings();
     auto id = settingsMap.value(TmCalculator::KEY_ID).toString();
@@ -322,14 +332,17 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_maxValueChanged() {
     minSb->setMaximum(maxSb->value() - 1);
 }
 
-void PCRPrimerDesignForDNAAssemblyOPWidget::sl_loadBackbone() {
-    QString filter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE }, true);
-    QString selectedFilter = FileFilters::createFileFilterByObjectTypes({ GObjectTypes::SEQUENCE });
-    LastUsedDirHelper lod;
-    QString file = U2FileDialog::getOpenFileName(nullptr, tr("Select a backbone sequence file"), lod, filter, selectedFilter);
-    CHECK(!file.isEmpty(), );
+void PCRPrimerDesignForDNAAssemblyOPWidget::sl_addEndingOnOverhangLabels(int index) {
+    static const QString DIRECT = QT_TR_NOOP("Info: this overhang location is on direct strand");
+    static const QString REV_COMP = QT_TR_NOOP("Info: this overhang location is on reverse-complementary strand (opposite direction)");
 
-    leBackboneFilePath->setText(file);
+    if (index == 0) {
+        lbLeftOverhangInfo->setText(DIRECT);
+        lbRightOverhangInfo->setText(REV_COMP);
+    } else {
+        lbLeftOverhangInfo->setText(REV_COMP);
+        lbRightOverhangInfo->setText(DIRECT);
+    }
 }
 
 void PCRPrimerDesignForDNAAssemblyOPWidget::sl_loadOtherSequenceInPcr() {
@@ -359,30 +372,6 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_onFindTaskFinished() {
     backboneSequence = pcrTask->getBackboneSequence();
     lastRunSettings = pcrTask->getSettings();
     pcrTask = nullptr;
-}
-
-void PCRPrimerDesignForDNAAssemblyOPWidget::sl_extractProduct() {
-    ADVSequenceObjectContext *sequenceContext = annDnaView->getActiveSequenceContext();
-    SAFE_POINT(nullptr != sequenceContext, L10N::nullPointerError("Sequence Context"), );
-    U2SequenceObject *sequenceObject = sequenceContext->getSequenceObject();
-    SAFE_POINT(nullptr != sequenceObject, L10N::nullPointerError("Sequence Object"), );
-    ExtractPrimerTaskSettings settings;
-    settings.sequenceRef = sequenceContext->getSequenceRef();
-    GUrl sequenceURL = sequenceContext->getSequenceObject()->getDocument()->getURL();
-    if (sequenceURL.getType() == GUrl_File) {
-        settings.originalSequenceFileName = QFileInfo(sequenceURL.getURLString()).baseName();
-    } else {
-        settings.originalSequenceFileName = sequenceContext->getSequenceObject()->getSequenceName();
-    }
-    settings.direction = lastRunSettings.insertTo;
-    settings.backboneSequence = backboneSequence;
-    Annotation *selectedAnnotation = productsTable->getSelectedAnnotation();
-    if (selectedAnnotation != nullptr) {
-        CHECK(selectedAnnotation->getRegions().size() == 1, );
-        settings.fragmentLocation = selectedAnnotation->getRegions().first();
-        settings.fragmentName = selectedAnnotation->getName();
-        AppContext::getTaskScheduler()->registerTopLevelTask(new ExtractPrimerAndOpenDocumentTask(settings));
-    }
 }
 
 void PCRPrimerDesignForDNAAssemblyOPWidget::sl_selectReverseComplementInTable() {
@@ -432,48 +421,35 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_annotationCreationTaskFinished() 
 }
 
 void PCRPrimerDesignForDNAAssemblyOPWidget::createResultAnnotations() {
-    QList<SharedAnnotationData> annotations;
-    int index = 0;
+    annWgtController->prepareAnnotationObject();
+    const CreateAnnotationModel& model = annWgtController->getModel();
+    auto ato = model.getAnnotationObject();
+
+    QMap<QString, QList<SharedAnnotationData>> resultAnnotations;
     auto results = pcrTask->getResults();
-    bool emptyResults = true;
-    for (const U2Region &region : qAsConst(results)) {
-        if (region != U2Region()) {
+    for (int i = 0; i < results.size(); i++) {
+        const auto& regions = results[i];
+        CHECK_CONTINUE(!regions.first.isEmpty());
+
+        QList<SharedAnnotationData> annotations;
+        auto createAnnotation = [](const U2Region& region, U2Strand strand) -> SharedAnnotationData {
             SharedAnnotationData data(new AnnotationData());
-            data->setStrand(index % 2 == 0 ? U2Strand(U2Strand::Direct) : U2Strand(U2Strand::Complementary));
-            data->name = PCRPrimerDesignForDNAAssemblyTask::FRAGMENT_INDEX_TO_NAME.at(index);
+            data->setStrand(strand);
+            data->name = "pcr_design_primers";
+            data->type = U2FeatureTypes::Primer;
             data->location->regions.append(region);
-            annotations.append(data);
-            emptyResults = false;
-        }
-        index++;
-    }
-    if (emptyResults) {
-        return;
-    }
+            //U2Qualifier les("left_end_seq",
+            //data->qualifiers
+            return data;
+        };
+        annotations << createAnnotation(regions.first, U2Strand::Direct);
+        annotations << createAnnotation(regions.second, U2Strand::Complementary);
+        resultAnnotations["pcr_design_primers/pair " + QString::number(i + 1)].append(annotations);
 
-    U2OpStatusImpl os;
-    const U2DbiRef localDbiRef = AppContext::getDbiRegistry()->getSessionTmpDbiRef(os);
-    SAFE_POINT_OP(os, );
-    auto resultsTableObject = new AnnotationTableObject(PCR_TABLE_OBJECT_NAME, localDbiRef);
-    QSet<QString> excludeList;
-    for (Document *d : qAsConst(AppContext::getProject()->getDocuments())) {
-        excludeList.insert(d->getURLString());
     }
-    QString newDocUrl = GUrlUtils::rollFileName(AppContext::getAppSettings()->getUserAppsSettings()->getDefaultDataDirPath() + "/PCRPrimers.gb", "_", excludeList);
-    IOAdapterFactory *iof = AppContext::getIOAdapterRegistry()->getIOAdapterFactoryById(BaseIOAdapters::LOCAL_FILE);
-    DocumentFormat *df = AppContext::getDocumentFormatRegistry()->getFormatById(BaseDocumentFormats::PLAIN_GENBANK);
-    Document *d = df->createNewLoadedDocument(iof, newDocUrl, os);
-    CHECK_OP(os, );
-    const U2DbiRef dbiRef = AppContext::getDbiRegistry()->getSessionTmpDbiRef(os);
-    SAFE_POINT_OP(os, );
+    CHECK(!resultAnnotations.isEmpty(), );
 
-    resultsTableObject->addObjectRelation(annDnaView->getActiveSequenceContext()->getSequenceGObject(), ObjectRole_Sequence);
-    d->addObject(resultsTableObject);
-    AppContext::getProject()->addDocument(d);
-    annDnaView->tryAddObject(resultsTableObject);
-    auto createAnnotationsTask = new CreateAnnotationsTask(resultsTableObject, {{"Primers", annotations}});
-    connect(createAnnotationsTask, SIGNAL(si_stateChanged()), SLOT(sl_annotationCreationTaskFinished()));
-    AppContext::getTaskScheduler()->registerTopLevelTask(createAnnotationsTask);
+    AppContext::getTaskScheduler()->registerTopLevelTask(new CreateAnnotationsTask(ato, resultAnnotations));
 }
 
 void PCRPrimerDesignForDNAAssemblyOPWidget::makeWarningInvisibleIfDna() {

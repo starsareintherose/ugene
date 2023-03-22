@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>1289</height>
+    <width>372</width>
+    <height>1313</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_8">
+  <layout class="QVBoxLayout" name="verticalLayout_16">
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -28,7 +28,7 @@
    </property>
    <item>
     <widget class="QWidget" name="runPcrPrimerDesignWidget" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout_16">
+     <layout class="QVBoxLayout" name="verticalLayout_30">
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -42,13 +42,34 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="U2::ShowHideSubgroupWidget" name="userPrimersShowHideGroup" native="true"/>
-      </item>
-      <item>
-       <widget class="U2::ShowHideSubgroupWidget" name="mainSettingsShowHide" native="true"/>
-      </item>
-      <item>
-       <widget class="U2::ShowHideSubgroupWidget" name="wgtTmSettingsShowHide" native="true"/>
+       <widget class="QWidget" name="wgtShowHideMain" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="U2::ShowHideSubgroupWidget" name="userPrimersShowHideGroup" native="true"/>
+         </item>
+         <item>
+          <widget class="U2::ShowHideSubgroupWidget" name="mainSettingsShowHide" native="true"/>
+         </item>
+         <item>
+          <widget class="U2::ShowHideSubgroupWidget" name="wgtTmSettingsShowHide" native="true"/>
+         </item>
+        </layout>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -305,7 +326,7 @@
           <number>0</number>
          </property>
          <property name="topMargin">
-          <number>0</number>
+          <number>5</number>
          </property>
          <property name="rightMargin">
           <number>0</number>
@@ -922,6 +943,13 @@
                 </item>
                </layout>
               </item>
+              <item>
+               <widget class="QCheckBox" name="cbAdditionslPrimers">
+                <property name="text">
+                 <string>Search for additional primers</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
@@ -929,7 +957,7 @@
          </item>
          <item>
           <widget class="QWidget" name="widget_4" native="true">
-           <layout class="QVBoxLayout" name="verticalLayout_10">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
             <property name="leftMargin">
              <number>0</number>
             </property>
@@ -945,69 +973,94 @@
             <item>
              <widget class="QLabel" name="label_22">
               <property name="text">
-               <string>Ovehangs (TODO)</string>
+               <string>Ovehangs</string>
               </property>
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QLineEdit" name="leBackboneFilePath"/>
-              </item>
-              <item>
-               <widget class="QToolButton" name="tbLoadBackbone">
+             <layout class="QFormLayout" name="formLayout_2">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_23">
                 <property name="text">
-                 <string>...</string>
+                 <string>Overhang connection:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="cbOverhangConnection">
+                <item>
+                 <property name="text">
+                  <string>5' primer to 3' overhang</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>5' primer to 5' overhang</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="lbLeftOverhang">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Left primer overhang:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="U2::PrimerLineEdit" name="leLeftOverhang"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="lbRightOverhang">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Right primer overhang:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="U2::PrimerLineEdit" name="leRightOverhang"/>
+              </item>
+              <item row="2" column="0" colspan="2">
+               <widget class="QLabel" name="lbLeftOverhangInfo">
+                <property name="styleSheet">
+                 <string notr="true">color: green;
+font-weight: 600;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0" colspan="2">
+               <widget class="QLabel" name="lbRightOverhangInfo">
+                <property name="styleSheet">
+                 <string notr="true">color: green;
+font-weight: 600;</string>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QWidget" name="widget" native="true">
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QLabel" name="label_23">
-                 <property name="text">
-                  <string>Insert to backbone bearings:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QVBoxLayout" name="verticalLayout_23">
-                 <item>
-                  <widget class="QRadioButton" name="backbone5">
-                   <property name="text">
-                    <string>5' insert to 5' backbone</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QRadioButton" name="backbone3">
-                   <property name="text">
-                    <string>5' insert to 3' backbone</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
             </item>
             <item>
              <widget class="QWidget" name="widget_3" native="true">
@@ -1024,48 +1077,6 @@
                <property name="bottomMargin">
                 <number>0</number>
                </property>
-               <item>
-                <widget class="QLabel" name="label_24">
-                 <property name="text">
-                  <string>Backbone length:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QVBoxLayout" name="verticalLayout_15">
-                 <property name="spacing">
-                  <number>6</number>
-                 </property>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_9">
-                   <item>
-                    <widget class="QLabel" name="label_12">
-                     <property name="text">
-                      <string>3' backbone length:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QSpinBox" name="sbBackbone3Length"/>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_8">
-                   <item>
-                    <widget class="QLabel" name="label_9">
-                     <property name="text">
-                      <string>5' backbone length:</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QSpinBox" name="sbBackbone5Length"/>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
               </layout>
              </widget>
             </item>
@@ -1079,6 +1090,9 @@
              <number>0</number>
             </property>
             <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
              <number>0</number>
             </property>
             <property name="bottomMargin">
@@ -1179,6 +1193,11 @@ font-weight: 600;</string>
    <extends>QWidget</extends>
    <header location="global">U2View/TmCalculatorSelectorWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>U2::PrimerLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">U2Gui/PrimerLineEdit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

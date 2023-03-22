@@ -35,7 +35,7 @@ class Annotation;
 struct ResultTableData {
     AnnotatedDNAView *associatedView = nullptr;
     AnnotationGroup *associatedGroup = nullptr;
-    QList<U2Region> currentProducts;
+    QList<QPair<U2Region, U2Region>> currentProducts;
 };
 
 class ResultTable : public QTableWidget {
@@ -43,19 +43,20 @@ class ResultTable : public QTableWidget {
 public:
     ResultTable(QWidget *parent);
 
-    void setCurrentProducts(const QList<U2Region> &currentProducts, AnnotatedDNAView *associatedView);
+    void setCurrentProducts(const QList<QPair<U2Region, U2Region>> &currentProducts, AnnotatedDNAView *associatedView);
     void setAnnotationGroup(AnnotationGroup *associatedGroup);
-    Annotation* getSelectedAnnotation() const;
-    ResultTableData getPCRPrimerProductTableData() const;
+    U2Region getSelectedResultProdictRegion() const;
+    const ResultTableData& getPCRPrimerProductTableData() const;
 
-    static constexpr int MAXIMUM_ROW_COUNT = 8;
+    static constexpr int MAXIMUM_ROW_COUNT = 3;
 private slots:
     void sl_selectionChanged();
 
 private:
-    AnnotatedDNAView *associatedView = nullptr;
+    ResultTableData data;
+    /*AnnotatedDNAView* associatedView = nullptr;
     AnnotationGroup *associatedGroup = nullptr;
-    QList<U2Region> currentProducts;
+    QList<QPair<U2Region, U2Region>> currentProducts;*/
 };
 
 }    // namespace U2

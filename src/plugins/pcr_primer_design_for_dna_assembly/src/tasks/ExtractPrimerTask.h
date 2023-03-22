@@ -41,7 +41,7 @@ struct ExtractPrimerTaskSettings {
     QString originalSequenceFileName;
     QString outputFileUrl;
     QByteArray backboneSequence;
-    PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings direction = PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings::Backbone5;
+    //PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings direction = PCRPrimerDesignForDNAAssemblyTaskSettings::BackboneBearings::Backbone5;
 };
 
 class ExtractPrimerTask : public Task {

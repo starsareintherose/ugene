@@ -49,21 +49,22 @@ struct PCRPrimerDesignForDNAAssemblyTaskSettings {
     int maxLength = 0;
 
     //Areas fpr priming search
-    //Insert to backbone bearings
-    enum class BackboneBearings {
-        Backbone5,
-        Backbone3
+    bool searchForAdditionslPrimers;
+
+    //Overhangs
+    enum class OverhangConnection {
+        Primer5Overhang3,
+        Primer5Overhang5
     };
-    BackboneBearings insertTo = BackboneBearings::Backbone5;
+    OverhangConnection insertTo = OverhangConnection::Primer5Overhang3;
+    QString leftPrimerOverhang;
+    QString rightPrimerOverhang;
     int bachbone5Length = 0;
     int bachbone3Length = 0;
 
     //Areas
     U2Region leftArea;
     U2Region rightArea;
-
-    //Backbone sequence
-    QString backboneSequenceUrl;
 
     //Other sequences in PCR
     QString otherSequencesInPcrUrl;

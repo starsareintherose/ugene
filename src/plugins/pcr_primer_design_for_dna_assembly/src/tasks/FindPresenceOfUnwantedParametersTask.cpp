@@ -27,59 +27,50 @@
 
 namespace U2 {
 
-FindPresenceOfUnwantedParametersTask::FindPresenceOfUnwantedParametersTask(const QByteArray& _sequence,
-                                            const PCRPrimerDesignForDNAAssemblyTaskSettings& _settings)
+FindPresenceOfUnwantedParametersTask::FindPresenceOfUnwantedParametersTask(const PCRPrimerDesignForDNAAssemblyTaskSettings& _settings)
     : Task(tr("Find Presence of Unwanted Parameters Task"), TaskFlags_FOSCOE),
-      sequence(_sequence),
       settings(_settings) {}
 
 void FindPresenceOfUnwantedParametersTask::run() {
-    SAFE_POINT(settings.bachbone5Length >= 0 && settings.bachbone3Length >= 0,
-               "Backbone length must be greater than 0", )
-    if (sequence.length() < settings.bachbone5Length) {
-        stateInfo.addWarning(tr("Sequence length is less than 5' backbone length, the entire sequence is used"));
-    }
-    if (sequence.length() < settings.bachbone3Length) {
-        stateInfo.addWarning(tr("Sequence length is less than 3' backbone length, the entire sequence is used"));
-    }
-    QByteArray forward = sequence.left(settings.bachbone5Length);
-    QByteArray reverse = sequence.right(settings.bachbone3Length);
+    QByteArray left = settings.leftPrimerOverhang.toLocal8Bit();
+    QByteArray right = settings.rightPrimerOverhang.toLocal8Bit();
     QString report;
 
     //TODO: hairpins
-
-    bool res = UnwantedConnectionsUtils::isUnwantedSelfDimer(forward, settings.minGibbs,
-        settings.maxTm, settings.maxLength, settings.tmCalculator, report);
-    if (res) {
-        unwantedStructures = tr("<u>5' backbone</u><br><br>");
-        unwantedStructures += report;
-        unwantedStructures += "<br>";
-        report.clear();
+    if (!left.isEmpty()) {
+        bool res = UnwantedConnectionsUtils::isUnwantedSelfDimer(left, settings.minGibbs,
+            settings.maxTm, settings.maxLength, settings.tmCalculator, report);
+        if (res) {
+            unwantedStructures = tr("<u>Left overhang</u><br><br>");
+            unwantedStructures += report;
+            unwantedStructures += "<br>";
+            report.clear();
+        }
     }
 
-    res = UnwantedConnectionsUtils::isUnwantedSelfDimer(reverse, settings.minGibbs,
-        settings.maxTm, settings.maxLength, settings.tmCalculator, report);
-    if (res) {
-        unwantedStructures += tr("<u>3' backbone</u><br><br>");
-        unwantedStructures += report;
-        unwantedStructures += "<br>";
-        report.clear();
+    if (!right.isEmpty()) {
+        bool res = UnwantedConnectionsUtils::isUnwantedSelfDimer(right, settings.minGibbs,
+            settings.maxTm, settings.maxLength, settings.tmCalculator, report);
+        if (res) {
+            unwantedStructures += tr("<u>Right overhang</u><br><br>");
+            unwantedStructures += report;
+            unwantedStructures += "<br>";
+            report.clear();
+        }
     }
 
-    res = UnwantedConnectionsUtils::isUnwantedHeteroDimer(forward, reverse, settings.minGibbs,
-        settings.maxTm, settings.maxLength, settings.tmCalculator, report);
-    if (res) {
-        unwantedStructures += tr("<u>Connections between 5' and 3' backbones</u><br><br>");
-        unwantedStructures += report;
+    if (!left.isEmpty() && !right.isEmpty()) {
+        bool res = UnwantedConnectionsUtils::isUnwantedHeteroDimer(left, right, settings.minGibbs,
+            settings.maxTm, settings.maxLength, settings.tmCalculator, report);
+        if (res) {
+            unwantedStructures += tr("<u>Connections between 5' and 3' backbones</u><br><br>");
+            unwantedStructures += report;
+        }
     }
 }
 
 bool FindPresenceOfUnwantedParametersTask::hasUnwantedParameters() const {
     return !unwantedStructures.isEmpty();
-}
-
-const QByteArray& FindPresenceOfUnwantedParametersTask::getSequence() const {
-    return sequence;
 }
 
 const QString &FindPresenceOfUnwantedParametersTask::getUnwantedStructures() const {
