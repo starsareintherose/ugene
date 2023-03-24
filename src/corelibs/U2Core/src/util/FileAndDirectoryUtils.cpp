@@ -31,6 +31,11 @@
 #include <U2Core/TmpDirChecker.h>
 #include <U2Core/U2SafePoints.h>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+
+#endif
+
 static const QString OUTPUT_SUBDIR = "run";
 
 namespace U2 {
@@ -213,7 +218,24 @@ NP<FILE> FileAndDirectoryUtils::openFile(const QString& fileUrl, const QString& 
         modeWithBinaryFlag += "b";  // Always open file in binary mode, so any kind of sam, sam.gz, bam, bai files are processed the same way.
     }
     QScopedPointer<wchar_t> unicodeMode(TextUtils::toWideCharsArray(modeWithBinaryFlag));
-    return _wfopen(unicodeFileName.data(), unicodeMode.data());
+    FILE* fp = _wfopen(unicodeFileName.data(), unicodeMode.data());
+    DWORD errorMessageID = ::GetLastError();
+    if (errorMessageID != 0) {
+        LPSTR messageBuffer = nullptr;
+
+        //Ask Win32 to give us the string version of that message ID.
+        //The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
+        size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+        //Copy the error message into a std::string.
+        QString localErr = QString::fromUtf8(std::string(messageBuffer, size).c_str());
+        coreLog.error(QString("fopen_s: can't open file: \"%1\", opening mode: %2, code: %3, error: %4, fp %5 NULL").arg(fileUrl).arg(mode).arg(errorMessageID).arg(localErr).arg(fp == nullptr ? "is" : "is not"));
+
+        //Free the Win32's string's buffer.
+        LocalFree(messageBuffer);
+    }
+    return fp;
 #else
     return fopen(fileUrl.toLocal8Bit(), mode.toLatin1());
 #endif
