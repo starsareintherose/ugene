@@ -1818,7 +1818,7 @@ GUI_TEST_CLASS_DEFINITION(test_7455) {
     GTLogTracer lt;
     GTUtilsDialog::waitForDialog(os, new DigestSequenceDialogFiller(os, new DigestScenario()));
     GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Cloning", "Digest into fragments..."}));
-    GTMenu::showContextMenu(os, GTUtilsSequenceView::getSeqWidgetByNumber(os));
+    GTMenu::showContextMenu(os, GTUtilsSequenceView::getPanOrDetView(os));
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     // Expected: the task finished with an error: Conserved annotation misc_feature (2646..3236) is disrupted by the digestion. Try changing the restriction sites.
@@ -2002,7 +2002,7 @@ GUI_TEST_CLASS_DEFINITION(test_7473_2) {
 
     GTUtilsDocument::checkIfDocumentIsLocked(os, "CBS.sto", true);
 
-    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::TreeSettings);
+    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::AddTree);
 
     GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, "default", 0, 0, true));
     GTWidget::click(os, GTWidget::findWidget(os, "buildTreeButton"));
@@ -2900,8 +2900,8 @@ GUI_TEST_CLASS_DEFINITION(test_7609) {
     // No crash.
     GTFileDialog::openFile(os, testDir + "_common_data/clustal/non_unique_row_names.aln");
     GTUtilsMsaEditor::checkMsaEditorWindowIsActive(os);
-    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::TreeSettings);
-    GTUtilsOptionPanelMsa::closeTab(os, GTUtilsOptionPanelMsa::TreeSettings);
+    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::AddTree);
+    GTUtilsOptionPanelMsa::closeTab(os, GTUtilsOptionPanelMsa::AddTree);
     GTUtilsMsaEditor::removeRows(os, 0, 0);
     GTUtilsMsaEditor::removeRows(os, 0, 0);
 }
@@ -2954,7 +2954,7 @@ GUI_TEST_CLASS_DEFINITION(test_7616) {
     GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/COI.aln");
     GTUtilsMsaEditor::checkMsaEditorWindowIsActive(os);
 
-    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::TreeSettings);
+    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::AddTree);
 
     // Try non-tree file. Expected state: nothing is loaded.
     GTLogTracer lt1;
@@ -3491,7 +3491,7 @@ GUI_TEST_CLASS_DEFINITION(test_7668) {
     GTUtilsMsaEditor::checkMsaEditorWindowIsActive(os);
     GTUtilsProjectTreeView::toggleView(os);
 
-    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::TreeSettings);
+    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::AddTree);
     GTUtilsDialog::add(os, new GTFileDialogUtils(os, dataDir + "/samples/Newick/COI.nwk"));
     GTWidget::click(os, GTWidget::findWidget(os, "openTreeButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
@@ -4115,6 +4115,7 @@ GUI_TEST_CLASS_DEFINITION(test_7789) {
 
     GTFileDialog::openFile(os, testDir + "_common_data/newick/COXII CDS tree.newick");
     GTUtilsTaskTreeView::waitTaskFinished(os);
+    GTUtilsPhyTree::clickZoomFitButton(os);
 
     GTUtilsOptionPanelPhyTree::openTab(os);
 
@@ -4258,6 +4259,43 @@ GUI_TEST_CLASS_DEFINITION(test_7806) {
     GTUtilsAssemblyBrowser::checkAssemblyBrowserWindowIsActive(os);
     qint64 size = GTFile::getSize(os, sandBoxDir + "/test_7806/2/chrM.fa");
     CHECK_SET_ERR(size == 4, "chrM.fa in SAM dir is changed, size: " + QString::number(size));
+}
+
+GUI_TEST_CLASS_DEFINITION(test_7824) {
+    // 1. Open 1.gb.
+    // 2. Double click any annotation
+    // Expected: the corresponding sequence has been selected
+    // 
+    // 3. Click right button on the same annotation
+    // Expected: the corresponding sequence is still selected
+    // Current: sequence selection is gone, only annotation selection left
+
+    GTFileDialog::openFile(os, testDir + "_common_data/scenarios/project/", "1.gb");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    GTTreeWidget::doubleClick(os, GTUtilsAnnotationsTreeView::findItem(os, "B_group  (0, 2)"));
+    GTTreeWidget::doubleClick(os, GTUtilsAnnotationsTreeView::findItem(os, "B"));
+    GTTreeWidget::click(os, GTUtilsAnnotationsTreeView::findItem(os, "B"), -1, Qt::RightButton);
+    GTKeyboardDriver::keyClick(Qt::Key_Escape);
+    QVector<U2Region> selection = GTUtilsSequenceView::getSelection(os);
+    CHECK_SET_ERR(selection.size() == 1, "Selection size should be 1, but actual size is " + QString::number(selection.size()));
+    CHECK_SET_ERR(selection.first() == U2Region(29, 91),
+                  QString("Selection doesn't match with 'B' annotation it is (%1, %2) instead of (29, 91).")
+                      .arg(QString::number(selection.first().startPos))
+                      .arg(QString::number(selection.first().length))
+                  );
+    GTTreeWidget::doubleClick(os, GTUtilsAnnotationsTreeView::findItem(os, "C_group  (0, 1)"));
+    QPoint cCenter = GTUtilsAnnotationsTreeView::getItemCenter(os, "C");    
+    QPoint bjCenter = GTUtilsAnnotationsTreeView::getItemCenter(os, "B_joined");
+    GTKeyboardDriver::keyPress(Qt::Key_Control);
+    GTMouseDriver::moveTo(cCenter);
+    GTMouseDriver::doubleClick();
+    GTMouseDriver::moveTo(bjCenter);
+    GTMouseDriver::doubleClick();
+    GTKeyboardDriver::keyRelease(Qt::Key_Control);
+
+    selection = GTUtilsSequenceView::getSelection(os);
+    CHECK_SET_ERR(selection.size() == 4, "Selection size should be 4, but actual size is " + QString::number(selection.size()));
 }
 
 GUI_TEST_CLASS_DEFINITION(test_7825) {

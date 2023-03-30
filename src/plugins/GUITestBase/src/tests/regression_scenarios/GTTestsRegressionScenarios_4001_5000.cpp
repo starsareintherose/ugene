@@ -1494,7 +1494,7 @@ GUI_TEST_CLASS_DEFINITION(test_4177) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
     GTUtilsProjectTreeView::toggleView(os);  // Let more space for the tree view.
 
-    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::TreeSettings);
+    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::AddTree);
     GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, "default", 0, 0, true));
     GTWidget::click(os, GTWidget::findWidget(os, "buildTreeButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
@@ -1539,7 +1539,7 @@ GUI_TEST_CLASS_DEFINITION(test_4177_1) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
     GTUtilsProjectTreeView::toggleView(os);  // Let more space for the tree view.
 
-    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::TreeSettings);
+    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::AddTree);
     GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, "default", 0, 0, true));
     GTWidget::click(os, GTWidget::findWidget(os, "buildTreeButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
@@ -3747,6 +3747,7 @@ GUI_TEST_CLASS_DEFINITION(test_4674_2) {
 
     GTUtilsMsaEditor::buildPhylogeneticTree(os, sandBoxDir + "test_4674_2");
     GTUtilsTaskTreeView::waitTaskFinished(os);
+    GTUtilsOptionPanelMsa::closeTab(os, GTUtilsOptionPanelMsa::TreeOptions);
 
     QAbstractButton* syncModeButton = GTAction::button(os, "sync_msa_action");
     CHECK_SET_ERR(syncModeButton->isChecked(), "Sync mode must be ON/1");
@@ -3792,7 +3793,7 @@ GUI_TEST_CLASS_DEFINITION(test_4676_1) {
     GTUtilsMdi::click(os, GTGlobals::Close);
 
     // Open the view again.
-    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"Open View", "action_open_view"}));
+    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"openInMenu", "action_open_view"}));
     GTUtilsProjectTreeView::click(os, "COI.aln", Qt::RightButton);
 
     // Expected state: undo action is enabled.
@@ -3823,7 +3824,7 @@ GUI_TEST_CLASS_DEFINITION(test_4676_2) {
     GTUtilsMdi::click(os, GTGlobals::Close);
 
     // Open the view again.
-    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"Open View", "action_open_view"}));
+    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"openInMenu", "action_open_view"}));
     GTUtilsProjectTreeView::click(os, "COI.aln", Qt::RightButton);
 
     // Expected state: redo action is enabled.

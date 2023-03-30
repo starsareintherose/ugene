@@ -706,6 +706,7 @@ GUI_TEST_CLASS_DEFINITION(test_6136) {
     CHECK_SET_ERR(count == 1, QString("Unexpected products quantity, expected: 1, current: %1").arg(count));
 
     // 5. Press "Extract product"
+    GTWidget::click(os, GTWidget::findWidget(os, "ArrowHeader_Settings"));
     GTUtilsOptionPanelSequenceView::pressExtractProduct(os);
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
@@ -3645,6 +3646,7 @@ GUI_TEST_CLASS_DEFINITION(test_6649) {
 
     auto annsComboBox = GTWidget::findComboBox(os, "annsComboBox");
     GTComboBox::selectItemByIndex(os, annsComboBox, 1);
+    GTWidget::click(os, GTWidget::findWidget(os, "ArrowHeader_Settings"));
     GTWidget::click(os, GTWidget::findWidget(os, "extractProductButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
@@ -5288,7 +5290,7 @@ GUI_TEST_CLASS_DEFINITION(test_6760) {
     GTUtilsSequenceView::checkSequenceViewWindowIsActive(os);
 
     // 2. Open additional a second copy of the sequence view
-    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open view", "Open new view: Sequence View"}, GTGlobals::UseMouse));
+    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open In", "Open new view: Sequence View"}, GTGlobals::UseMouse));
     GTUtilsProjectTreeView::callContextMenu(os, "human_T1.fa");
 
     // 3. Open /data/samples/gff/5prime_utr_intron_A20.gff
