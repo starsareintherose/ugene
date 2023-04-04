@@ -333,8 +333,8 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::sl_maxValueChanged() {
 }
 
 void PCRPrimerDesignForDNAAssemblyOPWidget::sl_addEndingOnOverhangLabels(int index) {
-    static const QString DIRECT = QT_TR_NOOP("Info: this overhang location is on direct strand");
-    static const QString REV_COMP = QT_TR_NOOP("Info: this overhang location is on reverse-complementary strand (opposite direction)");
+    static const QString DIRECT = QT_TR_NOOP("Info: this overhang is located on direct strand");
+    static const QString REV_COMP = QT_TR_NOOP("Info: this overhang is located on reverse-complementary strand (opposite direction)");
 
     if (index == 0) {
         lbLeftOverhangInfo->setText(DIRECT);
