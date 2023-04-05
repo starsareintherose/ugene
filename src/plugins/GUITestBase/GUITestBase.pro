@@ -180,6 +180,7 @@ HEADERS +=  src/GUITestBasePlugin.h \
             src/GTUtilsOptionsPanel.h \
             src/GTUtilsOptionsPanelPhyTree.h \
             src/GTUtilsPcr.h \
+            src/GTUtilsPcrPrimerDesignForDnaAssembly.h \
             src/GTUtilsPhyTree.h \
             src/GTUtilsPrimerLibrary.h \
             src/GTUtilsProject.h \
@@ -243,6 +244,7 @@ HEADERS +=  src/GUITestBasePlugin.h \
             src/tests/common_scenarios/options_panel/sequence_view/GTTestsOptionPanelSequenceView.h \
             src/tests/common_scenarios/pcr/GTTestsInSilicoPcr.h \
             src/tests/common_scenarios/pcr/GTTestsPrimerLibrary.h \
+            src/tests/common_scenarios/pcr_primer_design_for_dna_assembly/GTTestsPcrPrimerDesignForDnaAssembly.h \
             src/tests/common_scenarios/phyml/GTTestsCommonScenariosPhyml.h \
             src/tests/common_scenarios/primer3/GTTestsCommonScenariosPrimer3.h \
             src/tests/common_scenarios/project/GTTestsProject.h \
@@ -466,6 +468,7 @@ SOURCES +=  src/GUITestBasePlugin.cpp \
             src/GTUtilsOptionsPanel.cpp \
             src/GTUtilsOptionsPanelPhyTree.cpp \
             src/GTUtilsPcr.cpp \
+            src/GTUtilsPcrPrimerDesignForDnaAssembly.cpp \
             src/GTUtilsPhyTree.cpp \
             src/GTUtilsPrimerLibrary.cpp \
             src/GTUtilsProject.cpp \
@@ -529,6 +532,7 @@ SOURCES +=  src/GUITestBasePlugin.cpp \
             src/tests/common_scenarios/options_panel/sequence_view/GTTestsOptionPanelSequenceView.cpp \
             src/tests/common_scenarios/pcr/GTTestsInSilicoPcr.cpp \
             src/tests/common_scenarios/pcr/GTTestsPrimerLibrary.cpp \
+            src/tests/common_scenarios/pcr_primer_design_for_dna_assembly/GTTestsPcrPrimerDesignForDnaAssembly.cpp \
             src/tests/common_scenarios/phyml/GTTestsCommonScenariosPhyml.cpp \
             src/tests/common_scenarios/primer3/GTTestsCommonScenariosPrimer3.cpp \
             src/tests/common_scenarios/project/GTTestsProject.cpp \

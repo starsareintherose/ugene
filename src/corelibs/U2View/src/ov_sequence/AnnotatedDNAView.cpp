@@ -261,8 +261,8 @@ QWidget* AnnotatedDNAView::createViewWidget(QWidget* parent) {
 
     QList<OPFactoryFilterVisitorInterface*> filters;
 
-    ADVSequenceObjectContext* ctx;
-    QList<DNAAlphabetType> alphabets;
+    ADVSequenceObjectContext *ctx;
+    QList<const DNAAlphabet *> alphabets;
 
     for (int i = 0; i < seqViews.size(); i++) {
         if (seqViews[i] != nullptr) {
@@ -270,7 +270,7 @@ QWidget* AnnotatedDNAView::createViewWidget(QWidget* parent) {
             if (ctx) {
                 const DNAAlphabet* alphabet = ctx->getAlphabet();
                 if (alphabet) {
-                    alphabets.append(alphabet->getType());
+                    alphabets.append(alphabet);
                 }
             }
         }

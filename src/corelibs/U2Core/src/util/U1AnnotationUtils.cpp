@@ -562,7 +562,8 @@ U2Location U1AnnotationUtils::shiftLocation(const U2Location& location, qint64 s
     return newLocation;
 }
 
-QMap<Annotation*, QList<QPair<QString, QString>>> FixAnnotationsUtils::fixAnnotations(U2OpStatus* os, U2SequenceObject* seqObj, const U2Region& regionToReplace, const DNASequence& sequence2Insert, QList<Document*> docs, bool recalculateQualifiers, U1AnnotationUtils::AnnotationStrategyForResize str) {
+QMap<Annotation*, QList<QPair<QString, QString>>> FixAnnotationsUtils::fixAnnotations(U2OpStatus* os, U2SequenceObject* seqObj, const U2Region& regionToReplace, const DNASequence& sequence2Insert,
+                                                                                      QList<Document*> docs, bool recalculateQualifiers, U1AnnotationUtils::AnnotationStrategyForResize str) {
     FixAnnotationsUtils fixer(os, seqObj, regionToReplace, sequence2Insert, recalculateQualifiers, str, docs);
     fixer.fixAnnotations();
     return fixer.annotationForReport;

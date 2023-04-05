@@ -58,6 +58,20 @@ QString PrimerStatistics::checkPcrPrimersPair(const QByteArray& forward, const Q
     return message;
 }
 
+double PrimerStatistics::getDeltaG(const QByteArray& sequence) {
+    CHECK(validate(sequence), TmCalculator::INVALID_TM);
+
+    double freeEnergy = 0.0;
+    QByteArray curArray(2, ' ');
+    for (int i = 0; i < sequence.size() - 1; i++) {
+        curArray[0] = sequence.at(i);
+        curArray[1] = sequence.at(i + 1);
+        freeEnergy += BaseDimersFinder::ENERGY_MAP.value(curArray, 0.0);
+    }
+
+    return freeEnergy;
+}
+
 bool PrimerStatistics::validate(const QByteArray& primer) {
     return validate(QString(primer));
 }

@@ -231,7 +231,7 @@ static QStringList splitGffAttributes(const QString& line, char sep) {
 void GFFFormat::load(IOAdapter* io, const U2DbiRef& dbiRef, QList<GObject*>& objects, const QVariantMap& hints, U2OpStatus& os) {
     DbiOperationsBlock opBlock(dbiRef, os);
     CHECK_OP(os, );
-    QScopedArrayPointer<char> buff(new char[LOCAL_READ_BUFFER_SIZE]);    
+    QScopedArrayPointer<char> buff(new char[LOCAL_READ_BUFFER_SIZE]);
     // -1 - because line terminator excluded and we should add it manually
     int len = io->readLine(buff.data(), LOCAL_READ_BUFFER_SIZE - 1);
     CHECK_EXT(!io->hasError(), os.setError(io->errorString()), );

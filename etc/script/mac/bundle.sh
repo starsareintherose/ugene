@@ -148,6 +148,7 @@ PLUGIN_LIST="annotator \
              linkdata_support \
              orf_marker \
              pcr \
+             pcr_primer_design_for_dna_assembly \
              perf_monitor \
              phylip \
              primer3 \

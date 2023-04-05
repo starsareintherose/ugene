@@ -21,6 +21,7 @@
 
 #include "OPWidgetFactory.h"
 
+#include <U2Core/DNAAlphabet.h>
 #include <U2Core/U2SafePoints.h>
 
 namespace U2 {
@@ -32,6 +33,16 @@ OPGroupParameters::OPGroupParameters(QString groupId, QPixmap headerImage, QStri
       groupDocumentationPage(documentationPage) {
 }
 
+/////////////////////////////////////////////////OPFactoryFilterVisitor/////////////////////////////////////////////////
+OPFactoryFilterVisitor::OPFactoryFilterVisitor(ObjectViewType _objectViewType,
+                                               const QList<const DNAAlphabet *> &_objectListAlphabet)
+    : OPFactoryFilterVisitorInterface(), objectViewType(_objectViewType), objectAlphabetType(DNAAlphabet_RAW) {
+    for (const DNAAlphabet *alpha : qAsConst(_objectListAlphabet)) {
+        objectAlphabets << alpha->getType();
+        objectAlphabetIds << alpha->getId();
+    }
+}
+
 bool OPFactoryFilterVisitor::atLeastOneAlphabetPass(DNAAlphabetType factoryAlphabetType) {
     for (int i = 0; i < objectAlphabets.size(); i++) {
         if (objectAlphabets[i] == factoryAlphabetType)
@@ -39,6 +50,17 @@ bool OPFactoryFilterVisitor::atLeastOneAlphabetPass(DNAAlphabetType factoryAlpha
     }
     return false;
 }
+
+bool OPFactoryFilterVisitor::atLeastOneDnaPass() const {
+    for (const QString &alphabetId : qAsConst(objectAlphabetIds)) {
+        if (alphabetId == BaseDNAAlphabetIds::NUCL_DNA_DEFAULT() ||
+            alphabetId == BaseDNAAlphabetIds::NUCL_DNA_EXTENDED()) {
+            return true;
+        }
+    }
+    return false;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 OPWidgetFactory::OPWidgetFactory()
     : QObject(),
