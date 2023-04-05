@@ -106,14 +106,10 @@ public slots:
     void sl_onCircularTopologyChange();
 
 protected slots:
-    void sl_onAnnotationsModified(const QList<AnnotationModification>& modifications) override;
     void sl_onAnnotationSelectionChanged(AnnotationSelection*, const QList<Annotation*>& added, const QList<Annotation*>& removed) override;
     void sl_onDNASelectionChanged(LRegionsSelection* thiz, const QVector<U2Region>& added, const QVector<U2Region>& removed) override;
 
 protected:
-    //void registerAnnotations(const QList<Annotation*>& l) override;
-    void unregisterAnnotations(const QList<Annotation*>& l) override;
-
     void adaptSizes();
     void updateZoomActions();
 

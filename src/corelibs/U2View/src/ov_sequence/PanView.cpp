@@ -291,15 +291,12 @@ void PanView::sl_onRowBarMoved(int v) {
 }
 
 void PanView::sl_onAnnotationsModified(const QList<AnnotationModification>& annotationModifications) {
-    QList<Annotation*> toUnregister, toRegister;
+    QList<Annotation*> modified;
     foreach (const AnnotationModification& annotationModification, annotationModifications) {
-        toUnregister << annotationModification.annotation;
-        if (annotationModification.type != AnnotationModification_RemovedFromGroup) {
-            toRegister << annotationModification.annotation;
-        }
+        modified << annotationModification.annotation;
     }
-    unregisterAnnotations(toUnregister);
-    registerAnnotations(toRegister);
+    unregisterAnnotations(modified);
+    registerAnnotations(modified);
 
     addUpdateFlags(GSLV_UF_AnnotationsChanged);
     update();

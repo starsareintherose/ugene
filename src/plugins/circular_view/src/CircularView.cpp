@@ -27,7 +27,6 @@
 #include <QGridLayout>
 #include <QPainter>
 
-#include <U2Core/AnnotationModification.h>
 #include <U2Core/AnnotationSettings.h>
 #include <U2Core/AnnotationTableObject.h>
 #include <U2Core/AppContext.h>
@@ -65,7 +64,7 @@ CircularView::CircularView(QWidget* p, ADVSequenceObjectContext* ctx, CircularVi
       settings(settings) {
     QSet<AnnotationTableObject*> anns = ctx->getAnnotationObjects(true);
     foreach (AnnotationTableObject* obj, anns) {
-        GSequenceLineViewAnnotated::registerAnnotations(obj->getAnnotations());
+        registerAnnotations(obj->getAnnotations());
     }
 
     circularViewRenderArea = new CircularViewRenderArea(this);
@@ -179,23 +178,6 @@ void CircularView::setAngle(int angle) {
     renderArea->update();
 }
 
-void CircularView::sl_onAnnotationsModified(const QList<AnnotationModification>& modifications) {
-    QList<Annotation*> toUnregister, toRegister;
-    for (const auto& modification : qAsConst(modifications)) {
-        toUnregister.append(modification.annotation);
-        if (modification.type != AnnotationModification_RemovedFromGroup) {
-            toRegister.append(modification.annotation);
-        }
-    }
-    unregisterAnnotations(toUnregister);
-    registerAnnotations(toRegister);
-
-    addUpdateFlags(GSLV_UF_AnnotationsChanged);
-    update();
-    GSequenceLineViewAnnotated::sl_onAnnotationsModified(modifications);
-    renderArea->update();
-}
-
 void CircularView::sl_onAnnotationSelectionChanged(AnnotationSelection* selection, const QList<Annotation*>& added, const QList<Annotation*>& removed) {
     GSequenceLineViewAnnotated::sl_onAnnotationSelectionChanged(selection, added, removed);
     renderArea->update();
@@ -203,16 +185,6 @@ void CircularView::sl_onAnnotationSelectionChanged(AnnotationSelection* selectio
 
 void CircularView::sl_onDNASelectionChanged(LRegionsSelection* thiz, const QVector<U2Region>& added, const QVector<U2Region>& removed) {
     GSequenceLineViewAnnotated::sl_onDNASelectionChanged(thiz, added, removed);
-    renderArea->update();
-}
-
-/*void CircularView::registerAnnotations(const QList<Annotation*>& l) {
-    addUpdateFlags(GSLV_UF_NeedCompleteRedraw);
-    renderArea->update();
-}*/
-
-void CircularView::unregisterAnnotations(const QList<Annotation*>& l) {
-    addUpdateFlags(GSLV_UF_NeedCompleteRedraw);
     renderArea->update();
 }
 
