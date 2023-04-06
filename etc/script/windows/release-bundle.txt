@@ -139,7 +139,7 @@ data/cmdline/snp.uwl
 data/custom_annotations
 data/custom_annotations/plasmid_features.txt
 data/enzymes
-data/enzymes/2013_08_01.bairoch.gz
+data/enzymes/2023_02_25.bairoch.gz
 data/genome_lengths
 data/genome_lengths/danRer7.genome
 data/genome_lengths/ecoli.genome
@@ -1359,7 +1359,6 @@ plugins/pcr.license
 plugins/pcr.map
 plugins/pcr.plugin
 plugins/pcr_primer_design_for_dna_assembly.dll
-plugins/pcr_primer_design_for_dna_assembly.exp
 plugins/pcr_primer_design_for_dna_assembly.license
 plugins/pcr_primer_design_for_dna_assembly.map
 plugins/pcr_primer_design_for_dna_assembly.plugin
