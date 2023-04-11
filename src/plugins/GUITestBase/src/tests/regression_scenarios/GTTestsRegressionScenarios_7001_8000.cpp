@@ -4261,6 +4261,32 @@ GUI_TEST_CLASS_DEFINITION(test_7806) {
     CHECK_SET_ERR(size == 4, "chrM.fa in SAM dir is changed, size: " + QString::number(size));
 }
 
+GUI_TEST_CLASS_DEFINITION(test_7823) {
+    // Open the Log.
+    // Open CVU55762.gb
+    //     The SV has appeared.
+    // Expand "CVU55762 features/CDS" in the Annotations Editor. Expand the Annotations Editor if you need it.
+    // Drag-and-drop the first CDS annotation with Location 679..1398 to the gene group in the Annotations Editor.
+    //     Expected:
+    //         1. The Zoom View has only one CDS annotation with Location 679..1398 (you may need to scroll up in the
+    //            Zoom View to check), click on it and check that there are no error messages in the Log.
+    //         2. The Circular View has only one CDS annotation with Location 679..1398, click on it and check that
+    //            there are no error messages in the Log.
+    //         3. In the Details View hover over the annotations above position 680 and make sure there is only one CDS
+    //            annotation in the tooltip, click on these annotations, the annotation selection menu will appear, in
+    //            this menu select the annotation "CDS [679, 1398]" and check that there are no error messages in the Log.
+    //         4. In the Annotations Editor, the CDS group has changed from "CDS  (0, 2)" to "CDS  (0, 1)".
+    GTUtilsProject::openFileExpectSequence(os, dataDir + "samples/Genbank/CVU55762.gb", "CVU55762");
+    /*QSplitterHandle* handle = [&os]() -> QSplitterHandle* {
+        QList<QSplitterHandle*> handles = GTWidget::findChildren<QSplitterHandle>(os, GTUtilsSequenceView::getActiveSequenceViewWindow(os), [](QSplitterHandle* h) { return h->objectName() == "qt_splithandle_"; });
+        CHECK_SET_ERR_RESULT(!handles.empty(), "Unable to expand the Annotations Editor: handle not found", nullptr)
+        return *std::find_if(handles.cbegin(), handles.cend(), [](QSplitterHandle* const& lhs, QSplitterHandle* const& rhs) { return lhs->y() < rhs->y(); });
+    }();*/
+    //GTMouseDriver::dragAndDrop(GTWidget::getWidgetCenter(handle))
+    //GTUtilsAnnotationsTreeView::findItem(os, "CDS");
+
+}
+
 GUI_TEST_CLASS_DEFINITION(test_7824) {
     // 1. Open 1.gb.
     // 2. Double click any annotation
