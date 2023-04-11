@@ -105,7 +105,7 @@ bool AnnotationGroup::hasAnnotations() const {
     return false;
 }
 
-QList<Annotation*> AnnotationGroup::addAnnotations(const QList<SharedAnnotationData>& anns) {
+QList<Annotation*> AnnotationGroup::addAnnotations(const QList<SharedAnnotationData>& anns, bool shouldEmit) {
     QList<Annotation*> result;
     CHECK(!anns.isEmpty(), result);
 
@@ -125,7 +125,9 @@ QList<Annotation*> AnnotationGroup::addAnnotations(const QList<SharedAnnotationD
     annotations.append(result);
 
     parentObject->setModified(true);
-    parentObject->emit_onAnnotationsAdded(result);
+    if (shouldEmit) {
+        parentObject->emit_onAnnotationsAdded(result);
+    }
 
     return result;
 }
