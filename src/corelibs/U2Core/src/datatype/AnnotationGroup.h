@@ -54,7 +54,7 @@ public:
 
     bool hasAnnotations() const;
 
-    QList<Annotation*> addAnnotations(const QList<SharedAnnotationData>& anns, bool shouldEmit = true);
+    QList<Annotation*> addAnnotations(const QList<SharedAnnotationData>& anns);
 
     void addShallowAnnotations(const QList<Annotation*>& anns, bool newAnnotations);
 

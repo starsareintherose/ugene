@@ -1472,9 +1472,9 @@ bool AnnotationsTreeView::initiateDragAndDrop(QMouseEvent*) {
 typedef QPair<AnnotationGroup*, QString> GroupChangeInfo;
 typedef QPair<GroupChangeInfo, Annotation*> AnnotationDnDInfo;
 
-static void collectAnnotationDnDInfo(AnnotationGroup* ag, const QString& destGroupPath, QList<std::pair<AnnotationDnDInfo, bool>>& annotationsToProcess) {
+static void collectAnnotationDnDInfo(AnnotationGroup* ag, const QString& destGroupPath, QList<AnnotationDnDInfo>& annotationsToProcess) {
     foreach (Annotation* a, ag->getAnnotations()) {
-        annotationsToProcess << std::pair<AnnotationDnDInfo, bool>(AnnotationDnDInfo(GroupChangeInfo(ag, destGroupPath), a), true);
+        annotationsToProcess << AnnotationDnDInfo(GroupChangeInfo(ag, destGroupPath), a);
     }
     const QString newDestGroupPath = destGroupPath + "/" + ag->getName();
     foreach (AnnotationGroup* sag, ag->getSubgroups()) {
@@ -1494,7 +1494,7 @@ void AnnotationsTreeView::finishDragAndDrop(Qt::DropAction dndAction) {
     const QString destGroupPath = dropDestination->group->getGroupPath();
 
     QList<AnnotationGroup*> affectedGroups;
-    QList<std::pair<AnnotationDnDInfo, bool>> affectedAnnotations;
+    QList<AnnotationDnDInfo> affectedAnnotations;
     QList<Task*> moveAutoAnnotationTasks;
     QStringList manualCreationGroups;
 
@@ -1504,7 +1504,7 @@ void AnnotationsTreeView::finishDragAndDrop(Qt::DropAction dndAction) {
         if (selItem->type == AVItemType_Annotation) {
             auto fromGroupItem = dynamic_cast<AVGroupItem*>(selItem->parent());
             auto ai = dynamic_cast<AVAnnotationItem*>(selItem);
-            affectedAnnotations << std::pair<AnnotationDnDInfo, bool> (AnnotationDnDInfo(GroupChangeInfo(fromGroupItem->group, destGroupPath), ai->annotation), false);
+            affectedAnnotations << AnnotationDnDInfo(GroupChangeInfo(fromGroupItem->group, destGroupPath), ai->annotation);
         } else {
             auto movedGroupItem = dynamic_cast<AVGroupItem*>(selItem);
             if (movedGroupItem->group->getParentGroup() == dropDestination->group) {
@@ -1536,28 +1536,28 @@ void AnnotationsTreeView::finishDragAndDrop(Qt::DropAction dndAction) {
     // Move or Copy annotation reference inside of the object
     dndAdded.clear();
     QList<Annotation*> dndToRemove;  // used to remove dragged annotations at once in case of Qt::MoveAction (see below)
-    QList<std::pair<AnnotationGroup*, bool>> srcGroupList;  // used to remove dragged annotations at once in case of Qt::MoveAction (see below)
-    QList<std::pair<AnnotationGroup*, bool>> dstGroupList;  // used to add all dragged annotations at once (see below)
-    foreach (auto adnd, affectedAnnotations) {
-        const QString& toGroupPath = adnd.first.first.second;
+    QList<AnnotationGroup*> srcGroupList;  // used to remove dragged annotations at once in case of Qt::MoveAction (see below)
+    QList<AnnotationGroup*> dstGroupList;  // used to add all dragged annotations at once (see below)
+    foreach (const AnnotationDnDInfo& adnd, affectedAnnotations) {
+        const QString& toGroupPath = adnd.first.second;
         AnnotationGroup* dstGroup = dstObject->getRootGroup()->getSubgroup(toGroupPath, true);
         if (dstGroup == dstObject->getRootGroup()) {  // root group can't have annotations -> problem with store/load invariant..
             continue;
         }
-        AnnotationGroup* srcGroup = adnd.first.first.first;
-        Annotation* srcAnnotation = adnd.first.second;
+        AnnotationGroup* srcGroup = adnd.first.first;
+        Annotation* srcAnnotation = adnd.second;
         Annotation* dstAnnotation = srcAnnotation;
         if (srcAnnotation->getGObject() != dstObject) {
-            dstAnnotation = dstGroup->addAnnotations(QList<SharedAnnotationData>() << srcAnnotation->getData(), adnd.second).first();
+            dstAnnotation = dstGroup->addAnnotations(QList<SharedAnnotationData>() << srcAnnotation->getData()).first();
         }
         bool doAdd = !dstGroup->getAnnotations().contains(dstAnnotation);
         bool doRemove = dndAction == Qt::MoveAction && doAdd;
         if (doAdd) {
             dndAdded.append(dstAnnotation);
-            dstGroupList.append(std::pair<AnnotationGroup*, bool> (dstGroup, adnd.second));
+            dstGroupList.append(dstGroup);
         }
         if (doRemove) {
-            srcGroupList.append(std::pair<AnnotationGroup*, bool> (srcGroup, adnd.second));
+            srcGroupList.append(srcGroup);
             dndToRemove.append(srcAnnotation);
         }
     }
@@ -1565,27 +1565,19 @@ void AnnotationsTreeView::finishDragAndDrop(Qt::DropAction dndAction) {
     // Add and remove the dragged annotations to the receiver AnnotationsTreeView at once.
     // It is required for the case of cross-view drag and drop.
     int i = 0;
-    foreach (auto g, dstGroupList) {
-        g.first->addAnnotations(QList<SharedAnnotationData>() << dndAdded.at(i)->getData(), g.second);
+    foreach (AnnotationGroup* g, dstGroupList) {
+        g->addAnnotations(QList<SharedAnnotationData>() << dndAdded.at(i)->getData());
         i++;
     }
 
     i = 0;
     QMap<AnnotationTableObject*, QList<AnnotationModification>> annotationModifications;
-    foreach (auto g, srcGroupList) {
-        if (!g.second) {
-            annotationModifications[g.first->getGObject()] << AnnotationGroupModification(AnnotationModification_RemovedFromGroup, dndToRemove.at(i), g.first);
-            i++;
-        }
+    foreach (AnnotationGroup* g, srcGroupList) {
+        annotationModifications[g->getGObject()] << AnnotationGroupModification(AnnotationModification_RemovedFromGroup, dndToRemove.at(i), g);
+        i++;
     }
-    foreach (auto annotationTableObject, annotationModifications.keys()) {
+    foreach (AnnotationTableObject* annotationTableObject, annotationModifications.keys()) {
         annotationTableObject->emit_onAnnotationsModified(annotationModifications[annotationTableObject]);
-    }
-    for (auto i : annotationModifications) {
-        for (auto j : i) {
-            j.annotation->getGroup()->removeAnnotations(QList<Annotation*>() << j.annotation);
-        }
-        i.clear();
     }
 
     // Process groups
