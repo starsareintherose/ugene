@@ -1576,8 +1576,13 @@ void AnnotationsTreeView::finishDragAndDrop(Qt::DropAction dndAction) {
         annotationModifications[g->getGObject()] << AnnotationGroupModification(AnnotationModification_RemovedFromGroup, dndToRemove.at(i), g);
         i++;
     }
-    foreach (AnnotationTableObject* annotationTableObject, annotationModifications.keys()) {
+    /*foreach (AnnotationTableObject* annotationTableObject, annotationModifications.keys()) {
         annotationTableObject->emit_onAnnotationsModified(annotationModifications[annotationTableObject]);
+    }*/
+    for (auto i : annotationModifications) {
+        for (auto j : i) {
+            j.annotation->getGroup()->removeAnnotations(QList<Annotation*>() << j.annotation);
+        }
     }
 
     // Process groups

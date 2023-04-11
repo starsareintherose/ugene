@@ -163,7 +163,7 @@ void AnnotationGroup::removeAnnotations(const QList<Annotation*>& anns) {
     foreach (Annotation* a, anns) {
         annotationById.remove(a->id);
         annotations.removeOne(a);
-        delete a;
+        //delete a;
     }
     parentObject->setModified(true);
 }
