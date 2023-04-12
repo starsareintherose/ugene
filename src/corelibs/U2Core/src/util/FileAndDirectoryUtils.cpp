@@ -218,7 +218,10 @@ NP<FILE> FileAndDirectoryUtils::openFile(const QString& fileUrl, const QString& 
         modeWithBinaryFlag += "b";  // Always open file in binary mode, so any kind of sam, sam.gz, bam, bai files are processed the same way.
     }
     QScopedPointer<wchar_t> unicodeMode(TextUtils::toWideCharsArray(modeWithBinaryFlag));
+    auto err = errno;
     FILE* fp = _wfopen(unicodeFileName.data(), unicodeMode.data());
+    err = errno;
+    coreLog.error(QString("fopen_s: err: \"%1\"").arg(err));
     DWORD errorMessageID = ::GetLastError();
     if (errorMessageID != 0) {
         LPSTR messageBuffer = nullptr;

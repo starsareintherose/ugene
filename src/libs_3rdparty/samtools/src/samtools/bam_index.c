@@ -200,7 +200,8 @@ bam_index_t *bam_index_core(bamFile fp)
 			save_tid = c->tid;
 			if (save_tid < 0) break;
 		}
-		if (bam_tell(fp) <= last_off) {
+		uint64_t qwe = bam_tell(fp);
+		if (qwe <= last_off) {
 			fprintf(stderr, "[bam_index_core] bug in BGZF/RAZF: %llx < %llx\n",
 					(unsigned long long)bam_tell(fp), (unsigned long long)last_off);
 			return NULL;

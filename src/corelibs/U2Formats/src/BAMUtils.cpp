@@ -75,7 +75,7 @@ void BAMUtils::closeFileIfOpen(FILE* file) {
 /** Version the original samopen() function with a correct handling of unicode in faiUrl and non-UGENE use cases removed. */
 static samfile_t* samopen_ugene(const NP<FILE>& file, const char* mode, const QString& faiUrl, bam_header_t* bamHeader) {
     SAFE_POINT(file != nullptr, "samopen_ugene: file is null!", nullptr);
-    int fd = fileno(file);
+    int fd = fileno(file.get());
     SAFE_POINT(fd != -1, "samopen_ugene: file is closed", nullptr);
     int TYPE_BAM = 1;
     int TYPE_READ = 2;
@@ -84,7 +84,7 @@ static samfile_t* samopen_ugene(const NP<FILE>& file, const char* mode, const QS
         fp->type |= TYPE_READ;
         if (strchr(mode, 'b')) {  // binary
             fp->type |= TYPE_BAM;
-            fp->x.bam = bgzf_fdopen(file, "r");
+            fp->x.bam = bgzf_fdopen(file.get(), "r");
             if (fp->x.bam == nullptr) {
                 free(fp);
                 return nullptr;
@@ -109,7 +109,7 @@ static samfile_t* samopen_ugene(const NP<FILE>& file, const char* mode, const QS
                         free(fp);
                         return nullptr;
                     }
-                    fp->header = sam_header_read2_fd(fileno(faiFile));
+                    fp->header = sam_header_read2_fd(fileno(faiFile.get()));
                     if (fp->header == nullptr) {
                         free(fp);
                         return nullptr;
@@ -145,7 +145,7 @@ static samfile_t* samopen_ugene(const NP<FILE>& file, const char* mode, const QS
             bmode[1] = compress_level < 0 ? 0 : compress_level + '0';
             bmode[2] = 0;
             fp->type |= TYPE_BAM;
-            fp->x.bam = bgzf_fdopen(file, bmode);
+            fp->x.bam = bgzf_fdopen(file.get(), bmode);
             if (fp->x.bam == nullptr) {
                 free(fp);
                 return nullptr;
@@ -197,12 +197,14 @@ static samfile_t* samOpen(const QString& url, const char* samMode, const QString
     fileMode.replace("h", "");
     NP<FILE> file = BAMUtils::openFile(url, fileMode);
     samfile_t* samfile = samopen_ugene(file, samMode, faiUrl, header);
-    CHECK_EXT(samfile != nullptr, BAMUtils::closeFileIfOpen(file), nullptr);
+    CHECK_EXT(samfile != nullptr, BAMUtils::closeFileIfOpen(file.getNullable()), nullptr);
 
     bool isBam = samfile->type == 1;
     if (isBam) {
         samfile->x.bam->owned_file = 1;
     }
+    // who close this file, if it's not BAM?
+    //fclose(file.getNullable());
     return samfile;
 }
 
@@ -350,9 +352,11 @@ bool BAMUtils::isSortedBam(const QString& bamUrl, U2OpStatus& os) {
     QString error;
     bool result = false;
 
+
     NP<FILE> file = BAMUtils::openFile(bamUrl, "rb");
     bamFile bamHandler = bgzf_fdopen(file.getNullable(), "r");
     if (bamHandler != nullptr) {
+        bamHandler->owned_file = 1;
         header = bam_header_read(bamHandler);
         if (header != nullptr) {
             result = isSorted(header->text);
@@ -371,7 +375,7 @@ bool BAMUtils::isSortedBam(const QString& bamUrl, U2OpStatus& os) {
         if (bamHandler != nullptr) {
             bgzf_close(bamHandler);
         } else {
-            BAMUtils::closeFileIfOpen(file);
+            BAMUtils::closeFileIfOpen(file.getNullable());
         }
     }
 
@@ -397,7 +401,7 @@ bool BAMUtils::isSortedBam(const QString& bamUrl, U2OpStatus& os) {
     return true;
 }
 
-static int bamMergeCore(const QString& outFileName, const QList<QString>& filesToMerge);
+static int bamMergeCore(QString outFileName, QList<QString> filesToMerge);
 
 static QString createNumericSuffix(int n) {
     QString suffix = QString::number(n);
@@ -411,9 +415,11 @@ static void bamSortBlocks(int n, int k, bam1_p* buf, const QString& prefix, cons
     NP<FILE> file = BAMUtils::openFile(sortedFileName, "w");
     bamFile fp = bgzf_fdopen(file.getNullable(), "w");
     if (fp == nullptr) {
+        BAMUtils::closeFileIfOpen(file.getNullable());
         coreLog.error(BAMUtils::tr("[sort_blocks] fail to create file %1").arg(sortedFileName));
         return;
     }
+    fp->owned_file = 1;
     bam_header_write(fp, h);
     for (int i = 0; i < k; ++i) {
         bam_write1_core(fp, &buf[i]->core, buf[i]->data_len, buf[i]->data);
@@ -425,12 +431,13 @@ static void bamSortCore(U2OpStatus& os, const QString& bamFileToSort, const QStr
     coreLog.trace("bamSortCore: " + bamFileToSort + ", result prefix: " + prefix);
     NP<FILE> file = BAMUtils::openFile(bamFileToSort, "rb");
     CHECK_EXT(file != nullptr, os.setError(BAMUtils::tr("Failed to open file: %1").arg(bamFileToSort)), );
-    bamFile fp = bgzf_fdopen(file, "r");
+    bamFile fp = bgzf_fdopen(file.get(), "r");
     if (fp == nullptr) {
-        BAMUtils::closeFileIfOpen(file);
+        BAMUtils::closeFileIfOpen(file.get());
         coreLog.error(BAMUtils::tr("[bam_sort_core] fail to open file"));
         return;
     }
+    fp->owned_file = 1;
     int n = 0;
     int k = 0;
     size_t max_mem = 100 * 1000 * 1000;
@@ -492,12 +499,7 @@ GUrl BAMUtils::sortBam(const QString& bamUrl, const QString& sortedBamFilePath, 
     return sortedBamFilePathPrefix + ".bam";
 }
 
-/**
- * Merges multiple sorted BAM.
- * Copy of the 'bam_merge_core' but with Unicode strings and parameters limited to the current UGENE use-cases.
- */
-static int bamMergeCore(const QString& outFileName, const QList<QString>& filesToMerge) {
-    coreLog.trace("bamMergeCore: " + filesToMerge.join(",") + " to " + outFileName);
+static int localBamMergeCore(const QString& outFileName, const QList<QString>& filesToMerge) {
     bam_header_t* hout = nullptr;
     int n = filesToMerge.length();
     auto fp = (bamFile*)calloc(n, sizeof(bamFile));
@@ -508,28 +510,31 @@ static int bamMergeCore(const QString& outFileName, const QList<QString>& filesT
         fp[i] = bgzf_fdopen(file.getNullable(), "r");
         if (fp[i] == nullptr) {
             coreLog.error(BAMUtils::tr("[bam_merge_core] fail to open file %1").arg(filesToMerge[i]));
-            BAMUtils::closeFileIfOpen(file);
             for (int j = 0; j < i; ++j) {
                 bgzf_close(fp[j]);
             }
+            BAMUtils::closeFileIfOpen(file.getNullable());
             free(fp);
             free(heap);
             return -1;
         }
+        fp[i]->owned_file = 1;
+
         bam_header_t* hin = bam_header_read(fp[i]);
         if (i == 0) {  // the first BAM
             hout = hin;
         } else {  // validate multiple baf
             int min_n_targets = hout->n_targets;
-            if (hin->n_targets < min_n_targets)
+            if (hin->n_targets < min_n_targets) {
                 min_n_targets = hin->n_targets;
+            }
 
-            for (int j = 0; j < min_n_targets; ++j)
+            for (int j = 0; j < min_n_targets; ++j) {
                 if (strcmp(hout->target_name[j], hin->target_name[j]) != 0) {
                     coreLog.error(BAMUtils::tr("[bam_merge_core] different target sequence name: '%1' != '%2' in file '%3'\n")
-                                      .arg(hout->target_name[j])
-                                      .arg(hin->target_name[j])
-                                      .arg(filesToMerge[i]));
+                        .arg(hout->target_name[j])
+                        .arg(hin->target_name[j])
+                        .arg(filesToMerge[i]));
                     for (int m = 0; m <= i; m++) {
                         bgzf_close(fp[m]);
                     }
@@ -537,6 +542,7 @@ static int bamMergeCore(const QString& outFileName, const QList<QString>& filesT
                     free(heap);
                     return -1;
                 }
+            }
 
             // If this input file has additional target reference sequences,
             // add them to the headers to be output
@@ -562,9 +568,9 @@ static int bamMergeCore(const QString& outFileName, const QList<QString>& filesT
     }
     NP<FILE> outFile = BAMUtils::openFile(outFileName, "wb");
     bamFile fpout = bgzf_fdopen(outFile.getNullable(), "w");
+    fpout->owned_file = 1;
     if (fpout == nullptr) {
         coreLog.error(BAMUtils::tr("Failed to create the output file: %1").arg(outFileName));
-        BAMUtils::closeFileIfOpen(outFile);
         for (int i = 0; i < n; ++i) {
             bam_iter_destroy(iter[i]);
             bgzf_close(fp[i]);
@@ -606,6 +612,53 @@ static int bamMergeCore(const QString& outFileName, const QList<QString>& filesT
     return 0;
 }
 
+static constexpr int MAX_FILES_OPENED = 100;
+static int recursiveBamMergeCore(const QString& outFileName, const QList<QString>& filesToMerge) {
+    int size = filesToMerge.size();
+    CHECK(size != 0, -1);
+
+    int remainder = size % MAX_FILES_OPENED;
+    int iterationNumber = size / MAX_FILES_OPENED + (remainder != 0 ? 1 : 0);
+    if (iterationNumber == 1) {
+        return localBamMergeCore(outFileName, filesToMerge);
+    }
+
+    QStringList newOutFileNameList;
+    for (int i = 0; i < iterationNumber; i++) {
+        int midLength = MAX_FILES_OPENED;
+        if (i == iterationNumber - 1) {
+            midLength = remainder;
+        }
+        QList<QString> newFilesToMerge = filesToMerge.mid(i * MAX_FILES_OPENED, midLength);
+        auto firstFileToMergeName = newFilesToMerge.first();
+        // Remove ".bam" from the end
+        QString newOutFileBaseName = firstFileToMergeName.left(firstFileToMergeName.size() - 4);
+        QString newOutFileName = newOutFileBaseName + "_" + QString::number(i) + ".bam";
+        newOutFileNameList << newOutFileName;
+        int res = recursiveBamMergeCore(newOutFileName, newFilesToMerge);
+        CHECK(res >= 0, res);
+    }
+
+    return recursiveBamMergeCore(outFileName, newOutFileNameList);
+}
+
+
+/**
+ * Merges multiple sorted BAM.
+ * Copy of the 'bam_merge_core' but with Unicode strings and parameters limited to the current UGENE use-cases.
+ */
+static int bamMergeCore(QString outFileName, QList<QString> filesToMerge) {
+    /*outFileName = "D:/Development/UGENE/roman/New_folder/10.sam.bam_sorted.bam";
+    filesToMerge.clear();
+    for (int i = 0; i < 1469; i++) {
+        filesToMerge << QString("D:/Development/UGENE/roman/New_folder/10.sam.bam_sorted.%1.bam").arg(i);
+    }*/
+
+    coreLog.trace("bamMergeCore: " + filesToMerge.join(",") + " to " + outFileName);
+
+    return recursiveBamMergeCore(outFileName, filesToMerge);
+}
+
 GUrl BAMUtils::mergeBam(const QStringList& bamUrls, const QString& mergedBamTargetUrl, U2OpStatus& os) {
     coreLog.details(tr(R"(Merging BAM files: "%1". Resulting merged file is: "%2")")
                         .arg(QString(bamUrls.join(",")))
@@ -624,8 +677,8 @@ void* BAMUtils::loadIndex(const QString& filePath) {
         file = BAMUtils::openFile(filePath.chopped(4) + ".bai", mode);
     }
     CHECK(file != nullptr, nullptr);
-    bam_index_t* idx = bam_index_load_core(file);
-    closeFileIfOpen(file);
+    bam_index_t* idx = bam_index_load_core(file.get());
+    closeFileIfOpen(file.get());
     return idx;
 }
 
@@ -667,7 +720,7 @@ static int bamIndexBuild(const QString& bamFileName) {
     NP<FILE> file = BAMUtils::openFile(bamFileName, "rb");
     bamFile fp = bgzf_fdopen(file.getNullable(), "r");
     if (fp == nullptr) {
-        BAMUtils::closeFileIfOpen(file);
+        BAMUtils::closeFileIfOpen(file.getNullable());
         fprintf(stderr, "[bam_index_build2] fail to open the BAM file.\n");
         return -1;
     }
@@ -683,9 +736,9 @@ static int bamIndexBuild(const QString& bamFileName) {
         fprintf(stderr, "[bam_index_build2] fail to create the index file.\n");
         return -1;
     }
-    bam_index_save(idx, fpidx);
+    bam_index_save(idx, fpidx.get());
     bam_index_destroy(idx);
-    fclose(fpidx);
+    fclose(fpidx.get());
     return 0;
 }
 

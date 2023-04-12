@@ -177,17 +177,25 @@ open_write(FILE* file, int compress_level) // compress_level==-1 for the default
 
 
 BGZF*
-bgzf_fdopen(FILE* file, const char * __restrict mode)
-{
-	if (file == 0) return 0;
+bgzf_fdopen(FILE* file, const char * __restrict mode) {
+    if (file == 0) {
+        return 0;
+    }
     if (mode[0] == 'r' || mode[0] == 'R') {
         return open_read(file);
     } else if (mode[0] == 'w' || mode[0] == 'W') {
 		int i, compress_level = -1;
-		for (i = 0; mode[i]; ++i)
-			if (mode[i] >= '0' && mode[i] <= '9') break;
-		if (mode[i]) compress_level = (int)mode[i] - '0';
-		if (strchr(mode, 'u')) compress_level = 0;
+        for (i = 0; mode[i]; ++i) {
+            if (mode[i] >= '0' && mode[i] <= '9') {
+                break;
+            }
+        }
+        if (mode[i]) {
+            compress_level = (int)mode[i] - '0';
+        }
+        if (strchr(mode, 'u')) {
+            compress_level = 0;
+        }
         return open_write(file, compress_level);
     } else {
         return NULL;
@@ -441,7 +449,11 @@ bgzf_read_block(BGZF* fp)
         // Do not reset offset if this read follows a seek.
         fp->block_offset = 0;
     }
+    int64_t prevBA = fp->block_address;
     fp->block_address = block_address;
+    if (fp->block_address < 0) {
+        int qwe = 0;
+    }
     fp->block_length = count;
 	cache_block(fp, size);
     return 0;
@@ -480,7 +492,11 @@ bgzf_read(BGZF* fp, void* data, int length)
         bytes_read += copy_length;
     }
     if (fp->block_offset == fp->block_length) {
+        int64_t prevBA = fp->block_address;
         fp->block_address = ftello(fp->file);
+        if (fp->block_address < 0) {
+            int qwe = 0;
+        }
         fp->block_offset = 0;
         fp->block_length = 0;
     }
