@@ -1579,8 +1579,8 @@ void AnnotationsTreeView::finishDragAndDrop(Qt::DropAction dndAction) {
     /*foreach (AnnotationTableObject* annotationTableObject, annotationModifications.keys()) {
         annotationTableObject->emit_onAnnotationsModified(annotationModifications[annotationTableObject]);
     }*/
-    for (auto i : annotationModifications) {
-        for (auto j : i) {
+    for (auto k : annotationModifications) {
+        for (auto j : k) {
             j.annotation->getGroup()->removeAnnotations(QList<Annotation*>() << j.annotation);
         }
     }
