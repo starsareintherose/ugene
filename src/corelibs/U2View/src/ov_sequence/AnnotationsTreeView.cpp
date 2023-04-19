@@ -716,7 +716,7 @@ void AnnotationsTreeView::sl_onAnnotationsModified(const QList<AnnotationModific
                     auto gi = dynamic_cast<AVGroupItem*>(ai->parent());
                     selectedAnnotation.remove(ai);
                     delete ai;
-                    gi->updateVisual();
+                    gi->updateVisual(1);
                 }
             } break;
         }
@@ -1576,9 +1576,9 @@ void AnnotationsTreeView::finishDragAndDrop(Qt::DropAction dndAction) {
         annotationModifications[g->getGObject()] << AnnotationGroupModification(AnnotationModification_RemovedFromGroup, dndToRemove.at(i), g);
         i++;
     }
-    /*foreach (AnnotationTableObject* annotationTableObject, annotationModifications.keys()) {
+    foreach (AnnotationTableObject* annotationTableObject, annotationModifications.keys()) {
         annotationTableObject->emit_onAnnotationsModified(annotationModifications[annotationTableObject]);
-    }*/
+    }
     for (auto k : annotationModifications) {
         for (auto j : k) {
             j.annotation->getGroup()->removeAnnotations(QList<Annotation*>() << j.annotation);

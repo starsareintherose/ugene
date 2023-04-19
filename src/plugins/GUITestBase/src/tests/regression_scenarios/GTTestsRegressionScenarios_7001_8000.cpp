@@ -35,6 +35,7 @@
 #include <primitives/GTRadioButton.h>
 #include <primitives/GTSlider.h>
 #include <primitives/GTSpinBox.h>
+#include <primitives/GTSplitter.h>
 #include <primitives/GTTabWidget.h>
 #include <primitives/GTTableView.h>
 #include <primitives/GTToolbar.h>
@@ -4208,14 +4209,16 @@ GUI_TEST_CLASS_DEFINITION(test_7823) {
     //            this menu select the annotation "CDS [679, 1398]" and check that there are no error messages in the Log.
     //         4. In the Annotations Editor, the CDS group has changed from "CDS  (0, 2)" to "CDS  (0, 1)".
     GTUtilsProject::openFileExpectSequence(os, dataDir + "samples/Genbank/CVU55762.gb", "CVU55762");
-    /*QSplitterHandle* handle = [&os]() -> QSplitterHandle* {
-        QList<QSplitterHandle*> handles = GTWidget::findChildren<QSplitterHandle>(os, GTUtilsSequenceView::getActiveSequenceViewWindow(os), [](QSplitterHandle* h) { return h->objectName() == "qt_splithandle_"; });
-        CHECK_SET_ERR_RESULT(!handles.empty(), "Unable to expand the Annotations Editor: handle not found", nullptr)
-        return *std::find_if(handles.cbegin(), handles.cend(), [](QSplitterHandle* const& lhs, QSplitterHandle* const& rhs) { return lhs->y() < rhs->y(); });
-    }();*/
-    //GTMouseDriver::dragAndDrop(GTWidget::getWidgetCenter(handle))
-    //GTUtilsAnnotationsTreeView::findItem(os, "CDS");
-
+    [&os] {
+        auto splitter = GTWidget::findSplitter(os, "annotated_DNA_splitter");
+        GTSplitter::moveHandle(os,
+                               splitter,
+                               -GTUtilsSequenceView::getActiveSequenceViewWindow(os)->height() / 3,
+                               splitter->indexOf(GTWidget::findWidget(os, "annotations_tree_view")));
+    }();
+    GTUtilsAnnotationsTreeView::getItemCenter(os, "CDS");
+    GTMouseDriver::dragAndDrop(GTUtilsAnnotationsTreeView::getItemCenter(os, "CDS"),
+                               GTUtilsAnnotationsTreeView::getItemCenter(os, "gene  (0, 1)"));
 }
 
 GUI_TEST_CLASS_DEFINITION(test_7824) {
