@@ -69,6 +69,7 @@
 #include "GTTestsRegressionScenarios_7001_8000.h"
 #include "GTUtilsAnnotationsTreeView.h"
 #include "GTUtilsAssemblyBrowser.h"
+#include "GTUtilsBookmarksTreeView.h"
 #include "GTUtilsCircularView.h"
 #include "GTUtilsDashboard.h"
 #include "GTUtilsDocument.h"
@@ -4195,7 +4196,7 @@ GUI_TEST_CLASS_DEFINITION(test_7824) {
     // 1. Open 1.gb.
     // 2. Double click any annotation
     // Expected: the corresponding sequence has been selected
-    // 
+    //
     // 3. Click right button on the same annotation
     // Expected: the corresponding sequence is still selected
     // Current: sequence selection is gone, only annotation selection left
@@ -4212,10 +4213,9 @@ GUI_TEST_CLASS_DEFINITION(test_7824) {
     CHECK_SET_ERR(selection.first() == U2Region(29, 91),
                   QString("Selection doesn't match with 'B' annotation it is (%1, %2) instead of (29, 91).")
                       .arg(QString::number(selection.first().startPos))
-                      .arg(QString::number(selection.first().length))
-                  );
+                      .arg(QString::number(selection.first().length)));
     GTTreeWidget::doubleClick(os, GTUtilsAnnotationsTreeView::findItem(os, "C_group  (0, 1)"));
-    QPoint cCenter = GTUtilsAnnotationsTreeView::getItemCenter(os, "C");    
+    QPoint cCenter = GTUtilsAnnotationsTreeView::getItemCenter(os, "C");
     QPoint bjCenter = GTUtilsAnnotationsTreeView::getItemCenter(os, "B_joined");
     GTKeyboardDriver::keyPress(Qt::Key_Control);
     GTMouseDriver::moveTo(cCenter);
@@ -4312,6 +4312,154 @@ GUI_TEST_CLASS_DEFINITION(test_7842) {
 
     GTUtilsDialog::waitForDialog(os, new ConstructMoleculeDialogFiller(os, new Scenario()));
     GTMenu::clickMainMenuItem(os, {"Tools", "Cloning", "Construct molecule..."});
+}
+
+GUI_TEST_CLASS_DEFINITION(test_7850) {
+    GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/COI.aln");
+    GTUtilsMsaEditor::checkMsaEditorWindowIsActive(os);
+
+    GTUtilsBookmarksTreeView::addBookmark(os, "COI [COI.aln]", "my bookmark");
+
+    // Scroll MSA to the middle.
+    GTUtilsDialog::waitForDialog(os, new GoToDialogFiller(os, 550));
+    GTKeyboardDriver::keyClick('g', Qt::ControlModifier);
+
+    // Update start bookmark.
+    GTUtilsBookmarksTreeView::updateBookmark(os, "my bookmark");
+    int savedLeftOffset = GTUtilsMSAEditorSequenceArea::getFirstVisibleBaseIndex(os);
+
+    // Scroll MSA to the start.
+    GTUtilsDialog::waitForDialog(os, new GoToDialogFiller(os, 1));
+    GTKeyboardDriver::keyClick('g', Qt::ControlModifier);
+
+    // Expected state: click on the bookmark restores updated MSA position.
+    GTUtilsBookmarksTreeView::doubleClickBookmark(os, "my bookmark");
+
+    int restoredLeftOffset = GTUtilsMSAEditorSequenceArea::getFirstVisibleBaseIndex(os);
+    CHECK_SET_ERR(restoredLeftOffset == savedLeftOffset,
+                  QString("Bad offset: expected %1, current %2").arg(savedLeftOffset).arg(restoredLeftOffset));
+}
+
+GUI_TEST_CLASS_DEFINITION(test_7852) {
+    /*
+    1. Open samples/FASTA/human_T1.fa.
+    2. Open the "Statistics" tab, expand Codons.
+       Current state: AAA: 16 558.
+    3. Open the "Find pattern" tab, click on sequence, "Ctrl + A" -> "Go".
+    4. Open the "Statistics" tab.
+       Expected: AAA: 5 501.
+    5. Open the "Find pattern" tab, click on sequence, "Ctrl + A", set "Min" to 1, "Max" to 100 -> "Go".
+    6. Open the "Statistics" tab.
+       Expected: AAA: 4
+    */
+    GTFileDialog::openFile(os, dataDir + "samples/FASTA", "human_T1.fa");
+    GTUtilsSequenceView::checkSequenceViewWindowIsActive(os);
+
+    GTUtilsOptionPanelSequenceView::openTab(os, GTUtilsOptionPanelSequenceView::Statistics);
+
+    auto reportPanel = GTWidget::findWidget(os, "options_panel_codons_widget");
+    GTWidget::click(os, reportPanel);
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    QString codonsInfo = GTWidget::findWidgetByType<QLabel*>(os, reportPanel, "Failed to find label inside codons panel")->text();
+    CHECK_SET_ERR(codonsInfo.contains("<td><b>AAA:&nbsp;&nbsp;</b></td><td>16 558 &nbsp;&nbsp;</td>"), "Codons info does not contain desired string 'AAA: 16 558'");
+
+    GTUtilsOptionPanelSequenceView::openTab(os, GTUtilsOptionPanelSequenceView::Search);
+    GTUtilsDialog::add(os, new PopupChooser(os, {"Select", "Sequence region"}));
+    GTUtilsDialog::add(os, new SelectSequenceRegionDialogFiller(os, 1, 199950));
+    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "ADV_single_sequence_widget_0"));
+
+    GTUtilsOptionPanelSequenceView::openTab(os, GTUtilsOptionPanelSequenceView::Statistics);
+
+    reportPanel = GTWidget::findWidget(os, "options_panel_codons_widget");
+    GTWidget::click(os, reportPanel);
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    codonsInfo = GTWidget::findWidgetByType<QLabel*>(os, reportPanel, "Failed to find label inside codons panel")->text();
+    CHECK_SET_ERR(codonsInfo.contains("<td><b>AAA:&nbsp;&nbsp;</b></td><td>5 501 &nbsp;&nbsp;</td>"), "Codons info does not contain desired string 'AAA: 5 501'");
+
+    GTUtilsOptionPanelSequenceView::openTab(os, GTUtilsOptionPanelSequenceView::Search);
+    GTUtilsDialog::add(os, new PopupChooser(os, {"Select", "Sequence region"}));
+    GTUtilsDialog::add(os, new SelectSequenceRegionDialogFiller(os, 1, 100));
+    GTMenu::showContextMenu(os, GTWidget::findWidget(os, "ADV_single_sequence_widget_0"));
+
+    GTUtilsOptionPanelSequenceView::openTab(os, GTUtilsOptionPanelSequenceView::Statistics);
+
+    reportPanel = GTWidget::findWidget(os, "options_panel_codons_widget");
+    GTWidget::click(os, reportPanel);
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    codonsInfo = GTWidget::findWidgetByType<QLabel*>(os, reportPanel, "Failed to find label inside codons panel")->text();
+    CHECK_SET_ERR(codonsInfo.contains("<td><b>AAA:&nbsp;&nbsp;</b></td><td>4 &nbsp;&nbsp;</td>"), "Codons info does not contain desired string 'AAA: 4'");
+}
+
+GUI_TEST_CLASS_DEFINITION(test_7860) {
+    GTFileDialog::openFile(os, dataDir + "/samples/Newick/COI.nwk");
+    GTUtilsPhyTree::checkTreeViewerWindowIsActive(os);
+
+    // Press zoom out twice.
+    auto treeView = GTWidget::findWidget(os, "treeView");
+
+    GTUtilsPhyTree::clickZoomOutButton(os);
+    GTUtilsPhyTree::clickZoomOutButton(os);
+    QImage savedImage = GTWidget::getImage(os, treeView);
+
+    // Create a bookmark.
+    GTUtilsBookmarksTreeView::addBookmark(os, "Tree [COI.nwk]", "Zoom-2");
+    // Press Reset zoom.
+    GTUtilsPhyTree::clickZoom100Button(os);
+    // Double-click on the bookmark.
+    GTUtilsBookmarksTreeView::doubleClickBookmark(os, "Zoom-2");
+
+    QImage restoredImage = GTWidget::getImage(os, treeView);
+
+    // Expected: the tree is zoomed out twice.
+    CHECK_SET_ERR(restoredImage == savedImage, "Bookmarked image is not equal expected image")
+}
+
+GUI_TEST_CLASS_DEFINITION(test_7861) {
+    // Open COI.aln.
+    GTFileDialog::openFile(os, dataDir + "samples/CLUSTALW/COI.aln");
+    GTUtilsMsaEditor::checkMsaEditorWindowIsActive(os);
+
+    // Press PageDown.
+    GTKeyboardDriver::keyClick(Qt::Key_PageDown);
+
+    // Goto 1.
+    GTUtilsDialog::waitForDialog(os, new GoToDialogFiller(os, 1));
+    GTKeyboardDriver::keyClick('g', Qt::ControlModifier);
+
+    // Expected: position 1 is visible.
+    int leftOffset = GTUtilsMSAEditorSequenceArea::getFirstVisibleBaseIndex(os);
+    CHECK_SET_ERR(leftOffset == 0, QString("Bad offset: expected 0, current %1").arg(leftOffset));
+}
+
+GUI_TEST_CLASS_DEFINITION(test_7863) {
+    GTFileDialog::openFile(os, dataDir + "/samples/Newick/COI.nwk");
+    GTUtilsPhyTree::checkTreeViewerWindowIsActive(os);
+
+    // Switch "tree view" setting from "Default" to "Phylogram".
+    GTUtilsOptionPanelPhyTree::openTab(os);
+    auto treeView = GTWidget::findWidget(os, "treeView");
+    auto treeViewCombo = GTWidget::findComboBox(os, "treeViewCombo");
+
+    GTComboBox::selectItemByText(os, treeViewCombo, "Phylogram");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+    QImage savedImage = GTWidget::getImage(os, treeView);
+
+    // Create a bookmark.
+    GTUtilsBookmarksTreeView::addBookmark(os, "Tree [COI.nwk]", "Phylogram");
+
+    // Switch branch mode back to "Default".
+    GTComboBox::selectItemByText(os, treeViewCombo, "Default");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    // Activate the "Phylogram" bookmark.
+    GTUtilsBookmarksTreeView::doubleClickBookmark(os, "Phylogram");
+    QImage restoredImage = GTWidget::getImage(os, treeView);
+
+    // Expected: tree view is changed to "Phylogram"
+    CHECK_SET_ERR(restoredImage == savedImage, "Bookmarked image is not equal expected image")
 }
 
 }  // namespace GUITest_regression_scenarios

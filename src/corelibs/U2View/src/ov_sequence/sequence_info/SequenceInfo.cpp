@@ -290,7 +290,7 @@ void SequenceInfo::updateCommonStatisticsData(const DNAStatistics& commonStatist
         statsInfo += formTableRow(QString("&nbsp;").repeated(4) + CAPTION_SEQ_NMOLE_OD, getValue(QString::number(commonStatistics.dsOd260AmountOfSubstance, 'f', 2), isValid), availableSpace);
         statsInfo += formTableRow(QString("&nbsp;").repeated(4) + CAPTION_SEQ_MG_OD, getValue(QString::number(commonStatistics.dsOd260Mass, 'f', 2), isValid), availableSpace);
     } else if (alphabet->isAmino()) {
-        statsInfo += formTableRow(CAPTION_SEQ_AMINO_MOLECULAR_WEIGHT, getValue(QString::number(commonStatistics.ssMolecularWeight, 'f', 2), isValid), availableSpace);
+        statsInfo += formTableRow(CAPTION_SEQ_AMINO_MOLECULAR_WEIGHT, getValue(QString::number(commonStatistics.ssMolecularWeight, 'f', 2) + tr(" gram/mol"), isValid), availableSpace);
         statsInfo += formTableRow(CAPTION_SEQ_ISOELECTIC_POINT, getValue(QString::number(commonStatistics.isoelectricPoint, 'f', 2), isValid), availableSpace);
     }
 
@@ -605,7 +605,7 @@ void SequenceInfo::launchCalculations(const QString& subgroupId) {
     }
 
     if (subgroupId.isEmpty() || subgroupId == CODON_OCCUR_GROUP_ID || subgroupId == AMINO_ACID_OCCUR_GROUP_ID) {
-        bool isCodonReportOpened = codonWidget->isVisible() && codonWidget->isSubgroupOpened();
+        bool isCodonReportOpened = activeContext->getAlphabet()->isNucleic() && codonWidget->isSubgroupOpened();
         bool isAminoAcidReportOpened = aminoAcidWidget->isVisible() && aminoAcidWidget->isSubgroupOpened();
         if (isCodonReportOpened || isAminoAcidReportOpened) {
             if (isCodonReportOpened) {

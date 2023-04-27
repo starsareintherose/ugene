@@ -20,9 +20,11 @@
  */
 
 #include <base_dialogs/GTFileDialog.h>
+#include <drivers/GTKeyboardDriver.h>
 #include <primitives/GTAction.h>
 #include <primitives/GTToolbar.h>
 #include <primitives/GTWidget.h>
+#include <system/GTFile.h>
 
 #include "runnables/ugene/plugins_3rdparty/primer3/Primer3DialogFiller.h"
 #include "GTTestsCommonScenariosPrimer3.h"
@@ -478,6 +480,75 @@ GUI_TEST_CLASS_DEFINITION(test_0022) {
     CHECK_SET_ERR(seq == "TAAGGATTT", QString("Expected right_end_seq: TAAGGATTT, current: %1").arg(seq));
     CHECK_SET_ERR(strand == "rev-compl", QString("Expected right_end_strand: rev-compl, current: %1").arg(seq));
     CHECK_SET_ERR(type == "sticky", QString("Expected right_end_type: sticky, current: %1").arg(seq));
+}
+
+GUI_TEST_CLASS_DEFINITION(test_0023) {
+    // Open sequence
+    // Set incorrect values for all possible parameters
+    //
+    GTFileDialog::openFile(os, testDir + "_common_data/primer3", "human.fa");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    Primer3DialogFiller::Primer3Settings settings;
+    settings.filePath = testDir + "_common_data/primer3/input/test_0023.txt";
+    settings.loadManually = false;
+    settings.rtPcrDesign = true;
+    settings.exonRangeLine = "qwerty";
+    settings.hasValidationErrors = true;
+    settings.validationErrorsText = "19 parameter(s) have an incorrect value(s), pay attention on red widgets.";
+    settings.errorWidgetsNames = QStringList{ "edit_SEQUENCE_PRIMER",
+                                              "edit_SEQUENCE_INTERNAL_OLIGO",
+                                              "edit_SEQUENCE_PRIMER_REVCOMP",
+                                              "edit_SEQUENCE_OVERHANG_LEFT" ,
+                                              "edit_SEQUENCE_OVERHANG_RIGHT" ,
+                                              "edit_SEQUENCE_TARGET" ,
+                                              "edit_SEQUENCE_OVERLAP_JUNCTION_LIST" ,
+                                              "edit_SEQUENCE_EXCLUDED_REGION" ,
+                                              "edit_SEQUENCE_PRIMER_PAIR_OK_REGION_LIST" ,
+                                              "edit_SEQUENCE_INCLUDED_REGION" ,
+                                              "edit_PRIMER_MUST_MATCH_FIVE_PRIME" ,
+                                              "edit_PRIMER_INTERNAL_MUST_MATCH_FIVE_PRIME" ,
+                                              "edit_PRIMER_MUST_MATCH_THREE_PRIME" ,
+                                              "edit_PRIMER_INTERNAL_MUST_MATCH_THREE_PRIME" ,
+                                              "edit_PRIMER_PRODUCT_SIZE_RANGE" ,
+                                              "edit_SEQUENCE_INTERNAL_EXCLUDED_REGION" ,
+                                              "edit_SEQUENCE_INTERNAL_OVERLAP_JUNCTION_LIST",
+                                              "edit_SEQUENCE_QUALITY",
+                                              "edit_exonRange" };
+
+    GTUtilsDialog::add(os, new Primer3DialogFiller(os, settings));
+    GTToolbar::clickButtonByTooltipOnToolbar(os, MWTOOLBAR_ACTIVEMDI, "Primer3");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+
+}
+
+GUI_TEST_CLASS_DEFINITION(test_0024) {
+    GTFileDialog::openFile(os, testDir + "_common_data/primer3", "human.fa");
+    GTUtilsTaskTreeView::waitTaskFinished(os);
+    Primer3DialogFiller::Primer3Settings settings;
+    settings.filePath = testDir + "_common_data/primer3/input/test_0024.txt";
+    settings.loadManually = false;
+    settings.notRun = true;
+    GTUtilsDialog::add(os, new Primer3DialogFiller(os, settings));
+    GTToolbar::clickButtonByTooltipOnToolbar(os, MWTOOLBAR_ACTIVEMDI, "Primer3");
+
+    class Scenario : public Filler {
+    public:
+        Scenario(HI::GUITestOpStatus& _os)
+            : Filler(_os, "Primer3Dialog") {
+        }
+        void run() override {
+            QWidget* dialog = GTWidget::getActiveModalWidget(os);
+            GTUtilsDialog::add(os, new GTFileDialogUtils(os, sandBoxDir, "test_0024.txt", GTFileDialogUtils::Save));
+            GTWidget::click(os, GTWidget::findWidget(os, "saveSettingsButton", dialog));
+            GTWidget::click(os, GTWidget::findWidget(os, "closeButton", dialog));
+        }
+    };
+
+    GTUtilsDialog::add(os, new Scenario(os));
+    GTToolbar::clickButtonByTooltipOnToolbar(os, MWTOOLBAR_ACTIVEMDI, "Primer3");
+
+    CHECK_SET_ERR(GTFile::equals(os, sandBoxDir + "test_0024.txt", testDir + "_common_data/primer3/input/test_0024.txt", true), "Settings are not equal");
 }
 
 
