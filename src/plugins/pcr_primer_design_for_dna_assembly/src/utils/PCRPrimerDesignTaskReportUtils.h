@@ -22,6 +22,7 @@
 #ifndef _U2_PCR_PRIMER_DESIGN_TASK_REPORT_UTILS_H_
 #define _U2_PCR_PRIMER_DESIGN_TASK_REPORT_UTILS_H_
 
+#include <QCoreApplication>
 #include <QStringList>
 
 namespace U2 {
@@ -36,6 +37,8 @@ struct PCRPrimerDesignTaskReportUtils {
     // Returns PCRPrimerDesignForDNAAssemblyTask report. fileSequence must not be empty.
     static QString generateReport(const PCRPrimerDesignForDNAAssemblyTask &task, const QByteArray &fileSequence,
                                   const QByteArray &revComplSeq, const UserPrimersReports &reports);
+    Q_DECLARE_TR_FUNCTIONS(PCRPrimerDesignTaskReportUtils)
+
 
 private:
     /**

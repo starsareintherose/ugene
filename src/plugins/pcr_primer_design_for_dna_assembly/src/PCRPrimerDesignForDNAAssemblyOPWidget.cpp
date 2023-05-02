@@ -425,6 +425,7 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::createResultAnnotations() {
     const CreateAnnotationModel& model = annWgtController->getModel();
     auto ato = model.getAnnotationObject();
 
+    const auto& settings = pcrTask->getSettings();
     QMap<QString, QList<SharedAnnotationData>> resultAnnotations;
     auto results = pcrTask->getResults();
     for (int i = 0; i < results.size(); i++) {
@@ -432,14 +433,53 @@ void PCRPrimerDesignForDNAAssemblyOPWidget::createResultAnnotations() {
         CHECK_CONTINUE(!regions.first.isEmpty());
 
         QList<SharedAnnotationData> annotations;
-        auto createAnnotation = [](const U2Region& region, U2Strand strand) -> SharedAnnotationData {
+        auto createAnnotation = [&settings](const U2Region& region, U2Strand::Direction strand) -> SharedAnnotationData {
             SharedAnnotationData data(new AnnotationData());
             data->setStrand(strand);
             data->name = "pcr_design_primers";
             data->type = U2FeatureTypes::Primer;
             data->location->regions.append(region);
-            //U2Qualifier les("left_end_seq",
-            //data->qualifiers
+
+            QString strandType;
+            QString overhang;
+            QString endType;
+            QString side;
+            switch (strand) {
+            case U2Strand::Direction::Direct:
+                switch (settings.insertTo) {
+                case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang3:
+                    strandType = "direct";
+                    break;
+                case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang5:
+                    strandType = "rev-compl";
+                    break;
+                }
+                overhang = settings.leftPrimerOverhang;
+                endType = settings.leftPrimerOverhang.isEmpty() ? "blunt" : "sticky";
+                side = "left";
+                break;
+            case U2Strand::Direction::Complementary:
+                switch (settings.insertTo) {
+                case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang3:
+                    strandType = "rev-compl";
+                    break;
+                case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang5:
+                    strandType = "direct";
+                    break;
+                }
+                overhang = settings.rightPrimerOverhang;
+                endType = settings.rightPrimerOverhang.isEmpty() ? "blunt" : "sticky";
+                side = "right";
+                break;
+            }
+
+            data->qualifiers.append(U2Qualifier(side + "_end_type", endType));
+            if (!overhang.isEmpty()) {
+                data->qualifiers.append(U2Qualifier(side + "_end_type", strandType));
+                data->qualifiers.append(U2Qualifier(side + "_end_type", overhang));
+
+            }
+
             return data;
         };
         annotations << createAnnotation(regions.first, U2Strand::Direct);

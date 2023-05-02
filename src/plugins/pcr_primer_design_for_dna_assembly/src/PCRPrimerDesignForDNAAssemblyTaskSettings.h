@@ -59,8 +59,6 @@ struct PCRPrimerDesignForDNAAssemblyTaskSettings {
     OverhangConnection insertTo = OverhangConnection::Primer5Overhang3;
     QString leftPrimerOverhang;
     QString rightPrimerOverhang;
-    int bachbone5Length = 0;
-    int bachbone3Length = 0;
 
     //Areas
     U2Region leftArea;

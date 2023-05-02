@@ -21,6 +21,7 @@
 
 #include "PCRPrimerDesignTaskReportUtils.h"
 
+#include <U2Core/DNASequenceUtils.h>
 #include <U2Core/U2SafePoints.h>
 
 #include "../PCRPrimerDesignForDNAAssemblyPlugin.h"
@@ -106,53 +107,82 @@ static QString checkPrimerAndGetInfo(const U2Region region, const QString &prime
  */
 static QString primersInfo(const PCRPrimerDesignForDNAAssemblyTask &task,
                            const QByteArray &sequence,
-                           const QByteArray &revComplSeq,
+                           const QByteArray &,
                            const PCRPrimerDesignTaskReportUtils::UserPrimersReports &reports) {
     SAFE_POINT(!sequence.isEmpty(), "Empty sequence", errMsg())
 
-    const QStringList &primersNames = PCRPrimerDesignForDNAAssemblyTask::FRAGMENT_INDEX_TO_NAME;
-    //TODO
-    QList<U2Region> regions /*= task.getResults()*/;
-    return QString();
-    SAFE_POINT(regions.size() == primersNames.size(),
-               QString("The number of resulting primers (%1) isn't equal to the number of primer names (%2)")
-                   .arg(regions.size())
-                   .arg(primersNames.size()),
-               errMsg())
+    const auto& regions = task.getResults();
+    CHECK(!regions.isEmpty(), QString());
 
-    bool primersNotFound = std::all_of(regions.begin(), regions.end(), [](U2Region r) { return r.isEmpty(); });
-    bool areUserPrimersBad = !hasUserPrimers(task.getSettings()) || reports.hasUnwantedConnections();
-    if (primersNotFound && areUserPrimersBad) {
-        return PCRPrimerDesignForDNAAssemblyPlugin::tr("<p>There are no primers that meet the specified parameters."
-                                                       "</p>");
+    QString preview;
+
+    preview += "Legend: <b>overhang</b>, <u>primer</u>";
+    preview += "<br>";
+    preview += "<br>";
+
+    const auto& settings = task.getSettings();
+
+    for (int i = 0; i < regions.size(); i++) {
+        const auto& resultRegions = regions.at(i);
+        CHECK_CONTINUE(!resultRegions.first.isEmpty());
+
+        const auto settings = task.getSettings();
+        preview += PCRPrimerDesignTaskReportUtils::tr("Primer name: <b>") + PCRPrimerDesignForDNAAssemblyTask::FRAGMENT_INDEX_TO_NAME.at(i) + "</b><br>";
+
+        QString uLeftOverhang, bLeftOverhang, uRightOverhang, bRightOverhang;
+        if (!settings.leftPrimerOverhang.isEmpty()) {
+            switch (settings.insertTo) {
+            case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang3:
+                uLeftOverhang = settings.leftPrimerOverhang.toUpper();
+                break;
+            case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang5:
+                bLeftOverhang = settings.leftPrimerOverhang.toUpper();
+                break;
+            }
+        }
+
+        if (!settings.rightPrimerOverhang.isEmpty()) {
+            switch (settings.insertTo) {
+            case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang3:
+                bRightOverhang = settings.rightPrimerOverhang.toUpper();
+                break;
+            case PCRPrimerDesignForDNAAssemblyTaskSettings::OverhangConnection::Primer5Overhang5:
+                uRightOverhang = settings.rightPrimerOverhang.toUpper();
+                break;
+            }
+        }
+        uLeftOverhang = "<b>" + uLeftOverhang + "</b>";
+        bLeftOverhang = "<b>" + bLeftOverhang + "</b>";
+        uRightOverhang = "<b>" + uRightOverhang + "</b>";
+        bRightOverhang = "<b>" + bRightOverhang + "</b>";
+
+        preview += "<table cellspacing=\"10\" >";
+        preview += "<tr> <td align=\"center\"> 5' </td><td></td><td></td><td></td> <td align=\"center\"> 3' </td> </tr>";
+
+        auto first = sequence.mid(resultRegions.first.startPos, resultRegions.first.length);
+        auto firstReverse = DNASequenceUtils::reverseComplement(first);
+        auto firstString = QString("<u>" + first + "</u>");
+        auto second = sequence.mid(resultRegions.second.startPos, resultRegions.second.length);
+        auto secondReverse = DNASequenceUtils::reverseComplement(second);
+        auto secondReverseString = QString("<u>" + secondReverse + "</u>");
+
+        static constexpr int MID_SIZE = 4;
+        auto midLeft = sequence.mid(resultRegions.first.endPos(), MID_SIZE);
+        auto midLeftReverse = DNASequenceUtils::reverseComplement(midLeft);
+        auto midRight = sequence.mid(resultRegions.second.startPos - MID_SIZE, MID_SIZE);
+        auto midRightReverse = DNASequenceUtils::reverseComplement(midRight);
+        auto midForward = midLeft + "..." + midRight;
+        auto midReverse = midLeftReverse + "..." + midRightReverse;
+
+        preview += QString("<tr> <td align=\"center\" >%1</td><td nowrap align=\"center\" >%2</td><td align=\"center\" >%3</td><td align=\"center\" >%4</td><td align=\"center\" >%5</td> </tr>").arg(uLeftOverhang).arg(firstString).arg(QString(midForward)).arg(QString(second)).arg(uRightOverhang);
+        preview += QString("<tr> <td align=\"center\" >%1</td><td align=\"center\" >%2</td><td align=\"center\" >%3</td><td align=\"center\" >%4</td><td align=\"center\" >%5</td> </tr>").arg(bLeftOverhang).arg(QString(firstReverse)).arg(QString(midReverse)).arg(secondReverseString).arg(bRightOverhang);
+        preview += "<tr> <td align=\"center\"> 3' </td><td></td><td></td><td></td> <td align=\"center\"> 5' </td> </tr>";
+        preview += ("</table>");
+        preview += "<br>";
+        preview += "<br>";
     }
 
-    QString ans;
-    // Desciption.
-    ans += PCRPrimerDesignForDNAAssemblyPlugin::tr("<h3>Details:</h3>"
-                                                   "<p>"
-                                                   "<u>Underlined</u>&#8211;backbone sequence&#59;<br>"
-                                                   "<b>Bold</b>&#8211;primer sequence."
-                                                   "</p>");
-
-    QString backbone = task.getBackboneSequence().isEmpty() ? task.getBackboneSequence() : "<u>" +
-        task.getBackboneSequence() + "</u>";
-
-    // Result primers.
-    for (int i = 0; i + 1 < regions.size(); i += 2) {
-        QVector<U2Region> reverseRegion = {regions[i + 1]};
-        U2Region::mirror(sequence.size(), reverseRegion);
-        ans += checkPrimerAndGetInfo(regions[i], primersNames[i], true, sequence, backbone);
-        ans += checkPrimerAndGetInfo(reverseRegion.first(), primersNames[i + 1], false, revComplSeq, backbone);
-    }
-    // User primers.
-    if (!areUserPrimersBad) {
-        ans += primerHeader("C Forward");
-        ans += primerToHtml(task.getSettings().forwardUserPrimer);
-        ans += primerHeader("C Reverse");
-        ans += primerToHtml(task.getSettings().reverseUserPrimer);
-    }
-    return ans;
+    return preview;
 }
 
 /**
