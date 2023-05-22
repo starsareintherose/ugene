@@ -221,6 +221,10 @@ GUI_TEST_CLASS_DEFINITION(test_1003) {
     public:
         void run(HI::GUITestOpStatus& os) override {
             QWidget* dialog = GTWidget::getActiveModalWidget(os);
+
+            GTUtilsDialog::waitForDialog(os, new GTFileDialogUtils(os, testDir + "_common_data/archive/2013_08_01.bairoch.gz"));
+            GTWidget::click(os, GTWidget::findWidget(os, "enzymesFileButton", dialog));
+
             auto enzymesSelectorWidget = GTWidget::findWidget(os, "enzymesSelectorWidget");
             GTWidget::click(os, GTWidget::findWidget(os, "selectAllButton", enzymesSelectorWidget));
 
@@ -2477,7 +2481,7 @@ GUI_TEST_CLASS_DEFINITION(test_1249) {
     // 1. Open human_T1.fa.
     // 2. Use menu {Analyze->Find restriction sites}.
     // 3. Press "Enzymes file.."
-    // 4. Select file "data\enzymes\2013_08_01.bairoch.gz".
+    // 4. Select file "_common_data\archive\2013_08_01.bairoch.gz".
     // Expected state: total number of enzymes is 4862(Enzymes with unknown sequence field are removed from list)
 
     GTFileDialog::openFile(os, dataDir + "samples/FASTA", "human_T1.fa");
@@ -2487,6 +2491,8 @@ GUI_TEST_CLASS_DEFINITION(test_1249) {
     public:
         virtual void run(HI::GUITestOpStatus& os) {
             QWidget* dialog = GTWidget::getActiveModalWidget(os);
+            GTUtilsDialog::waitForDialog(os, new GTFileDialogUtils(os, testDir + "_common_data/archive/2013_08_01.bairoch.gz"));
+            GTWidget::click(os, GTWidget::findWidget(os, "enzymesFileButton", dialog));
             auto totalNumberOfEnzymesLabel = GTWidget::findLabel(os, "statusLabel");
             QString labelText = totalNumberOfEnzymesLabel->text();
             QString s = QString("4862");
@@ -3044,7 +3050,7 @@ GUI_TEST_CLASS_DEFINITION(test_1300_2) {
 
     //    4. Right click to the COI document in the project view, select {Open view->Open new view: alignment editor} from the context menu.
     //    Expected state: there are two MSA Editors (the second one is active) and no sequence views.
-    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open view", "Open new view: Multiple Alignment Editor"}));
+    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open In", "Open new view: Multiple Alignment Editor"}));
     GTUtilsProjectTreeView::click(os, "COI.aln", Qt::RightButton);
 
     msaEditorIsVisible = GTUtilsMdi::isAnyPartOfWindowVisible(os, "COI [COI.aln]");
@@ -4213,7 +4219,7 @@ GUI_TEST_CLASS_DEFINITION(test_1457) {
     //    Expected state: navigation tool is disabled.
     QToolBar* mwtoolbar_activemdi = GTToolbar::getToolbar(os, MWTOOLBAR_ACTIVEMDI);
     auto go_to_pos_line_edit = GTWidget::findWidget(os, "go_to_pos_line_edit", mwtoolbar_activemdi);
-    auto go = GTWidget::findWidget(os, "Go!", mwtoolbar_activemdi);
+    auto go = GTWidget::findWidget(os, "goButton", mwtoolbar_activemdi);
     CHECK_SET_ERR(!go_to_pos_line_edit->isEnabled(), "go_to_pos_line_edit on toolbar is enabled");
     CHECK_SET_ERR(!go->isEnabled(), "go button on toolbar is enabled");
     //    3. Open navigation tab on the options panel.
@@ -4221,7 +4227,7 @@ GUI_TEST_CLASS_DEFINITION(test_1457) {
     //    Expected state: navigation tool on the options panel is disabled.
     auto OP_OPTIONS_WIDGET = GTWidget::findWidget(os, "OP_OPTIONS_WIDGET");
     auto go_to_pos_line_edit_op = GTWidget::findWidget(os, "go_to_pos_line_edit", OP_OPTIONS_WIDGET);
-    auto go_op = GTWidget::findWidget(os, "Go!", OP_OPTIONS_WIDGET);
+    auto go_op = GTWidget::findWidget(os, "goButton", OP_OPTIONS_WIDGET);
     CHECK_SET_ERR(!go_to_pos_line_edit_op->isEnabled(), "go_to_pos_line_edit on option panel is enabled");
     CHECK_SET_ERR(!go_op->isEnabled(), "go button on option panel is enabled");
     //    4. Zoom to any location.
@@ -4634,7 +4640,7 @@ GUI_TEST_CLASS_DEFINITION(test_1499) {
     GTUtilsDialog::waitForDialog(os, new BuildTreeDialogFiller(os, new CustomBuildTreeDialogFiller()));
     GTWidget::click(os, GTAction::button(os, "Build Tree"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
-    GTUtilsOptionPanelMsa::openTab(os, GTUtilsOptionPanelMsa::TreeOptions);
+    GTUtilsOptionPanelMsa::closeTab(os, GTUtilsOptionPanelMsa::TreeOptions);
 
     // Expected: the tree appears synchronized with the MSA Editor.
     QAbstractButton* syncModeButton = GTAction::button(os, "sync_msa_action");

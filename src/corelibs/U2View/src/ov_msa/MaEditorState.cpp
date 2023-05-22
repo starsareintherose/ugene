@@ -21,7 +21,6 @@
 
 #include "MaEditorState.h"
 
-#include <U2Core/DNASequenceSelection.h>
 #include <U2Core/DocumentModel.h>
 #include <U2Core/MultipleSequenceAlignmentObject.h>
 
@@ -108,14 +107,21 @@ QVariantMap MaEditorState::saveState(MaEditor* v) {
         ss.setMaObjectRef(GObjectReference(maObj));
     }
 
-    auto wgt = qobject_cast<MSAEditor*>(v)->getMaEditorMultilineWgt();
-    SAFE_POINT(wgt != nullptr, "MaEditorWgt is NULL", QVariantMap());
-    MultilineScrollController* scrollController = wgt->getScrollController();
-    SAFE_POINT(scrollController != nullptr, "ScrollController is NULL", QVariantMap());
-
-    int firstBase = scrollController->getFirstVisibleBase();
-    int firstSeq = scrollController->getFirstVisibleMaRowIndex();
-
+    int firstBase;
+    int firstSeq;
+    auto maEditor = qobject_cast<MaEditor*>(v);
+    SAFE_POINT(maEditor != nullptr, "Not an MaEditor", {})
+    if (maEditor->isMultilineMode()) {
+        MaEditorMultilineWgt* multilineWidget = maEditor->getMaEditorMultilineWgt();
+        MultilineScrollController* scrollController = multilineWidget->getScrollController();
+        firstBase = scrollController->getFirstVisibleBase(true);
+        firstSeq = scrollController->getFirstVisibleMaRowIndex(true);
+    } else {
+        auto maEditorWgt = maEditor->getMaEditorWgt(0);
+        ScrollController* scrollController = maEditorWgt->getScrollController();
+        firstBase = scrollController->getFirstVisibleBase(true);
+        firstSeq = scrollController->getFirstVisibleMaRowIndex(true);
+    }
     ss.setFirstPos(firstBase);
     ss.setFirstSeq(firstSeq);
     ss.setFont(v->getFont());

@@ -496,14 +496,15 @@ GUI_TEST_CLASS_DEFINITION(test_5090) {
     //                    there are two annotations: 'just_an_annotation' (40..50) and 'join_complement' (join(10..15,20..25)). // the second one should have another location after UGENE-3423 will be done
 
     GTLogTracer lt;
-    GTUtilsNotifications::waitForNotification(os, false, "The file contains joined annotations with regions, located on different strands. All such joined parts will be stored on the same strand.");
 
     GTFileDialog::openFile(os, testDir + "_common_data/genbank/join_complement_ann.gb");
-    GTUtilsTaskTreeView::waitTaskFinished(os);
+    GTUtilsSequenceView::checkSequenceViewWindowIsActive(os);
+    GTUtilsNotifications::checkNotificationReportText(os, "The file contains joined annotations with regions, located on different strands. All such joined parts will be stored on the same strand.");
 
     CHECK_SET_ERR(lt.hasError("The file contains joined annotations with regions, located on different strands. All such joined parts will be stored on the same strand."), "Expected error not found");
 
     GTUtilsMdi::activateWindow(os, "A_SEQ_1 [join_complement_ann.gb]");
+    GTUtilsSequenceView::checkSequenceViewWindowIsActive(os);
 
     const QString simpleAnnRegion = GTUtilsAnnotationsTreeView::getAnnotationRegionString(os, "just_an_annotation");
     CHECK_SET_ERR("40..50" == simpleAnnRegion, QString("An incorrect annotation region: expected '%1', got '%2'").arg("40..50").arg(simpleAnnRegion));
@@ -910,7 +911,7 @@ GUI_TEST_CLASS_DEFINITION(test_5252) {
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
     //    2. Open an additional view for the sequence.
-    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open view", "Open new view: Sequence View"}));
+    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open In", "Open new view: Sequence View"}));
     GTUtilsProjectTreeView::click(os, "murine.gb", Qt::RightButton);
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
@@ -4460,7 +4461,7 @@ GUI_TEST_CLASS_DEFINITION(test_5842) {
 
     GTLogTracer lt;
     // 3. Open the view from the context menu.
-    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"Open View", "action_open_view"}));
+    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"openInMenu", "action_open_view"}));
     GTUtilsProjectTreeView::click(os, "alignment.ugenedb", Qt::RightButton);
 
     // Expected state: the view is opened without errors.
@@ -4559,11 +4560,10 @@ GUI_TEST_CLASS_DEFINITION(test_5851) {
     GTMenu::clickMainMenuItem(os, {"Tools", "Sanger data analysis", "Map reads to reference..."});
     GTUtilsTaskTreeView::waitTaskFinished(os);
 
-    CHECK_SET_ERR(lt.hasMessage("The task uses a temporary folder to process the data. "
-                                "The folder path is required not to have spaces. "
-                                "Please set up an appropriate path for the \"Temporary files\" "
-                                "parameter on the \"Directories\" tab of the UGENE Application Settings."),
-                  "Expected message not found");
+
+    CHECK_SET_ERR(lt.hasMessage("Your \"Temporary files\" directory contains spaces, \"makeblastdb\" external tool can't correct process it."
+                                " Please change it in Preferences on the Directories page, restart UGENE and try again. Current problem path is:"),
+                                "Expected message not found");
 }
 
 GUI_TEST_CLASS_DEFINITION(test_5853) {

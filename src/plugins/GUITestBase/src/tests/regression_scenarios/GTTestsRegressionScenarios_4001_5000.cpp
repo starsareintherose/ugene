@@ -3126,20 +3126,20 @@ GUI_TEST_CLASS_DEFINITION(test_4522) {
     QImage rectDefaultImage = GTUtilsPhyTree::captureTreeImage(os);
 
     GTUtilsOptionPanelPhyTree::changeTreeLayout(os, "Circular");
-    GTUtilsOptionPanelPhyTree::checkTreeType(os, "Default");
+    GTUtilsOptionPanelPhyTree::checkBranchDepthScaleMode(os, "Default");
     QImage circularDefaultImage = GTUtilsPhyTree::captureTreeImage(os);
     CHECK_SET_ERR(circularDefaultImage != rectDefaultImage, "circularDefaultImage != rectDefaultImage check failed");
 
-    GTUtilsOptionPanelPhyTree::changeTreeType(os, "Cladogram");
+    GTUtilsOptionPanelPhyTree::changeBranchDepthScaleMode(os, "Cladogram");
     QImage circularCladogramImage = GTUtilsPhyTree::captureTreeImage(os);
     CHECK_SET_ERR(circularCladogramImage != circularDefaultImage, "circularCladogramImage != circularDefaultImage check failed");
 
     GTUtilsOptionPanelPhyTree::changeTreeLayout(os, "Unrooted");
-    GTUtilsOptionPanelPhyTree::checkTreeType(os, "Cladogram");
+    GTUtilsOptionPanelPhyTree::checkBranchDepthScaleMode(os, "Cladogram");
     QImage unrootedCladogramImage = GTUtilsPhyTree::captureTreeImage(os);
     CHECK_SET_ERR(unrootedCladogramImage != circularCladogramImage, "unrootedCladogramImage != circularCladogramImage check failed");
 
-    GTUtilsOptionPanelPhyTree::changeTreeType(os, "Default");
+    GTUtilsOptionPanelPhyTree::changeBranchDepthScaleMode(os, "Default");
     QImage unrootedDefaultImage = GTUtilsPhyTree::captureTreeImage(os);
     CHECK_SET_ERR(unrootedDefaultImage != unrootedCladogramImage, "unrootedDefaultImage != unrootedCladogramImage check failed");
 }
@@ -3281,6 +3281,8 @@ GUI_TEST_CLASS_DEFINITION(test_4557) {
 
     GTWidget::click(os, GTWidget::findWidget(os, "findProductButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
+
+    GTWidget::click(os, GTWidget::findWidget(os, "ArrowHeader_Settings"));
 
     GTWidget::click(os, GTWidget::findWidget(os, "extractProductButton"));
     GTUtilsTaskTreeView::waitTaskFinished(os);
@@ -3793,7 +3795,7 @@ GUI_TEST_CLASS_DEFINITION(test_4676_1) {
     GTUtilsMdi::click(os, GTGlobals::Close);
 
     // Open the view again.
-    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"Open View", "action_open_view"}));
+    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"openInMenu", "action_open_view"}));
     GTUtilsProjectTreeView::click(os, "COI.aln", Qt::RightButton);
 
     // Expected state: undo action is enabled.
@@ -3824,7 +3826,7 @@ GUI_TEST_CLASS_DEFINITION(test_4676_2) {
     GTUtilsMdi::click(os, GTGlobals::Close);
 
     // Open the view again.
-    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"Open View", "action_open_view"}));
+    GTUtilsDialog::waitForDialog(os, new PopupChooser(os, {"openInMenu", "action_open_view"}));
     GTUtilsProjectTreeView::click(os, "COI.aln", Qt::RightButton);
 
     // Expected state: redo action is enabled.

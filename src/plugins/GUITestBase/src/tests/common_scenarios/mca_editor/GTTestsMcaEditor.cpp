@@ -397,8 +397,8 @@ GUI_TEST_CLASS_DEFINITION(test_0003) {
     //    9. Close active view
     GTUtilsMdi::closeActiveWindow(os);
 
-    //    10. Select "Open view" from context menu and select "Open new view: "Sanger Reads Editor" from context view
-    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open view", "Open new view: Sanger Reads Editor"}, GTGlobals::UseMouse));
+    //    10. Select "Open In" from context menu and select "Open new view: "Sanger Reads Editor" from context view
+    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open In", "Open new view: Sanger Reads Editor"}, GTGlobals::UseMouse));
     GTUtilsProjectTreeView::callContextMenu(os, "Mapped reads");
 
     //    Expected state:  Chromatogram sanger view is opened
@@ -3238,7 +3238,7 @@ GUI_TEST_CLASS_DEFINITION(test_0041) {
     GTFileDialog::openFile(os, filePath);
     GTUtilsMcaEditor::checkMcaEditorWindowIsActive(os);
     GTUtilsTaskTreeView::waitTaskFinished(os);
-    GTUtilsOptionPanelMca::openTab(os, GTUtilsOptionPanelMca::General);
+    GTUtilsProjectTreeView::toggleView(os);
 
     //    Expected state: Line: - / 16; RefPos: - / 11878; ReadPos: - / -.
     QString rowNumberString = GTUtilsMcaEditorStatusWidget::getRowNumberString(os);
@@ -3551,6 +3551,8 @@ GUI_TEST_CLASS_DEFINITION(test_0044) {
     // Collapse the chromatogram view.
     GTKeyboardDriver::keyClick(Qt::Key_Left);
 
+    GTKeyboardDriver::keyClick(Qt::Key_Escape);
+
     QWidget* sequenceAreaWidget = GTUtilsMcaEditor::getSequenceArea(os);
 
     // Check that sequence area cell contains a text character up until the cell size is > 7px.
@@ -3580,6 +3582,7 @@ GUI_TEST_CLASS_DEFINITION(test_0044) {
         GTUtilsMcaEditor::zoomOut(os);
         GTUtilsMcaEditor::clickReadName(os, 1);
         GTKeyboardDriver::keyClick(Qt::Key_Space);
+        GTKeyboardDriver::keyClick(Qt::Key_Escape);
     }
 }
 
@@ -3704,7 +3707,7 @@ GUI_TEST_CLASS_DEFINITION(test_0045_3) {
     GTUtilsOptionPanelMca::showAlternativeMutations(os, true, 90, true);
 
     // 3. Open view it the other window
-    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open view", "Open new view: Sanger Reads Editor"}, GTGlobals::UseMouse));
+    GTUtilsDialog::waitForDialog(os, new PopupChooserByText(os, {"Open In", "Open new view: Sanger Reads Editor"}, GTGlobals::UseMouse));
     GTUtilsProjectTreeView::callContextMenu(os, "Mapped reads");
 
     // 4. Open the "Reads" tab, check "Show alternative mutations", set threshold to 80 by spinbox and click "Update"
